@@ -9,6 +9,7 @@ import androidx.compose.ui.Modifier
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
+import androidx.navigation.compose.currentBackStackEntryAsState
 import com.example.saftyapp.presentation.HomeScreen
 import com.example.saftyapp.presentation.MenuDrawer
 import com.example.saftyapp.presentation.TestSafty
@@ -20,11 +21,15 @@ fun Navigation(modifier: Modifier = Modifier) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
 
+    // Make current route observable
+    val navBackStackEntry = navController.currentBackStackEntryAsState()
+    val currentRoute = navBackStackEntry.value?.destination?.route ?: Screens.HomeScreen.route
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
             MenuDrawer(
-                currentRoute = navController.currentBackStackEntry?.destination?.route ?: "home",
+                currentRoute = currentRoute,
                 navigateToHome = { navController.navigate(Screens.HomeScreen.route) },
                 navigateToRecipes = { navController.navigate(Screens.RecipeScreen.route) },
                 navigateToArchive = { navController.navigate(Screens.ArchiveScreen.route) },
