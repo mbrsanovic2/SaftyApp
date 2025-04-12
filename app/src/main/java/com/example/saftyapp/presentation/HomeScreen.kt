@@ -1,8 +1,12 @@
 package com.example.saftyapp.presentation
 
+import android.graphics.Paint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
+import androidx.compose.foundation.lazy.LazyColumn
+import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
 import androidx.compose.material3.BottomAppBar
@@ -10,6 +14,7 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
@@ -17,6 +22,8 @@ import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.clip
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
@@ -34,10 +41,10 @@ fun HomeScreen(
             TopAppBar(
                 title = {
                     SaftyAppLogo(
-                            modifier = Modifier
-                                .height(40.dp)
-                                .padding(start = 27.dp)
-                        )
+                        modifier = Modifier
+                            .height(40.dp)
+                            .padding(start = 27.dp)
+                    )
 
                 },
                 navigationIcon = {
@@ -50,26 +57,36 @@ fun HomeScreen(
                 }
             )
         },
-        /*bottomBar = {
+        bottomBar = {
             BottomAppBar(
-                containerColor = MaterialTheme.colorScheme.primaryContainer,
+                modifier = Modifier.height(80.dp),
+                containerColor = MaterialTheme.colorScheme.background
             ) {
-                Button(
-                    onClick = {
-                        Log.i("Button", "Submit button clicked")
-                    },
+                Column(
                     modifier = Modifier
                         .fillMaxWidth()
-                        .padding(horizontal = 10.dp)
+                        .padding(horizontal = 16.dp, vertical = 8.dp)
                 ) {
-                    Text(
-                        text = "Submit",
-                        style = MaterialTheme.typography.labelLarge,
-                        color = MaterialTheme.colorScheme.onPrimaryContainer
+                    Row(
+                        modifier = Modifier.fillMaxWidth(),
+                        horizontalArrangement = Arrangement.SpaceBetween
+                    ) {
+                        Text("XP Level 10", style = MaterialTheme.typography.titleMedium)
+                        Text("Advanced Juicy Maker", style = MaterialTheme.typography.titleMedium)
+                    }
+
+                    Spacer(modifier = Modifier.height(4.dp))
+
+                    LinearProgressIndicator(
+                        progress = { 0.6f },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(6.dp)
+                            .clip(RoundedCornerShape(3.dp)),
                     )
                 }
             }
-        }*/
+        }
     ) { innerPadding ->
         Column(
             modifier = Modifier
@@ -77,12 +94,48 @@ fun HomeScreen(
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Text(
-                text = "Welcome to Safty App",
-                style = MaterialTheme.typography.headlineSmall
-            )
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(400.dp),
+                contentAlignment = Alignment.Center
+            ) {
+                Image(
+                    painterResource(R.drawable.safty_icon),
+                    contentDescription = "Safty",
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(16.dp),
+                    contentScale = ContentScale.Fit
+                )
+            }
+
             Spacer(modifier = Modifier.height(16.dp))
-            // TODO Inhalt einfügen
+
+            Button(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = { Log.i("Button", "Mix is clicked") } // TODO
+            ) {
+                Text("Mix it!")
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+            ) {
+                // TODO
+                items(listOf("Salt", "Pepper", "Oil")) { ingredient ->
+                    Text("- $ingredient")
+                }
+            }
+
+            //Spacer(modifier = Modifier.height(16.dp))
+
+
         }
     }
 }
