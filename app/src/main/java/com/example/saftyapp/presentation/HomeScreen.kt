@@ -2,12 +2,18 @@ package com.example.saftyapp.presentation
 
 import android.util.Log
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.background
+import androidx.compose.foundation.border
+import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.GridCells
+import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
+import androidx.compose.foundation.lazy.grid.items
+import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.outlined.Menu
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.BottomAppBar
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -19,9 +25,12 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.remember
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -35,10 +44,27 @@ fun HomeScreen(
     modifier: Modifier,
     onOpenDrawer: () -> Unit
 ) {
-    var xpTotal: Int = 30 // TODO Wert von DB holen
-    var xpCurrent: Int = 8 // TODO Wert von DB holen
-    var xpLevel: Int = 3 // TODO Wert von DB holen
-    var hasTitle: Boolean = true // TODO Wert von DB holen
+    val xpTotal: Int = 30 // TODO Wert von DB holen
+    val xpCurrent: Int = 8 // TODO Wert von DB holen
+    val xpLevel: Int = 3 // TODO Wert von DB holen
+    val hasTitle: Boolean = true // TODO Wert von DB holen
+    val ingredients: List<String> = listOf(
+        "Lemon Juice",
+        "Lime Juice",
+        "Simple Syrup",
+        "Mint Leaves",
+        "Ginger",
+        "Cucumber",
+        "Soda Water",
+        "Tonic Water",
+        "Orange Juice",
+        "Pineapple Juice",
+        "Coconut Milk",
+        "Honey"
+    ) // TODO Liste von DB holen
+    // TODO Liste mit Ingredient Images?
+    val selectedItems = remember { mutableStateListOf<String>() }
+    val scrollState = rememberLazyGridState()
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -78,8 +104,11 @@ fun HomeScreen(
                     ) {
                         Text("XP Level $xpLevel", style = MaterialTheme.typography.titleMedium)
 
-                        if(hasTitle) {
-                            Text("Advanced Juicy Maker", style = MaterialTheme.typography.titleMedium)
+                        if (hasTitle) {
+                            Text(
+                                "Advanced Juicy Maker",
+                                style = MaterialTheme.typography.titleMedium
+                            )
                         }
                     }
 
@@ -106,7 +135,7 @@ fun HomeScreen(
                             modifier = Modifier
                                 .width(60.dp),
                             style = MaterialTheme.typography.bodySmall,
-                            )
+                        )
                     }
 
                 }
@@ -147,20 +176,41 @@ fun HomeScreen(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text("Ingredients", style = MaterialTheme.typography.titleMedium)
-            LazyColumn(
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .weight(1f)
+                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(3.dp))
+                    .clip(RoundedCornerShape(3.dp))
             ) {
-                // TODO
-                items(listOf("Salt", "Pepper", "Oil")) { ingredient ->
-                    Text("- $ingredient")
+                LazyVerticalGrid(
+                    state = scrollState,
+                    columns = GridCells.Fixed(2),
+                    modifier = Modifier
+                        .drawVerticalScrollbar(scrollState),
+                    contentPadding = PaddingValues(5.dp),
+                ) {
+                    items(ingredients) { ingredient ->
+                        val isSelected = ingredient in selectedItems
+
+                        IngredientItem(
+                            ingredient = ingredient,
+                            isSelected = isSelected,
+                            onClick = {
+                                if (isSelected) {
+                                    selectedItems.remove(ingredient)
+                                } else {
+                                    selectedItems.add(ingredient)
+                                }
+                                Log.i("Ingredients", "Selected ingredients: ${selectedItems.joinToString()}")
+                            }
+                        )
+                    }
                 }
             }
-
-            //Spacer(modifier = Modifier.height(16.dp))
-
-
         }
     }
 }
@@ -178,6 +228,43 @@ private fun SaftyAppLogo(modifier: Modifier = Modifier) {
             painter = painterResource(R.drawable.saftyapp_logo_text),
             contentDescription = stringResource(R.string.app_name),
             modifier = Modifier.align(Alignment.CenterVertically)
+        )
+    }
+}
+
+@Composable
+private fun IngredientItem(
+    ingredient: String,
+    //image: Image,
+    isSelected: Boolean,
+    onClick: () -> Unit
+) {
+    Row(
+        verticalAlignment = Alignment.CenterVertically,
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() }
+            .padding(10.dp)
+            .clip(RoundedCornerShape(8.dp))
+            .background(
+                if (isSelected) {
+                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+                } else {
+                    Color.Transparent
+                }
+            )
+    ) {
+        Icon(
+            imageVector = Icons.Outlined.ShoppingCart, // TODO images einfügen
+            contentDescription = null,
+            modifier = Modifier
+                .size(24.dp)
+                .padding(end = 8.dp)
+        )
+
+        Text(
+            text = ingredient,
+            style = MaterialTheme.typography.bodyLarge
         )
     }
 }
