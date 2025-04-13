@@ -1,6 +1,5 @@
 package com.example.saftyapp.presentation
 
-import android.graphics.Paint
 import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
@@ -26,6 +25,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import com.example.saftyapp.R
 
@@ -35,6 +35,11 @@ fun HomeScreen(
     modifier: Modifier,
     onOpenDrawer: () -> Unit
 ) {
+    var xpTotal: Int = 30 // TODO Wert von DB holen
+    var xpCurrent: Int = 8 // TODO Wert von DB holen
+    var xpLevel: Int = 3 // TODO Wert von DB holen
+    var hasTitle: Boolean = true // TODO Wert von DB holen
+
     Scaffold(
         modifier = modifier.fillMaxSize(),
         topBar = {
@@ -59,8 +64,8 @@ fun HomeScreen(
         },
         bottomBar = {
             BottomAppBar(
-                modifier = Modifier.height(80.dp),
-                containerColor = MaterialTheme.colorScheme.background
+                modifier = Modifier.height(85.dp),
+                tonalElevation = 0.dp
             ) {
                 Column(
                     modifier = Modifier
@@ -71,19 +76,39 @@ fun HomeScreen(
                         modifier = Modifier.fillMaxWidth(),
                         horizontalArrangement = Arrangement.SpaceBetween
                     ) {
-                        Text("XP Level 10", style = MaterialTheme.typography.titleMedium)
-                        Text("Advanced Juicy Maker", style = MaterialTheme.typography.titleMedium)
+                        Text("XP Level $xpLevel", style = MaterialTheme.typography.titleMedium)
+
+                        if(hasTitle) {
+                            Text("Advanced Juicy Maker", style = MaterialTheme.typography.titleMedium)
+                        }
                     }
 
                     Spacer(modifier = Modifier.height(4.dp))
 
-                    LinearProgressIndicator(
-                        progress = { 0.6f },
+                    Row(
                         modifier = Modifier
                             .fillMaxWidth()
-                            .height(6.dp)
-                            .clip(RoundedCornerShape(3.dp)),
-                    )
+                            .height(IntrinsicSize.Min),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        LinearProgressIndicator(
+                            progress = { (xpCurrent.toFloat() / xpTotal) },
+                            modifier = Modifier
+                                .width(300.dp)
+                                .height(6.dp)
+                                .clip(RoundedCornerShape(3.dp)),
+                        )
+
+                        Text(
+                            "$xpCurrent / $xpTotal",
+                            textAlign = TextAlign.End,
+                            modifier = Modifier
+                                .width(60.dp),
+                            style = MaterialTheme.typography.bodySmall,
+                            )
+                    }
+
                 }
             }
         }

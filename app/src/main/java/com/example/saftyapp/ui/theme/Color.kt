@@ -19,6 +19,7 @@ val Peach40 = Color(0xFFFFCC80)
 val LightBackground = Color(0xFFFFF8F2)
 val LightSurface = Color(0xFFFFF3E0)
 val PrimaryContainerLight = Color(0xFFFFAB91)
+val BarBackground = Color(0xFFFDF3E9)
 
 // Text colors for light theme
 val OnPrimary = Color.White
