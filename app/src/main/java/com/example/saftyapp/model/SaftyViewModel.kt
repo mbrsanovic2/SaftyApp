@@ -43,14 +43,15 @@ class SaftyViewModel : ViewModel() {
     private fun increaseFill(color: Color?) {
         val start = 0.2f
         val decay = 0.85f
+        val maxFill = 0.8f
 
         val newFill = if (mixCount == 0) {
             start
         } else {
-            1f - (1f - start) * decay.pow(mixCount)
+            maxFill - (maxFill - start) * decay.pow(mixCount)
         }
 
-        _fillTarget.value = newFill.coerceAtMost(1f)
+        _fillTarget.value = newFill.coerceAtMost(maxFill)
 
         if (color != null) {
             val current = _liquidColor.value

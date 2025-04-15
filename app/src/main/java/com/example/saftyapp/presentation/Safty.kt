@@ -26,7 +26,9 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.clipRect
@@ -100,6 +102,8 @@ fun TestSafty(
             Spacer(modifier = Modifier.height(16.dp))
 
             Safty(currentExpression, modifier, fillAmount.value, liquidColor)
+
+            // NUR TESTBUTTONS
             Row(
                 horizontalArrangement = Arrangement.spacedBy(8.dp),
                 modifier = Modifier
@@ -152,22 +156,25 @@ fun Safty(
         modifier = Modifier.size(safty_size)
     ) {
         SaftyImage(
-            image = R.drawable.fill,
-            contentDescription = "Fluid",
-            colorFilter = ColorFilter.tint(fillColor),
-            modifier = modifier.drawWithContent {
-                clipRect(
-                    top = size.height - size.height * fillAmount,
-                    bottom = size.height
-                ) {
-                    this@drawWithContent.drawContent()
-                }
-            }
-        )
-        SaftyImage(
             image = R.drawable.safty_default,
             contentDescription = "Safty",
             modifier = modifier
+        )
+
+        SaftyImage(
+            image = R.drawable.fill,
+            contentDescription = "Fluid",
+            colorFilter = ColorFilter.tint(fillColor, blendMode = BlendMode.Modulate),
+            modifier = modifier
+                .alpha(0.85f)
+                .drawWithContent {
+                    clipRect(
+                        top = size.height - size.height * fillAmount,
+                        bottom = size.height
+                    ) {
+                        this@drawWithContent.drawContent()
+                    }
+                }
         )
 
         SaftyImage(
@@ -179,6 +186,7 @@ fun Safty(
         )
     }
 }
+
 @Composable
 fun SaftyImage(
     image: Int,
@@ -217,7 +225,9 @@ fun RecipeSuggestionDialog(
                 recipes.forEach { recipe ->
                     Button(
                         onClick = { onSelect(recipe) },
-                        modifier = Modifier.fillMaxWidth().padding(vertical = 4.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(vertical = 4.dp)
                     ) {
                         Text(recipe)
                     }
