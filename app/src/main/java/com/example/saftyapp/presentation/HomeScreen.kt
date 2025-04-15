@@ -90,7 +90,7 @@ fun HomeScreen(
         },
         bottomBar = {
             BottomAppBar(
-                modifier = Modifier.height(85.dp),
+                modifier = Modifier.height(IntrinsicSize.Min),
                 tonalElevation = 0.dp
             ) {
                 Column(
@@ -142,72 +142,84 @@ fun HomeScreen(
             }
         }
     ) { innerPadding ->
-        Column(
+        BoxWithConstraints(
             modifier = Modifier
                 .padding(innerPadding)
                 .fillMaxSize()
                 .padding(16.dp)
         ) {
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(400.dp),
-                contentAlignment = Alignment.Center
+            val maxHeight = this.maxHeight
+
+
+
+            Column(
+                modifier = Modifier.fillMaxSize()
             ) {
-                Image(
-                    painterResource(R.drawable.safty_icon),
-                    contentDescription = "Safty",
+                Box(
                     modifier = Modifier
-                        .fillMaxSize()
-                        .padding(16.dp),
-                    contentScale = ContentScale.Fit
-                )
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Button(
-                modifier = Modifier.align(Alignment.CenterHorizontally),
-                onClick = { Log.i("Button", "Mix is clicked") } // TODO
-            ) {
-                Text("Mix it!")
-            }
-
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Text("Ingredients", style = MaterialTheme.typography.titleMedium)
-
-            Spacer(modifier = Modifier.height(8.dp))
-
-            Box(
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .weight(1f)
-                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(3.dp))
-                    .clip(RoundedCornerShape(3.dp))
-            ) {
-                LazyVerticalGrid(
-                    state = scrollState,
-                    columns = GridCells.Fixed(2),
-                    modifier = Modifier
-                        .drawVerticalScrollbar(scrollState),
-                    contentPadding = PaddingValues(5.dp),
+                        .fillMaxWidth()
+                        .height(maxHeight * 0.5f),
+                    contentAlignment = Alignment.Center
                 ) {
-                    items(ingredients) { ingredient ->
-                        val isSelected = ingredient in selectedItems
+                    Image(
+                        painterResource(R.drawable.safty_icon),
+                        contentDescription = "Safty",
+                        modifier = Modifier
+                            .fillMaxSize()
+                            .padding(16.dp),
+                        contentScale = ContentScale.Fit
+                    )
+                }
 
-                        IngredientItem(
-                            ingredient = ingredient,
-                            isSelected = isSelected,
-                            onClick = {
-                                if (isSelected) {
-                                    selectedItems.remove(ingredient)
-                                } else {
-                                    selectedItems.add(ingredient)
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Button(
+                    modifier = Modifier.align(Alignment.CenterHorizontally),
+                    onClick = { Log.i("Button", "Mix is clicked") } // TODO
+                ) {
+                    Text("Mix it!")
+                }
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(maxHeight * 0.2f)
+                        .weight(1f)
+                        .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(3.dp))
+                        .clip(RoundedCornerShape(3.dp))
+                ) {
+                    LazyVerticalGrid(
+                        state = scrollState,
+                        columns = GridCells.Fixed(2),
+                        modifier = Modifier
+                            .drawVerticalScrollbar(scrollState),
+                        contentPadding = PaddingValues(5.dp),
+                    ) {
+                        items(ingredients) { ingredient ->
+                            val isSelected = ingredient in selectedItems
+
+                            IngredientItem(
+                                ingredient = ingredient,
+                                isSelected = isSelected,
+                                onClick = {
+                                    if (isSelected) {
+                                        selectedItems.remove(ingredient)
+                                    } else {
+                                        selectedItems.add(ingredient)
+                                    }
+                                    Log.i(
+                                        "Ingredients",
+                                        "Selected ingredients: ${selectedItems.joinToString()}"
+                                    )
                                 }
-                                Log.i("Ingredients", "Selected ingredients: ${selectedItems.joinToString()}")
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
