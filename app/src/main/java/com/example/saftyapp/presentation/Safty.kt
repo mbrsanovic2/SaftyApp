@@ -27,6 +27,8 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawWithContent
+import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.ColorFilter
 import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
@@ -37,6 +39,7 @@ import com.example.saftyapp.R
 import com.example.saftyapp.model.SaftyExpression
 import com.example.saftyapp.model.SaftyViewModel
 import com.example.saftyapp.ui.theme.SaftyAppTheme
+import kotlin.random.Random
 
 private var safty_size = 400.dp
 
@@ -50,6 +53,8 @@ fun TestSafty(
     val currentExpression by viewModel.currentExpression.collectAsState()
     val fillTarget = viewModel.fillTarget.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
+
+    val liquidColor by viewModel.liquidColor.collectAsState()
 
     val fillAmount = remember { Animatable(0f) }
     LaunchedEffect(fillTarget.value) {
@@ -94,16 +99,43 @@ fun TestSafty(
             )
             Spacer(modifier = Modifier.height(16.dp))
 
-            Safty(currentExpression, modifier, fillAmount.value)
-
-            Button(onClick = {
-                viewModel.changeExpression()
-                viewModel.increaseFill()
-                if (fillAmount.value >= 1f) {
-                    showDialog = true
+            Safty(currentExpression, modifier, fillAmount.value, liquidColor)
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Button(onClick = {
+                    viewModel.addIngredient(Color(229, 56, 56, 255), true)
+                }) {
+                    Text("Erdbeere :)")
                 }
+                Button(onClick = {
+                    viewModel.addIngredient(Color(51, 51, 208, 255), true)
+                }) {
+                    Text("Heidelbeere :)")
+                }
+            }
+            Row(
+                horizontalArrangement = Arrangement.spacedBy(8.dp),
+                modifier = Modifier
+                    .fillMaxWidth()
+            ) {
+                Button(onClick = {
+                    viewModel.addIngredient(Color(255, 224, 0), true)
+                }) {
+                    Text("Banane :)")
+                }
+                Button(onClick = {
+                    viewModel.addIngredient(Color(241, 162, 9, 255), false)
+                }) {
+                    Text("Carbonara :(")
+                }
+            }
+            Button(onClick = {
+                showDialog = true
             }) {
-                Text("Gib Safty was :)")
+                Text("Mixen")
             }
         }
     }
@@ -113,7 +145,8 @@ fun TestSafty(
 fun Safty(
     expression: SaftyExpression,
     modifier: Modifier = Modifier,
-    fillAmount: Float = 0f
+    fillAmount: Float = 0f,
+    fillColor: Color
 ) {
     Box(
         modifier = Modifier.size(safty_size)
@@ -121,6 +154,7 @@ fun Safty(
         SaftyImage(
             image = R.drawable.fill,
             contentDescription = "Fluid",
+            colorFilter = ColorFilter.tint(fillColor),
             modifier = modifier.drawWithContent {
                 clipRect(
                     top = size.height - size.height * fillAmount,
@@ -146,10 +180,16 @@ fun Safty(
     }
 }
 @Composable
-fun SaftyImage(image: Int, contentDescription: String, modifier: Modifier) {
+fun SaftyImage(
+    image: Int,
+    contentDescription: String,
+    modifier: Modifier,
+    colorFilter: ColorFilter? = null
+) {
     Image(
         painter = painterResource(id = image),
         contentDescription = contentDescription,
+        colorFilter = colorFilter,
         contentScale = ContentScale.Fit,
         modifier = modifier
     )
