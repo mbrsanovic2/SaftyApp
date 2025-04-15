@@ -30,10 +30,10 @@ class SaftyViewModel : ViewModel() {
         if (!wasRecommended) happiness--
         else happiness++
 
-        happiness = happiness.coerceIn(1, 4)
+        happiness = happiness.coerceIn(1, 5)
 
         _currentExpression.value = when (happiness) {
-            4 -> SaftyExpression.Happy
+            in 4..5 -> SaftyExpression.Happy
             3 -> SaftyExpression.Unimpressed
             2 -> SaftyExpression.Mad
             else -> SaftyExpression.Angry
@@ -52,10 +52,9 @@ class SaftyViewModel : ViewModel() {
 
         _fillTarget.value = newFill.coerceAtMost(1f)
 
-        // Handle color blending if a new color is passed
         if (color != null) {
             val current = _liquidColor.value
-            val blendStrength = 1f / (mixCount + 1)  // earlier colors have more influence
+            val blendStrength = 1f / (mixCount + 1)
             val mixed = lerp(current, color, blendStrength)
             _liquidColor.value = mixed
         }
