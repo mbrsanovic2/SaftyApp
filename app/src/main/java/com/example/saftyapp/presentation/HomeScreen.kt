@@ -1,6 +1,8 @@
 package com.example.saftyapp.presentation
 
 import android.util.Log
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -25,8 +27,14 @@ import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.material3.TopAppBar
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
+import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -35,13 +43,21 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import com.example.saftyapp.R
+import com.example.saftyapp.model.SaftyViewModel
+import com.example.saftyapp.navigation.Screens
+import com.example.saftyapp.ui.theme.SaftyAppTheme
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     modifier: Modifier,
+    viewModel: SaftyViewModel = viewModel(),
     onOpenDrawer: () -> Unit
 ) {
     val xpTotal: Int = 30 // TODO Wert von DB holen
@@ -65,6 +81,31 @@ fun HomeScreen(
     // TODO Liste mit Ingredient Images?
     val selectedItems = remember { mutableStateListOf<String>() }
     val scrollState = rememberLazyGridState()
+
+    val currentExpression by viewModel.currentExpression.collectAsState()
+    val fillTarget = viewModel.fillTarget.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
+
+    val liquidColor by viewModel.liquidColor.collectAsState()
+
+    val fillAmount = remember { Animatable(0f) }
+    val coroutineScope = rememberCoroutineScope()
+    LaunchedEffect(fillTarget.value) {
+        fillAmount.animateTo(fillTarget.value, tween(600))
+    }
+
+    RecipeSuggestionDialog(
+        showDialog = showDialog,
+        recipes = listOf("Tropical Chill", "Berry Blast", "Citrus Spark"),
+        onSelect = {
+            showDialog = false
+            viewModel.cancelDrinkFinished()
+        },
+        onDismiss = {
+            showDialog = false
+            viewModel.cancelDrinkFinished()
+        }
+    )
 
     Scaffold(
         modifier = modifier.fillMaxSize(),
@@ -150,8 +191,6 @@ fun HomeScreen(
         ) {
             val maxHeight = this.maxHeight
 
-
-
             Column(
                 modifier = Modifier.fillMaxSize()
             ) {
@@ -161,21 +200,22 @@ fun HomeScreen(
                         .height(maxHeight * 0.5f),
                     contentAlignment = Alignment.Center
                 ) {
-                    Image(
-                        painterResource(R.drawable.safty_icon),
-                        contentDescription = "Safty",
-                        modifier = Modifier
-                            .fillMaxSize()
-                            .padding(16.dp),
-                        contentScale = ContentScale.Fit
-                    )
+                    Safty(currentExpression, modifier, fillAmount.value, liquidColor)
                 }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Button(
                     modifier = Modifier.align(Alignment.CenterHorizontally),
-                    onClick = { Log.i("Button", "Mix is clicked") } // TODO
+                    onClick = {
+                        if(!selectedItems.isEmpty()) {
+                            coroutineScope.launch {
+                                viewModel.drinkFinished()
+                                delay(500L)
+                                showDialog = true
+                            }
+                        }
+                    }
                 ) {
                     Text("Mix it!")
                 }
@@ -210,8 +250,10 @@ fun HomeScreen(
                                 onClick = {
                                     if (isSelected) {
                                         selectedItems.remove(ingredient)
+                                        viewModel.removeIngredient(Color(255, 152, 0, 255), true)
                                     } else {
                                         selectedItems.add(ingredient)
+                                        viewModel.addIngredient(Color(255, 152, 0, 255), true)
                                     }
                                     Log.i(
                                         "Ingredients",
@@ -277,6 +319,17 @@ private fun IngredientItem(
         Text(
             text = ingredient,
             style = MaterialTheme.typography.bodyLarge
+        )
+    }
+}
+
+@Preview
+@Composable
+fun HomeScreenPreview() {
+    SaftyAppTheme {
+        HomeScreen(
+            modifier = Modifier,
+            onOpenDrawer = {  },
         )
     }
 }

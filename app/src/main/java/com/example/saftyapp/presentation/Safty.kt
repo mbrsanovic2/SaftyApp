@@ -41,109 +41,6 @@ import com.example.saftyapp.R
 import com.example.saftyapp.model.SaftyExpression
 import com.example.saftyapp.model.SaftyViewModel
 import com.example.saftyapp.ui.theme.SaftyAppTheme
-import kotlin.random.Random
-
-private var safty_size = 400.dp
-
-@OptIn(ExperimentalMaterial3Api::class)
-@Composable
-fun TestSafty(
-    modifier: Modifier,
-    viewModel: SaftyViewModel = viewModel(),
-    onOpenDrawer: () -> Unit,
-) {
-    val currentExpression by viewModel.currentExpression.collectAsState()
-    val fillTarget = viewModel.fillTarget.collectAsState()
-    var showDialog by remember { mutableStateOf(false) }
-
-    val liquidColor by viewModel.liquidColor.collectAsState()
-
-    val fillAmount = remember { Animatable(0f) }
-    LaunchedEffect(fillTarget.value) {
-        fillAmount.animateTo(fillTarget.value, tween(600))
-    }
-
-    if (showDialog) {
-        RecipeSuggestionDialog(
-            recipes = listOf("Tropical Chill", "Berry Blast", "Citrus Spark"),
-            onSelect = { selected ->
-                showDialog = false
-            },
-            onDismiss = { showDialog = false }
-        )
-    }
-
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = { Text("Safty App") },
-                navigationIcon = {
-                    IconButton(onClick = onOpenDrawer) {
-                        Icon(
-                            imageVector = Icons.Outlined.Menu,
-                            contentDescription = "Open Drawer"
-                        )
-                    }
-                }
-            )
-        }
-    ) { innerPadding ->
-        Column(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp)
-        ) {
-            Text(
-                text = "Leb deinen Safty Traum aus :D Natürlich ^^",
-                style = MaterialTheme.typography.headlineSmall
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-
-            Safty(currentExpression, modifier, fillAmount.value, liquidColor)
-
-            // NUR TESTBUTTONS
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Button(onClick = {
-                    viewModel.addIngredient(Color(229, 56, 56, 255), true)
-                }) {
-                    Text("Erdbeere :)")
-                }
-                Button(onClick = {
-                    viewModel.addIngredient(Color(51, 51, 208, 255), true)
-                }) {
-                    Text("Heidelbeere :)")
-                }
-            }
-            Row(
-                horizontalArrangement = Arrangement.spacedBy(8.dp),
-                modifier = Modifier
-                    .fillMaxWidth()
-            ) {
-                Button(onClick = {
-                    viewModel.addIngredient(Color(255, 224, 0), true)
-                }) {
-                    Text("Banane :)")
-                }
-                Button(onClick = {
-                    viewModel.addIngredient(Color(241, 162, 9, 255), false)
-                }) {
-                    Text("Carbonara :(")
-                }
-            }
-            Button(onClick = {
-                showDialog = true
-            }) {
-                Text("Mixen")
-            }
-        }
-    }
-}
 
 @Composable
 fun Safty(
@@ -153,7 +50,7 @@ fun Safty(
     fillColor: Color
 ) {
     Box(
-        modifier = Modifier.size(safty_size)
+        modifier = modifier
     ) {
         SaftyImage(
             image = R.drawable.safty_default,
@@ -205,39 +102,96 @@ fun SaftyImage(
 
 @Composable
 fun RecipeSuggestionDialog(
+    showDialog: Boolean,
     recipes: List<String>,
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    Dialog(onDismissRequest = onDismiss) {
-        Surface(
-            shape = RoundedCornerShape(16.dp),
-            tonalElevation = 8.dp,
-            modifier = Modifier
-                .padding(16.dp)
-                .fillMaxWidth()
-        ) {
-            Column(modifier = Modifier.padding(16.dp)) {
-                Text("Choose a Recipe", style = MaterialTheme.typography.headlineSmall)
+    if(showDialog) {
+        Dialog(onDismissRequest = onDismiss) {
+            Surface(
+                shape = RoundedCornerShape(16.dp),
+                tonalElevation = 8.dp,
+                modifier = Modifier
+                    .padding(16.dp)
+                    .fillMaxWidth()
+            ) {
+                Column(modifier = Modifier.padding(16.dp)) {
+                    Text("Choose a Recipe", style = MaterialTheme.typography.headlineSmall)
 
-                Spacer(modifier = Modifier.height(16.dp))
+                    Spacer(modifier = Modifier.height(16.dp))
 
-                recipes.forEach { recipe ->
-                    Button(
-                        onClick = { onSelect(recipe) },
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .padding(vertical = 4.dp)
-                    ) {
-                        Text(recipe)
+                    recipes.forEach { recipe ->
+                        Button(
+                            onClick = { onSelect(recipe) },
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(vertical = 4.dp)
+                        ) {
+                            Text(recipe)
+                        }
+                    }
+
+                    Spacer(modifier = Modifier.height(8.dp))
+
+                    TextButton(onClick = onDismiss) {
+                        Text("Cancel")
                     }
                 }
+            }
+        }
+    }
+}
 
-                Spacer(modifier = Modifier.height(8.dp))
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun TestSafty(
+    modifier: Modifier,
+    viewModel: SaftyViewModel = viewModel(),
+    onOpenDrawer: () -> Unit,
+) {
+    val currentExpression by viewModel.currentExpression.collectAsState()
+    val fillTarget = viewModel.fillTarget.collectAsState()
+    var showDialog by remember { mutableStateOf(false) }
 
-                TextButton(onClick = onDismiss) {
-                    Text("Cancel")
+    val liquidColor by viewModel.liquidColor.collectAsState()
+
+    val fillAmount = remember { Animatable(0f) }
+    LaunchedEffect(fillTarget.value) {
+        fillAmount.animateTo(fillTarget.value, tween(600))
+    }
+
+
+    Scaffold(
+        modifier = modifier.fillMaxSize(),
+        topBar = {
+            TopAppBar(
+                title = { Text("Safty App") },
+                navigationIcon = {
+                    IconButton(onClick = onOpenDrawer) {
+                        Icon(
+                            imageVector = Icons.Outlined.Menu,
+                            contentDescription = "Open Drawer"
+                        )
+                    }
                 }
+            )
+        }
+    ) { innerPadding ->
+        Column(
+            modifier = Modifier
+                .padding(innerPadding)
+                .fillMaxSize()
+                .padding(16.dp)
+        ) {
+            Spacer(modifier = Modifier.height(16.dp))
+
+            Safty(currentExpression, modifier, fillAmount.value, liquidColor)
+
+            Button(onClick = {
+                showDialog = true
+            }) {
+                Text("Mixen")
             }
         }
     }
