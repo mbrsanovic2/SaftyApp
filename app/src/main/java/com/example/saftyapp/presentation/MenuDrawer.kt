@@ -1,20 +1,10 @@
 package com.example.saftyapp.presentation
 
-import android.util.Log
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.layout.Row
-import androidx.compose.foundation.layout.Spacer
-import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
-import androidx.compose.foundation.layout.width
+import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.FavoriteBorder
-import androidx.compose.material.icons.filled.Home
 import androidx.compose.material.icons.filled.List
-import androidx.compose.material.icons.filled.Warning
-import androidx.compose.material.icons.outlined.Face
-import androidx.compose.material3.DrawerState
-import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -35,9 +25,8 @@ import com.example.saftyapp.navigation.Screens
 fun MenuDrawer(
     currentRoute: String,
     navigateToHome: () -> Unit,
-    navigateToRecipes: () -> Unit = {}, // TODO (default entfernen und über args geben)
-    navigateToArchive: () -> Unit = {}, // TODO (default entfernen und über args geben)
-    navigateToTestSafty: () -> Unit,
+    navigateToRecipes: () -> Unit,
+    navigateToArchive: () -> Unit,
     closeDrawer: () -> Unit,
     modifier: Modifier,
 ) {
@@ -62,21 +51,14 @@ fun MenuDrawer(
         SaftyDrawerItem(
             label = "Recipes",
             icon = { Icon(Icons.Filled.List, "Recipes") },
-            selected = false, // TODO (Bsp: currentRoute == JetnewsDestinations.INTERESTS_ROUTE)
-            onClick = { Log.i("Button", "Nav 2 is clicked"); closeDrawer()  }, // TODO (Bsp: navigateToInterests)
+            selected = currentRoute == Screens.RecipeScreen.route,
+            onClick = { navigateToRecipes(); closeDrawer() },
         )
         SaftyDrawerItem(
             label = "Archive",
             icon = { Icon(Icons.Filled.FavoriteBorder, "Archive") },
-            selected = false, // TODO (Bsp: currentRoute == JetnewsDestinations.INTERESTS_ROUTE)
-            onClick = { Log.i("Button", "Nav 3 is clicked"); closeDrawer()  }, // TODO (Bsp: navigateToInterests)
-        )
-        /** Button um zum Testscreen für Safty Entwicklung zu kommen -> später löschen */
-        SaftyDrawerItem(
-            label = "Test Safty",
-            icon = { Icon(Icons.Filled.Warning, "TestSafty") },
-            selected = currentRoute == Screens.TestSafty.route,
-            onClick = { navigateToTestSafty(); closeDrawer()  }, // TODO (Bsp: navigateToInterests)
+            selected = currentRoute == Screens.ArchiveScreen.route,
+            onClick = { navigateToArchive(); closeDrawer() },
         )
     }
 }

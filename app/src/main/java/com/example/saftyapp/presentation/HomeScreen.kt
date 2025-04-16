@@ -58,12 +58,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier,
     viewModel: SaftyViewModel = viewModel(),
-    onOpenDrawer: () -> Unit
 ) {
-    val xpTotal: Int = 30 // TODO Wert von DB holen
-    val xpCurrent: Int = 8 // TODO Wert von DB holen
-    val xpLevel: Int = 3 // TODO Wert von DB holen
-    val hasTitle: Boolean = true // TODO Wert von DB holen
     val ingredients: List<String> = listOf(
         "Lemon Juice",
         "Lime Juice",
@@ -107,184 +102,90 @@ fun HomeScreen(
         }
     )
 
-    Scaffold(
-        modifier = modifier.fillMaxSize(),
-        topBar = {
-            TopAppBar(
-                title = {
-                    SaftyAppLogo(
-                        modifier = Modifier
-                            .height(40.dp)
-                            .padding(start = 27.dp)
-                    )
+    BoxWithConstraints(
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(16.dp)
+    ) {
+        val maxHeight = this.maxHeight
 
-                },
-                navigationIcon = {
-                    IconButton(onClick = onOpenDrawer) {
-                        Icon(
-                            imageVector = Icons.Outlined.Menu,
-                            contentDescription = "Open Drawer"
-                        )
-                    }
-                }
-            )
-        },
-        bottomBar = {
-            BottomAppBar(
-                modifier = Modifier.height(IntrinsicSize.Min),
-                tonalElevation = 0.dp
-            ) {
-                Column(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .padding(horizontal = 16.dp, vertical = 8.dp)
-                ) {
-                    Row(
-                        modifier = Modifier.fillMaxWidth(),
-                        horizontalArrangement = Arrangement.SpaceBetween
-                    ) {
-                        Text("XP Level $xpLevel", style = MaterialTheme.typography.titleMedium)
-
-                        if (hasTitle) {
-                            Text(
-                                "Advanced Juicy Maker",
-                                style = MaterialTheme.typography.titleMedium
-                            )
-                        }
-                    }
-
-                    Spacer(modifier = Modifier.height(4.dp))
-
-                    Row(
-                        modifier = Modifier
-                            .fillMaxWidth()
-                            .height(IntrinsicSize.Min),
-                        horizontalArrangement = Arrangement.SpaceBetween,
-                        verticalAlignment = Alignment.CenterVertically
-                    ) {
-                        LinearProgressIndicator(
-                            progress = { (xpCurrent.toFloat() / xpTotal) },
-                            modifier = Modifier
-                                .width(300.dp)
-                                .height(6.dp)
-                                .clip(RoundedCornerShape(3.dp)),
-                        )
-
-                        Text(
-                            "$xpCurrent / $xpTotal",
-                            textAlign = TextAlign.End,
-                            modifier = Modifier
-                                .width(60.dp),
-                            style = MaterialTheme.typography.bodySmall,
-                        )
-                    }
-
-                }
-            }
-        }
-    ) { innerPadding ->
-        BoxWithConstraints(
-            modifier = Modifier
-                .padding(innerPadding)
-                .fillMaxSize()
-                .padding(16.dp)
+        Column(
+            modifier = Modifier.fillMaxSize()
         ) {
-            val maxHeight = this.maxHeight
-
-            Column(
-                modifier = Modifier.fillMaxSize()
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(maxHeight * 0.5f),
+                contentAlignment = Alignment.Center
             ) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(maxHeight * 0.5f),
-                    contentAlignment = Alignment.Center
-                ) {
-                    Safty(currentExpression, modifier, fillAmount.value, liquidColor)
-                }
+                Safty(currentExpression, modifier, fillAmount.value, liquidColor)
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
-                Button(
-                    modifier = Modifier.align(Alignment.CenterHorizontally),
-                    onClick = {
-                        if(!selectedItems.isEmpty()) {
-                            coroutineScope.launch {
-                                viewModel.drinkFinished()
-                                delay(500L)
-                                showDialog = true
-                            }
+            Button(
+                modifier = Modifier.align(Alignment.CenterHorizontally),
+                onClick = {
+                    if (!selectedItems.isEmpty()) {
+                        coroutineScope.launch {
+                            viewModel.drinkFinished()
+                            delay(500L)
+                            showDialog = true
                         }
                     }
-                ) {
-                    Text("Mix it!")
                 }
+            ) {
+                Text("Mix it!")
+            }
 
-                Spacer(modifier = Modifier.height(16.dp))
+            Spacer(modifier = Modifier.height(24.dp))
 
-                Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+            Text("Ingredients", style = MaterialTheme.typography.titleMedium)
 
-                Spacer(modifier = Modifier.height(8.dp))
+            Spacer(modifier = Modifier.height(12.dp))
 
-                Box(
+            Box(
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .weight(1f)
+                    .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(3.dp))
+                    .clip(RoundedCornerShape(3.dp))
+            ) {
+                LazyVerticalGrid(
+                    state = scrollState,
+                    columns = GridCells.Fixed(2),
                     modifier = Modifier
-                        .fillMaxWidth()
-                        .height(maxHeight * 0.2f)
-                        .weight(1f)
-                        .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(3.dp))
-                        .clip(RoundedCornerShape(3.dp))
+                        .drawVerticalScrollbar(scrollState),
+                    contentPadding = PaddingValues(5.dp),
                 ) {
-                    LazyVerticalGrid(
-                        state = scrollState,
-                        columns = GridCells.Fixed(2),
-                        modifier = Modifier
-                            .drawVerticalScrollbar(scrollState),
-                        contentPadding = PaddingValues(5.dp),
-                    ) {
-                        items(ingredients) { ingredient ->
-                            val isSelected = ingredient in selectedItems
+                    items(ingredients) { ingredient ->
+                        val isSelected = ingredient in selectedItems
 
-                            IngredientItem(
-                                ingredient = ingredient,
-                                isSelected = isSelected,
-                                onClick = {
-                                    if (isSelected) {
-                                        selectedItems.remove(ingredient)
-                                        viewModel.removeIngredient(Color(255, 152, 0, 255), true)
-                                    } else {
-                                        selectedItems.add(ingredient)
-                                        viewModel.addIngredient(Color(255, 152, 0, 255), true)
-                                    }
-                                    Log.i(
-                                        "Ingredients",
-                                        "Selected ingredients: ${selectedItems.joinToString()}"
-                                    )
+                        IngredientItem(
+                            ingredient = ingredient,
+                            isSelected = isSelected,
+                            onClick = {
+                                if (isSelected) {
+                                    selectedItems.remove(ingredient)
+                                    viewModel.removeIngredient(Color(255, 152, 0, 255), true)
+                                } else {
+                                    selectedItems.add(ingredient)
+                                    viewModel.addIngredient(Color(255, 152, 0, 255), true)
                                 }
-                            )
-                        }
+                                Log.i(
+                                    "Ingredients",
+                                    "Selected ingredients: ${selectedItems.joinToString()}"
+                                )
+                            }
+                        )
                     }
                 }
             }
+            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
 
-@Composable
-private fun SaftyAppLogo(modifier: Modifier = Modifier) {
-    Row(modifier = modifier) {
-        Image(
-            painterResource(R.drawable.saftyapp_logo2_free),
-            contentDescription = null,
-            modifier = Modifier.size(60.dp)
-        )
-        Spacer(Modifier.width(5.dp))
-        Image(
-            painter = painterResource(R.drawable.saftyapp_logo_text),
-            contentDescription = stringResource(R.string.app_name),
-            modifier = Modifier.align(Alignment.CenterVertically)
-        )
-    }
-}
 
 @Composable
 private fun IngredientItem(
@@ -329,7 +230,6 @@ fun HomeScreenPreview() {
     SaftyAppTheme {
         HomeScreen(
             modifier = Modifier,
-            onOpenDrawer = {  },
         )
     }
 }

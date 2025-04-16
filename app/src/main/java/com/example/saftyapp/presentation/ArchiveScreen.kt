@@ -7,12 +7,12 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 
 @Composable
-fun RecipeScreen(modifier: Modifier) {
+fun ArchiveScreen(modifier: Modifier) {
     Column(
         modifier = modifier.fillMaxSize(),
     ) {
         Text(
-            text = "Recipe Screen"
+            text = "Archive Screen"
         )
     }
 }
