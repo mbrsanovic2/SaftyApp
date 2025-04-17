@@ -58,6 +58,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier,
     viewModel: SaftyViewModel = viewModel(),
+    onNavigateToRecipeScreen: (String) -> Unit
 ) {
     val ingredients: List<String> = listOf(
         "Lemon Juice",
@@ -92,7 +93,8 @@ fun HomeScreen(
     RecipeSuggestionDialog(
         showDialog = showDialog,
         recipes = listOf("Tropical Chill", "Berry Blast", "Citrus Spark"),
-        onSelect = {
+        onSelect = { selectedItem ->
+            onNavigateToRecipeScreen(selectedItem)
             showDialog = false
             viewModel.cancelDrinkFinished()
         },
@@ -230,6 +232,8 @@ fun HomeScreenPreview() {
     SaftyAppTheme {
         HomeScreen(
             modifier = Modifier,
-        )
+        ){
+
+        }
     }
 }

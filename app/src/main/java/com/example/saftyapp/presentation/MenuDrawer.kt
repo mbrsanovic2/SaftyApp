@@ -42,7 +42,7 @@ fun MenuDrawer(
                 Image(
                     painter = painterResource(R.drawable.safty_icon),
                     contentDescription = "Safty's Home",
-                    modifier = Modifier.size(24.dp)
+                    modifier = Modifier.size(30.dp)
                 )
             },
             selected = currentRoute == Screens.HomeScreen.route,
