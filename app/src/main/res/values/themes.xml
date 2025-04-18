@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
 
-    <style name="Theme.SaftyApp" parent="android:Theme.Material.Light.NoActionBar" />
+    <style name="Theme.SaftyApp" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+    </style>
+
+    <style name="Theme.SaftyApp.SplashWindow" parent="android:Theme.Material.Light.NoActionBar">
+        <item name="android:windowBackground">@drawable/splash_background</item>
+        <!-- No Splash-Icon! -->
+        <item name="android:windowDisablePreview">true</item>
+    </style>
 </resources>
