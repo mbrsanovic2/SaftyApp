@@ -19,7 +19,7 @@ import com.example.saftyapp.presentation.BottomBarXP
 import com.example.saftyapp.presentation.HomeScreen
 import com.example.saftyapp.presentation.MenuDrawer
 import com.example.saftyapp.presentation.RecipeScreen
-import com.example.saftyapp.presentation.TestRecipeScreen
+import com.example.saftyapp.presentation.InstructionCard
 import com.example.saftyapp.presentation.TopBar
 import kotlinx.coroutines.launch
 
@@ -97,7 +97,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                     })
                 ) { backStackEntry ->
                     val recipeId = backStackEntry.arguments?.getString("recipeId") ?: "No Recipe"
-                    TestRecipeScreen(modifier = Modifier, recipeId = recipeId)
+                    InstructionCard(modifier = Modifier, recipeId = recipeId)
                 }
             }
         }

@@ -92,7 +92,7 @@ fun HomeScreen(
 
     RecipeSuggestionDialog(
         showDialog = showDialog,
-        recipes = listOf("Tropical Chill", "Berry Blast", "Citrus Spark"),
+        recipes = listOf("Apple Berry Smoothie", "Iced Coffee"),
         onSelect = { selectedItem ->
             onNavigateToRecipeScreen(selectedItem)
             showDialog = false
