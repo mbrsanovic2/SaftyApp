@@ -33,8 +33,10 @@ fun Navigation(modifier: Modifier = Modifier) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route ?: Screens.HomeScreen.route
 
-    val hideBottomBar = when (currentRoute) {
-        Screens.ArchiveScreen.route -> true
+    val hideBottomBar = when {
+        currentRoute == Screens.ArchiveScreen.route -> true
+        currentRoute == Screens.RecipeScreen.route -> true
+        currentRoute?.startsWith("recipe_screen/") == true -> true
         else -> false
     }
 
@@ -79,7 +81,11 @@ fun Navigation(modifier: Modifier = Modifier) {
                     )
                 }
                 composable(route = Screens.RecipeScreen.route) {
-                    RecipeScreen(modifier = Modifier)
+                    RecipeScreen(
+                        modifier = Modifier,
+                        onNavigateToRecipeScreen = { recipe ->
+                            navController.navigate(Screens.TestRecipeScreen.createRoute(recipe))
+                        })
                 }
                 composable(route = Screens.ArchiveScreen.route) {
                     ArchiveScreen(modifier = Modifier)
