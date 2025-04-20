@@ -207,7 +207,7 @@ fun RecipeScreen(
                         name = recipe.name,
                         image = recipe.thumbnail,
                         onClick = {
-                            onNavigateToRecipeScreen("Tropical Chill") // TODO
+                            onNavigateToRecipeScreen(recipe.name)
                         }
                     )
                 }

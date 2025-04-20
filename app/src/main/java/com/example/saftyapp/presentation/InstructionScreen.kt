@@ -98,14 +98,12 @@ fun InstructionCard(modifier: Modifier, recipeId: String) {
 @Composable
 fun RecipeDetails(recipe: Recipe) {
     Column(modifier = Modifier.fillMaxWidth()) {
-        // Ingredients Header
         Text(
             text = "Ingredients",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
-        // Ingredients List
         recipe.ingredients.forEachIndexed { index, ingredient ->
             val measure = recipe.measures.getOrNull(index) ?: ""
             Text(
@@ -117,14 +115,12 @@ fun RecipeDetails(recipe: Recipe) {
 
         Spacer(modifier = Modifier.height(12.dp))
 
-        // Preparation Header
         Text(
             text = "Preparation",
             style = MaterialTheme.typography.titleMedium.copy(fontWeight = FontWeight.SemiBold),
             modifier = Modifier.padding(bottom = 4.dp)
         )
-
-        // Preparation Text
+        
         Text(
             text = recipe.instructions,
             style = MaterialTheme.typography.bodyMedium,
