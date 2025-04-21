@@ -9,16 +9,20 @@ import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
+import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Check
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
-import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
-import androidx.compose.material3.ModalNavigationDrawer
-import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
-import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
-import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -27,20 +31,14 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.compose.currentBackStackEntryAsState
-import androidx.navigation.compose.rememberNavController
 import com.example.saftyapp.R
 import com.example.saftyapp.model.Recipe
 import com.example.saftyapp.model.getTestRecipes
-import com.example.saftyapp.navigation.Screens
-import kotlinx.coroutines.launch
 
 @Composable
-fun InstructionCard(modifier: Modifier, recipeId: String) {
-    println(recipeId)
+fun InstructionCard(modifier: Modifier, recipeId: String, from: String?) {
     val exampleRecipe: Recipe
     val exampleColor: Color
     val image: Int
@@ -91,6 +89,9 @@ fun InstructionCard(modifier: Modifier, recipeId: String) {
 
             Spacer(modifier = Modifier.height(24.dp))
             RecipeDetails(exampleRecipe)
+            if(from == "Safty"){
+                FinishedButton()
+            }
         }
     }
 }
@@ -129,51 +130,41 @@ fun RecipeDetails(recipe: Recipe) {
     }
 }
 
-
-@Preview
 @Composable
-fun Preview() {
-    val navController = rememberNavController()
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val coroutineScope = rememberCoroutineScope()
+fun FinishedButton() {
+    var isClicked by remember { mutableStateOf(false) }
 
-    val navBackStackEntry = navController.currentBackStackEntryAsState()
-    val currentRoute = navBackStackEntry.value?.destination?.route ?: Screens.HomeScreen.route
+    val backgroundColor = MaterialTheme.colorScheme.primary
+    val contentColor = MaterialTheme.colorScheme.onPrimary
 
-    val hideBottomBar = when (currentRoute) {
-        Screens.ArchiveScreen.route -> true
-        else -> false
-    }
-
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            MenuDrawer(
-                currentRoute = currentRoute,
-                navigateToHome = { navController.navigate(Screens.HomeScreen.route) },
-                navigateToRecipes = { navController.navigate(Screens.RecipeScreen.route) },
-                navigateToArchive = { navController.navigate(Screens.ArchiveScreen.route) },
-                closeDrawer = { coroutineScope.launch { drawerState.close() } },
-                modifier = Modifier
-            )
-        }
+    Button(
+        onClick = { isClicked = true },
+        enabled = !isClicked,
+        modifier = Modifier
+            .padding(16.dp)
+            .fillMaxWidth(),
+        shape = RoundedCornerShape(12.dp),
+        elevation = ButtonDefaults.elevatedButtonElevation()
     ) {
-        Scaffold(
-            topBar = {
-                TopBar(
-                    onMenuClick = {
-                        coroutineScope.launch { drawerState.open() }
-                    }
-                )
-            },
-            bottomBar = {
-                if (!hideBottomBar) {
-                    BottomBarXP()
-                }
-            }
-        ) { innerPadding ->
-            var modifier = Modifier.padding(innerPadding)
-            InstructionCard(modifier = modifier, "Spaghetti al la carbon")
+        if(!isClicked) {
+            Icon(
+                imageVector = Icons.Default.Check,
+                contentDescription = "Finish",
+                modifier = Modifier.padding(end = 8.dp)
+            )
+            Text("Finish Recipe")
+        }
+        else{
+            Text("Completed")
         }
     }
+}
+
+fun Color.darken(factor: Float): Color {
+    return Color(
+        red = red * factor,
+        green = green * factor,
+        blue = blue * factor,
+        alpha = alpha
+    )
 }

@@ -4,7 +4,13 @@ sealed class Screens(val route: String) {
     object HomeScreen : Screens(route = "home_screen")
     object RecipeScreen : Screens(route = "recipe_screen")
     object ArchiveScreen : Screens(route = "archive_screen")
-    object InstructionScreen : Screens(route = "instruction_screen/{recipeId}") {
-        fun createRoute(recipeId: String): String = "instruction_screen/$recipeId" // Maybe id int in future
+    object InstructionScreen : Screens(route = "instruction_screen/{recipeId}?from={from}") {
+        fun createRoute(recipeId: String, from: String? = null): String {
+            return if (from.isNullOrBlank()) {
+                "instruction_screen/$recipeId"
+            } else {
+                "instruction_screen/$recipeId?from=$from"
+            }
+        }
     }
 }

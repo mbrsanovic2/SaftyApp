@@ -72,14 +72,16 @@ fun Navigation(modifier: Modifier = Modifier) {
                 startDestination = Screens.HomeScreen.route,
                 modifier = Modifier.padding(innerPadding)
             ) {
+                // HomeScreen
                 composable(route = Screens.HomeScreen.route) {
                     HomeScreen(
                         modifier = Modifier,
                         onNavigateToRecipeScreen = { recipe ->
-                            navController.navigate(Screens.InstructionScreen.createRoute(recipe))
+                            navController.navigate(Screens.InstructionScreen.createRoute(recipe, "Safty"))
                         }
                     )
                 }
+                // RecipeScreen
                 composable(route = Screens.RecipeScreen.route) {
                     RecipeScreen(
                         modifier = Modifier,
@@ -90,14 +92,28 @@ fun Navigation(modifier: Modifier = Modifier) {
                 composable(route = Screens.ArchiveScreen.route) {
                     ArchiveScreen(modifier = Modifier)
                 }
+                // InstructionScreen
                 composable(
-                    route = "instruction_screen/{recipeId}",
-                    arguments = listOf(navArgument("recipeId") {
-                        type = NavType.StringType
-                    })
+                    route = Screens.InstructionScreen.route,
+                    arguments = listOf(
+                        navArgument("recipeId") {
+                            type = NavType.StringType
+                        },
+                        navArgument("from") {
+                            type = NavType.StringType
+                            nullable = true
+                            defaultValue = null
+                        }
+                    )
                 ) { backStackEntry ->
                     val recipeId = backStackEntry.arguments?.getString("recipeId") ?: "No Recipe"
-                    InstructionCard(modifier = Modifier, recipeId = recipeId)
+                    val from = backStackEntry.arguments?.getString("from")
+
+                    InstructionCard(
+                        modifier = Modifier,
+                        recipeId = recipeId,
+                        from = from
+                    )
                 }
             }
         }
