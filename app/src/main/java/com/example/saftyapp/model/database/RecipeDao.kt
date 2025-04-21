@@ -14,16 +14,16 @@ import com.example.saftyapp.model.database.entities.RecipeWithIngredientsEntity
 interface RecipeDao {
     @Transaction
     @Query("SELECT * FROM recipes")
-    fun getRecipesWithIngredients(): List<RecipeWithIngredientsEntity>
+    suspend fun getRecipesWithIngredients(): List<RecipeWithIngredientsEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertRecipe(recipe: RecipeEntity)
+    suspend fun insertRecipe(recipe: RecipeEntity)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertIngredients(ingredients: List<IngredientEntity>)
+    suspend fun insertIngredients(ingredients: List<IngredientEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    fun insertMeasures(ref: List<MeasureEntity>)
+    suspend fun insertMeasures(ref: List<MeasureEntity>)
 }
 
 @Dao
