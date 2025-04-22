@@ -1,4 +1,4 @@
-package com.example.saftyapp.presentation
+package com.example.saftyapp.presentation.uicomponents
 
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.drawBehind

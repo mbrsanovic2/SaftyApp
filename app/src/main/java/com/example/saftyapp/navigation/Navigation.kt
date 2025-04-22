@@ -14,13 +14,13 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.saftyapp.presentation.ArchiveScreen
-import com.example.saftyapp.presentation.BottomBarXP
-import com.example.saftyapp.presentation.HomeScreen
-import com.example.saftyapp.presentation.MenuDrawer
-import com.example.saftyapp.presentation.RecipeScreen
-import com.example.saftyapp.presentation.InstructionCard
-import com.example.saftyapp.presentation.TopBar
+import com.example.saftyapp.presentation.screens.ArchiveScreen
+import com.example.saftyapp.presentation.uicomponents.BottomBarXP
+import com.example.saftyapp.presentation.screens.HomeScreen
+import com.example.saftyapp.presentation.uicomponents.MenuDrawer
+import com.example.saftyapp.presentation.screens.RecipeScreen
+import com.example.saftyapp.presentation.screens.InstructionCard
+import com.example.saftyapp.presentation.uicomponents.TopBar
 import kotlinx.coroutines.launch
 
 @Composable

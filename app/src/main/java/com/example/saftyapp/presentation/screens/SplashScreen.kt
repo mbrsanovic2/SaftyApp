@@ -1,4 +1,4 @@
-package com.example.saftyapp.presentation
+package com.example.saftyapp.presentation.screens
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.FastOutSlowInEasing

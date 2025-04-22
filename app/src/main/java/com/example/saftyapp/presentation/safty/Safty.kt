@@ -1,4 +1,4 @@
-package com.example.saftyapp.presentation
+package com.example.saftyapp.presentation.safty
 
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*

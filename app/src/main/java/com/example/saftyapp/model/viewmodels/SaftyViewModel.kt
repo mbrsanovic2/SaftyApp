@@ -1,8 +1,8 @@
-package com.example.saftyapp.model
+package com.example.saftyapp.model.viewmodels
 
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.graphics.lerp
 import androidx.lifecycle.ViewModel
+import com.example.saftyapp.model.SaftyExpression
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow

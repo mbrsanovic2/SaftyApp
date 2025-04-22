@@ -1,4 +1,4 @@
-package com.example.saftyapp.presentation
+package com.example.saftyapp.presentation.screens
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
@@ -39,6 +39,7 @@ import androidx.compose.ui.unit.dp
 import coil.compose.AsyncImage
 import com.example.saftyapp.model.Recipe
 import com.example.saftyapp.model.getTestRecipes
+import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
