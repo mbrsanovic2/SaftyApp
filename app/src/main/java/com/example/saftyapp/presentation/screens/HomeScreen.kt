@@ -35,6 +35,9 @@ import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
+import coil.compose.AsyncImage
+import com.example.saftyapp.model.database.entities.IngredientEntity
+import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.SaftyViewModel
 import com.example.saftyapp.presentation.safty.RecipeSuggestionDialog
 import com.example.saftyapp.presentation.safty.Safty
@@ -48,24 +51,11 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier,
     viewModel: SaftyViewModel = viewModel(),
+    recipeViewModel: RecipeViewModel = viewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
-    val ingredients: List<String> = listOf(
-        "Lemon Juice",
-        "Lime Juice",
-        "Simple Syrup",
-        "Mint Leaves",
-        "Ginger",
-        "Cucumber",
-        "Soda Water",
-        "Tonic Water",
-        "Orange Juice",
-        "Pineapple Juice",
-        "Coconut Milk",
-        "Honey"
-    ) // TODO Liste von DB holen
-    // TODO Liste mit Ingredient Images?
-    val selectedItems = remember { mutableStateListOf<String>() }
+    val ingredients by recipeViewModel.ingredients.collectAsState()
+    val selectedIngredients = recipeViewModel.selectedIngredients
     val scrollState = rememberLazyGridState()
 
     val currentExpression by viewModel.currentExpression.collectAsState()
@@ -118,7 +108,7 @@ fun HomeScreen(
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 onClick = {
-                    if (!selectedItems.isEmpty()) {
+                    if (!selectedIngredients.isEmpty()) {
                         coroutineScope.launch {
                             viewModel.drinkFinished()
                             delay(500L)
@@ -151,25 +141,27 @@ fun HomeScreen(
                     contentPadding = PaddingValues(5.dp),
                 ) {
                     items(ingredients) { ingredient ->
-                        val isSelected = ingredient in selectedItems
+                        val isSelected = ingredient in selectedIngredients
 
-                        IngredientItem(
-                            ingredient = ingredient,
-                            isSelected = isSelected,
-                            onClick = {
-                                if (isSelected) {
-                                    selectedItems.remove(ingredient)
-                                    viewModel.removeIngredient(Color(255, 152, 0, 255), true)
-                                } else {
-                                    selectedItems.add(ingredient)
-                                    viewModel.addIngredient(Color(255, 152, 0, 255), true)
+                        if(ingredient.isUnlocked) {
+                            IngredientItem(
+                                ingredient = ingredient,
+                                isSelected = isSelected,
+                                onClick = {
+                                    if (isSelected) {
+                                        recipeViewModel.deselectIngredient(ingredient)
+                                        viewModel.removeIngredient(Color(255, 152, 0, 255), true)
+                                    } else {
+                                        recipeViewModel.selectIngredient(ingredient)
+                                        viewModel.addIngredient(Color(255, 152, 0, 255), true)
+                                    }
+                                    Log.i(
+                                        "Ingredients",
+                                        "Selected ingredients: ${selectedIngredients.joinToString()}"
+                                    )
                                 }
-                                Log.i(
-                                    "Ingredients",
-                                    "Selected ingredients: ${selectedItems.joinToString()}"
-                                )
-                            }
-                        )
+                            )
+                        }
                     }
                 }
             }
@@ -181,8 +173,7 @@ fun HomeScreen(
 
 @Composable
 private fun IngredientItem(
-    ingredient: String,
-    //image: Image,
+    ingredient: IngredientEntity,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -201,8 +192,8 @@ private fun IngredientItem(
                 }
             )
     ) {
-        Icon(
-            imageVector = Icons.Outlined.ShoppingCart, // TODO images einfügen
+        AsyncImage(
+            model = ingredient.iconFilePath,
             contentDescription = null,
             modifier = Modifier
                 .size(24.dp)
@@ -210,7 +201,7 @@ private fun IngredientItem(
         )
 
         Text(
-            text = ingredient,
+            text = ingredient.name,
             style = MaterialTheme.typography.bodyLarge
         )
     }

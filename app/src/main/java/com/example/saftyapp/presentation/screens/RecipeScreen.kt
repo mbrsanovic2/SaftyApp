@@ -11,7 +11,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -23,8 +22,8 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.TextField
 import androidx.compose.material3.TextFieldDefaults
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
@@ -36,48 +35,26 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.saftyapp.model.Recipe
-import com.example.saftyapp.model.getTestRecipes
+import com.example.saftyapp.model.database.entities.IngredientEntity
+import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeScreen(
     modifier: Modifier,
+    recipeViewModel: RecipeViewModel = viewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
-    val ingredients: List<String> = listOf(
-        "Apple",
-        "Berries",
-        "Kiwi",
-        "Papaya",
-        "Coffee",
-        "Sugar",
-        "Water",
-        "Milk",
-        "Orange",
-        "Pineapple",
-        "Coconut",
-        "Raspberry",
-        "Ice"
-    ) // TODO Liste von DB holen
-    // TODO Liste mit Ingredient Images?
-    val recipes: List<Recipe> = getTestRecipes()
-    val selectedIngredients = remember { mutableStateListOf<String>() }
+    val ingredients by recipeViewModel.ingredients.collectAsState()
+    val selectedIngredients = recipeViewModel.selectedIngredients
+    val queryText by recipeViewModel.queryText.collectAsState()
+    val filteredRecipes by recipeViewModel.filteredRecipes.collectAsState()
+
     val scrollState = rememberLazyGridState()
-
-    var queryText by remember { mutableStateOf("") }
     var isFilterVisible by remember { mutableStateOf(false) }
-
-    val filteredRecipes = recipes.filter { recipe ->
-        val matchesQuery = recipe.name.contains(queryText, ignoreCase = true)
-        val matchesIngredients =
-            selectedIngredients.isEmpty() || selectedIngredients.any { selected ->
-                recipe.ingredients.any { it.contains(selected, ignoreCase = true) }
-            }
-        matchesQuery && matchesIngredients
-    }
 
     Column(
         modifier = modifier
@@ -93,7 +70,7 @@ fun RecipeScreen(
         ) {
             TextField(
                 value = queryText,
-                onValueChange = { queryText = it },
+                onValueChange = { recipeViewModel.updateQuery(it) },
                 placeholder = { Text("Search Recipes...") },
                 leadingIcon = {
                     Icon(
@@ -105,7 +82,7 @@ fun RecipeScreen(
                 modifier = Modifier
                     .weight(1f)
                     .height(56.dp),
-                shape = RoundedCornerShape(28.dp), // für runde Ecken
+                shape = RoundedCornerShape(28.dp),
                 colors = TextFieldDefaults.textFieldColors(
                     containerColor = MaterialTheme.colorScheme.primary.copy(alpha = 0.1f),
                     unfocusedIndicatorColor = Color.Transparent,
@@ -125,8 +102,7 @@ fun RecipeScreen(
 
             IconButton(
                 onClick = {
-                    selectedIngredients.clear()
-                    queryText = ""
+                    recipeViewModel.clearFilter()
                 },
                 modifier = Modifier.size(30.dp)
             ) {
@@ -156,21 +132,23 @@ fun RecipeScreen(
                 items(ingredients) { ingredient ->
                     val isSelected = ingredient in selectedIngredients
 
-                    IngredientItem(
-                        ingredient = ingredient,
-                        isSelected = isSelected,
-                        onClick = {
-                            if (isSelected) {
-                                selectedIngredients.remove(ingredient)
-                            } else {
-                                selectedIngredients.add(ingredient)
+                    if(ingredient.isUnlocked) {
+                        IngredientItem(
+                            ingredient = ingredient,
+                            isSelected = isSelected,
+                            onClick = {
+                                if (isSelected) {
+                                    recipeViewModel.deselectIngredient(ingredient)
+                                } else {
+                                    recipeViewModel.selectIngredient(ingredient)
+                                }
+                                Log.i(
+                                    "Ingredients",
+                                    "Selected ingredients: ${selectedIngredients.joinToString()}"
+                                )
                             }
-                            Log.i(
-                                "Ingredients",
-                                "Selected ingredients: ${selectedIngredients.joinToString()}"
-                            )
-                        }
-                    )
+                        )
+                    }
                 }
             }
         }
@@ -205,10 +183,10 @@ fun RecipeScreen(
             ) {
                 items(filteredRecipes) { recipe ->
                     RecipeCard(
-                        name = recipe.name,
-                        image = recipe.thumbnail,
+                        name = recipe.recipe.name,
+                        image = recipe.recipe.thumbnail,
                         onClick = {
-                            onNavigateToRecipeScreen(recipe.name)
+                            onNavigateToRecipeScreen(recipe.recipe.name)
                         }
                     )
                 }
@@ -260,8 +238,7 @@ fun RecipeCard(
 
 @Composable
 private fun IngredientItem(
-    ingredient: String,
-    //image: Image,
+    ingredient: IngredientEntity,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -280,8 +257,8 @@ private fun IngredientItem(
                 }
             )
     ) {
-        Icon(
-            imageVector = Icons.Outlined.ShoppingCart, // TODO images einfügen
+        AsyncImage(
+            model = ingredient.iconFilePath,
             contentDescription = null,
             modifier = Modifier
                 .size(24.dp)
@@ -289,7 +266,7 @@ private fun IngredientItem(
         )
 
         Text(
-            text = ingredient,
+            text = ingredient.name,
             style = MaterialTheme.typography.bodyLarge
         )
     }
