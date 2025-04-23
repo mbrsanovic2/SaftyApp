@@ -62,8 +62,12 @@ class RecipeViewModel : ViewModel() { // TODO Repository einbinden
         updateFilteredRecipes()
     }
 
-    fun clearFilter() {
+    fun deselectAllIngredients() {
         _selectedIngredients.clear()
+    }
+
+    fun clearFilter() {
+        deselectAllIngredients()
         updateFilteredRecipes()
         updateQuery("")
     }
@@ -74,8 +78,8 @@ class RecipeViewModel : ViewModel() { // TODO Repository einbinden
 
         val filtered = currentRecipes.filter { recipe ->
             val matchesQuery = recipe.recipe.name.contains(query, ignoreCase = true)
-            val matchesIngredients = _selectedIngredients.isEmpty() || _selectedIngredients.any { selected ->
-                recipe.ingredients.any { it.name.contains(selected.name, ignoreCase = true) }
+            val matchesIngredients = _selectedIngredients.isEmpty() || _selectedIngredients.all { selected ->
+                recipe.ingredients.any { it.name.equals(selected.name, ignoreCase = true) }
             }
             matchesQuery && matchesIngredients
         }

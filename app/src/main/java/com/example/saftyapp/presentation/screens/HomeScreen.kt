@@ -13,10 +13,12 @@ import androidx.compose.foundation.lazy.grid.items
 import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -106,7 +108,9 @@ fun HomeScreen(
             ) {
                 Safty(
                     expression = currentExpression,
-                    modifier = Modifier.fillMaxHeight().aspectRatio(1f),
+                    modifier = Modifier
+                        .fillMaxHeight()
+                        .aspectRatio(1f),
                     fillAmount = fillAmount.value,
                     fillColor = liquidColor,
                     currentText = currentWords
@@ -132,7 +136,26 @@ fun HomeScreen(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+            Row(
+                modifier = Modifier.fillMaxWidth(),
+                horizontalArrangement = Arrangement.SpaceBetween
+            ) {
+                Text("Ingredients", style = MaterialTheme.typography.titleMedium)
+
+                IconButton(
+                    onClick = {
+                        recipeViewModel.deselectAllIngredients()
+                        // TODO Safty reset
+                    },
+                    modifier = Modifier.size(30.dp)
+                ) {
+                    Icon(
+                        imageVector = Icons.Default.Delete,
+                        contentDescription = "Clear Filter",
+                        tint = MaterialTheme.colorScheme.primary,
+                    )
+                }
+            }
 
             Spacer(modifier = Modifier.height(12.dp))
 
@@ -148,23 +171,27 @@ fun HomeScreen(
                     columns = GridCells.Fixed(2),
                     modifier = Modifier
                         .drawVerticalScrollbar(scrollState),
-                    contentPadding = PaddingValues(5.dp),
+                    contentPadding = PaddingValues(
+                        start = 15.dp,
+                        end = 5.dp,
+                        top = 5.dp,
+                        bottom = 5.dp),
                 ) {
                     items(ingredients) { ingredient ->
                         val isSelected = ingredient in selectedIngredients
 
-                        if(ingredient.isUnlocked) {
+                        if (ingredient.isUnlocked) {
                             IngredientItem(
                                 ingredient = ingredient,
                                 isSelected = isSelected,
                                 onClick = {
                                     if (isSelected) {
                                         recipeViewModel.deselectIngredient(ingredient)
-                                        viewModel.removeIngredient(Color(255, 152, 0, 255), true)
+                                        viewModel.removeIngredient(ingredient.color, true)
                                         viewModel.saftySpeaketh("")
                                     } else {
                                         recipeViewModel.selectIngredient(ingredient)
-                                        viewModel.addIngredient(Color(255, 152, 0, 255), true)
+                                        viewModel.addIngredient(ingredient.color, true)
                                         val comments = listOf(
                                             "Too \uD83C\uDF36 to \uFE0F\uD83D\uDC14",
                                             "Now that is rustikal\uD83D\uDE0F",
@@ -175,7 +202,7 @@ fun HomeScreen(
                                     }
                                     Log.i(
                                         "Ingredients",
-                                        "Selected ingredients: ${selectedIngredients.joinToString()}"
+                                        "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
                                     )
                                 }
                             )
@@ -214,7 +241,7 @@ private fun IngredientItem(
             model = ingredient.iconFilePath,
             contentDescription = null,
             modifier = Modifier
-                .size(24.dp)
+                .size(35.dp)
                 .padding(end = 8.dp)
         )
 
@@ -231,7 +258,7 @@ fun HomeScreenPreview() {
     SaftyAppTheme {
         HomeScreen(
             modifier = Modifier,
-        ){
+        ) {
 
         }
     }

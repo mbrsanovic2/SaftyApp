@@ -118,7 +118,7 @@ fun RecipeScreen(
             visible = isFilterVisible,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(100.dp)
+                .height(120.dp)
                 .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(3.dp))
                 .clip(RoundedCornerShape(3.dp))
         ) {
@@ -127,7 +127,12 @@ fun RecipeScreen(
                 columns = GridCells.Fixed(2),
                 modifier = Modifier
                     .drawVerticalScrollbar(scrollState),
-                contentPadding = PaddingValues(5.dp),
+                contentPadding = PaddingValues(
+                    start = 15.dp,
+                    end = 5.dp,
+                    top = 5.dp,
+                    bottom = 5.dp
+                ),
             ) {
                 items(ingredients) { ingredient ->
                     val isSelected = ingredient in selectedIngredients
@@ -261,7 +266,7 @@ private fun IngredientItem(
             model = ingredient.iconFilePath,
             contentDescription = null,
             modifier = Modifier
-                .size(24.dp)
+                .size(35.dp)
                 .padding(end = 8.dp)
         )
 
