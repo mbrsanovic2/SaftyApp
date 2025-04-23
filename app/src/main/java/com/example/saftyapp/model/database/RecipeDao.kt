@@ -5,16 +5,35 @@ import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
 import androidx.room.Transaction
+import androidx.room.Update
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.RecipeWithIngredientsEntity
+import com.example.saftyapp.model.database.entities.UserEntity
 
 @Dao
 interface RecipeDao {
-    @Transaction
     @Query("SELECT * FROM recipes")
     suspend fun getRecipesWithIngredients(): List<RecipeWithIngredientsEntity>
+
+    @Query("SELECT * FROM measures WHERE recipeID = :rID AND ingredientID = :iID")
+    suspend fun getMeasure(rID: Int, iID: Int): MeasureEntity
+
+    @Query("SELECT * FROM ingredients")
+    suspend fun getAllIngredients(): List<IngredientEntity>
+
+    @Query("SELECT name FROM recipes")
+    suspend fun getRecipeNames(): List<String>
+
+    @Query("SELECT * FROM ingredients WHERE name = :name ")
+    suspend fun getIngredientByName(name: String): IngredientEntity
+
+    @Query("SELECT * FROM recipes WHERE name = :name")
+    suspend fun getRecipeByName(name: String):RecipeWithIngredientsEntity
+
+//    @Query("SELECT DISTINCT * FROM recipes rec INNER JOIN measures ref ON rec.id = ref.recipeID WHERE ref.ingredientID IN (:iID)")
+//    suspend fun getRecipeByIngredient(iID: List<Int>):List<RecipeEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipe(recipe: RecipeEntity)
@@ -28,7 +47,11 @@ interface RecipeDao {
 
 @Dao
 interface UserDao {
+    @Insert(onConflict = OnConflictStrategy.ABORT)
+    suspend fun insertUser(user: UserEntity)
 
+    @Query("SELECT * FROM user WHERE id = 1")
+    suspend fun getUser(): UserEntity?
 }
 
 @Dao
