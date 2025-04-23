@@ -1,5 +1,6 @@
 package com.example.saftyapp.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -19,6 +20,7 @@ import androidx.compose.material3.Icon
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -36,9 +38,18 @@ import androidx.compose.ui.unit.sp
 import com.example.saftyapp.R
 import com.example.saftyapp.model.Recipe
 import com.example.saftyapp.model.getTestRecipes
+import com.google.accompanist.permissions.ExperimentalPermissionsApi
+import com.google.accompanist.permissions.PermissionStatus
+import com.google.accompanist.permissions.rememberPermissionState
 
+@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun InstructionCard(modifier: Modifier, recipeId: String, from: String?) {
+fun InstructionCard(
+    modifier: Modifier,
+    recipeId: String,
+    from: String?,
+    navigateToCamera: () -> Unit
+) {
     val exampleRecipe: Recipe
     val exampleColor: Color
     val image: Int
@@ -50,6 +61,17 @@ fun InstructionCard(modifier: Modifier, recipeId: String, from: String?) {
         exampleRecipe = getTestRecipes()[2]
         exampleColor = MaterialTheme.colorScheme.surface
         image = R.drawable.example_drink_2
+    }
+
+    // Launch camera upon permission granted
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    var requestedPermission by remember { mutableStateOf(false) }
+    
+    LaunchedEffect(cameraPermissionState.status, requestedPermission) {
+        if (requestedPermission && cameraPermissionState.status is PermissionStatus.Granted) {
+            navigateToCamera()
+            requestedPermission = false // Reset Flag
+        }
     }
 
     Card(
@@ -88,9 +110,23 @@ fun InstructionCard(modifier: Modifier, recipeId: String, from: String?) {
             )
 
             Spacer(modifier = Modifier.height(24.dp))
+
             RecipeDetails(exampleRecipe)
+
             if(from == "Safty"){
                 FinishedButton()
+
+                // TODO schönen button einfügen :D
+                Button(onClick = {
+                    if (cameraPermissionState.status is PermissionStatus.Granted) {
+                        navigateToCamera()
+                    } else {
+                        requestedPermission = true
+                        cameraPermissionState.launchPermissionRequest()
+                    }
+                }) {
+                    Text("Take Photo")
+                }
             }
         }
     }

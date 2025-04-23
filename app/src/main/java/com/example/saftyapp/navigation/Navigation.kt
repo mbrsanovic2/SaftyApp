@@ -8,13 +8,16 @@ import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Modifier
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.presentation.screens.ArchiveScreen
+import com.example.saftyapp.presentation.screens.CameraScreen
 import com.example.saftyapp.presentation.uicomponents.BottomBarXP
 import com.example.saftyapp.presentation.screens.HomeScreen
 import com.example.saftyapp.presentation.uicomponents.MenuDrawer
@@ -28,6 +31,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     val navController = rememberNavController()
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
+    val photoViewModel: PhotoViewModel = viewModel()
 
     // Make current route observable
     val navBackStackEntry = navController.currentBackStackEntryAsState()
@@ -36,6 +40,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     val hideBottomBar = when {
         currentRoute == Screens.ArchiveScreen.route -> true
         currentRoute == Screens.RecipeScreen.route -> true
+        currentRoute == Screens.CameraScreen.route -> true
         currentRoute.startsWith("instruction_screen/") -> true
         else -> false
     }
@@ -81,6 +86,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                         }
                     )
                 }
+
                 // RecipeScreen
                 composable(route = Screens.RecipeScreen.route) {
                     RecipeScreen(
@@ -89,9 +95,15 @@ fun Navigation(modifier: Modifier = Modifier) {
                             navController.navigate(Screens.InstructionScreen.createRoute(recipe))
                         })
                 }
+
+                // ArchiveScreen
                 composable(route = Screens.ArchiveScreen.route) {
-                    ArchiveScreen(modifier = Modifier)
+                    ArchiveScreen(
+                        modifier = Modifier,
+                        viewModel = photoViewModel
+                    )
                 }
+
                 // InstructionScreen
                 composable(
                     route = Screens.InstructionScreen.route,
@@ -112,7 +124,18 @@ fun Navigation(modifier: Modifier = Modifier) {
                     InstructionCard(
                         modifier = Modifier,
                         recipeId = recipeId,
-                        from = from
+                        from = from,
+                        navigateToCamera = { navController.navigate(Screens.CameraScreen.route) }
+                    )
+                }
+
+                // Camera Screen
+                composable(route = Screens.CameraScreen.route) {
+                    CameraScreen(
+                        viewModel = photoViewModel,
+                        onPhotoTaken = {
+                            navController.navigate(Screens.ArchiveScreen.route)
+                        }
                     )
                 }
             }
