@@ -52,6 +52,24 @@ interface UserDao {
 
     @Query("SELECT * FROM user WHERE id = 1")
     suspend fun getUser(): UserEntity?
+
+    @Query("UPDATE user SET hasTitle = :title WHERE id = 1")
+    suspend fun updateTitle(title:Boolean)
+
+    @Query("UPDATE user SET currentLvL = currentLvL + 1 WHERE id = 1")
+    suspend fun increaseLvL()
+
+    @Query("UPDATE user SET currentXP = currentXP + :xp WHERE id = 1")
+    suspend fun increaseXP(xp:Int)
+
+    @Query("UPDATE user SET currentXP = 0 WHERE id = 1")
+    suspend fun resetXP()
+
+    @Query("UPDATE user SET currentLvL = :lvl WHERE id = 1")
+    suspend fun setLvL(lvl:Int)
+
+    @Query("UPDATE user SET targetXP = currentLvL * 10 WHERE id = 1")
+    suspend fun updateTarget()
 }
 
 @Dao

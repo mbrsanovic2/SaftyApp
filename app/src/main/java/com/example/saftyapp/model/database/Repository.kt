@@ -29,128 +29,159 @@ class Repository(context: Context) {
     private val userDao: UserDao = db.userDao()
     private val archiveDao: ArchiveDao = db.archiveDao()
 
-    suspend fun getAllIngredients(): List<Ingredient> {
-        val entities = recipeDao.getAllIngredients()
-        val ingredients: List<Ingredient> = entities.map { e ->
-            Ingredient(
-                name = e.name,
-                iconFilePath = e.iconFilePath,
-                color = e.color,
-                isUnlocked = e.isUnlocked
-            )
+    /**
+     * All database interactions for recipes and interactions
+     */
+    inner class RecipeFunctions {
+        suspend fun getAllIngredients(): List<Ingredient> {
+            val entities = recipeDao.getAllIngredients()
+            val ingredients: List<Ingredient> = entities.map { e ->
+                Ingredient(
+                    name = e.name,
+                    iconFilePath = e.iconFilePath,
+                    color = e.color,
+                    isUnlocked = e.isUnlocked
+                )
+            }
+            return ingredients
         }
-        return ingredients
-    }
 
-    suspend fun getAllFullRecipes(): List<RecipeStruct> {
-        val entities = recipeDao.getRecipesWithIngredients()
-        val recipes: List<RecipeStruct> = entities.map { e ->
-            RecipeStruct(
-                name = e.recipe.name,
-                instructions = e.recipe.instructions,
-                thumbnail = e.recipe.thumbnail,
-                isCustom = e.recipe.isCustom,
-                isAlcoholic = e.recipe.isAlcoholic,
-                ingredients = e.ingredients.map { i ->
+        suspend fun getAllFullRecipes(): List<RecipeStruct> {
+            val entities = recipeDao.getRecipesWithIngredients()
+            val recipes: List<RecipeStruct> = entities.map { e ->
+                RecipeStruct(
+                    name = e.recipe.name,
+                    instructions = e.recipe.instructions,
+                    thumbnail = e.recipe.thumbnail,
+                    isCustom = e.recipe.isCustom,
+                    isAlcoholic = e.recipe.isAlcoholic,
+                    ingredients = e.ingredients.map { i ->
+                        Ingredient(
+                            name = i.name,
+                            iconFilePath = i.iconFilePath,
+                            color = i.color,
+                            isUnlocked = i.isUnlocked,
+                            measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure
+                        )
+                    },
+                )
+            }
+
+            return recipes
+        }
+
+        suspend fun getAllRecipeNames(): List<String> {
+            return recipeDao.getRecipeNames()
+        }
+
+        @Deprecated("Not yet implemented", level = DeprecationLevel.ERROR)
+        suspend fun getRecipeByIngredient(ingredient: Ingredient): List<RecipeStruct> {
+            TODO()
+        }
+
+        suspend fun getIngredient(name: String): Ingredient {
+            val entity = recipeDao.getIngredientByName(name)
+            val ingredient = Ingredient(
+                name = entity.name,
+                iconFilePath = entity.iconFilePath,
+                color = entity.color,
+                isUnlocked = entity.isUnlocked,
+            )
+            return ingredient
+        }
+
+        suspend fun getRecipeByName(name: String): RecipeStruct {
+            val entity = recipeDao.getRecipeByName(name)
+            return RecipeStruct(
+                name = entity.recipe.name,
+                instructions = entity.recipe.instructions,
+                isCustom = entity.recipe.isCustom,
+                isAlcoholic = entity.recipe.isAlcoholic,
+                thumbnail = entity.recipe.thumbnail,
+                ingredients = entity.ingredients.map { i ->
                     Ingredient(
                         name = i.name,
                         iconFilePath = i.iconFilePath,
                         color = i.color,
                         isUnlocked = i.isUnlocked,
-                        measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure
+                        measure = recipeDao.getMeasure(rID = entity.recipe.id, iID = i.id).measure
                     )
-                },
+                }
             )
         }
 
-        return recipes
-    }
+        suspend fun addRecipe(recipe: RecipeStruct) {
+            recipeDao.insertRecipe(
+                RecipeEntity(
+                    name = recipe.name,
+                    isCustom = recipe.isCustom,
+                    isAlcoholic = recipe.isAlcoholic,
+                    instructions = recipe.instructions,
+                    thumbnail = recipe.thumbnail,
+                )
+            )
 
-    suspend fun getAllRecipeNames(): List<String> {
-        return recipeDao.getRecipeNames()
-    }
-
-    suspend fun getRecipeByIngredient(ingredient: Ingredient): List<RecipeStruct> {
-        TODO()
-    }
-
-    suspend fun getIngredient(name: String): Ingredient {
-        val entity = recipeDao.getIngredientByName(name)
-        val ingredient = Ingredient(
-            name = entity.name,
-            iconFilePath = entity.iconFilePath,
-            color = entity.color,
-            isUnlocked = entity.isUnlocked,
-        )
-        return ingredient
-    }
-
-    suspend fun getRecipeByName(name: String): RecipeStruct {
-        val entity = recipeDao.getRecipeByName(name)
-        return RecipeStruct(
-            name = entity.recipe.name,
-            instructions = entity.recipe.instructions,
-            isCustom = entity.recipe.isCustom,
-            isAlcoholic = entity.recipe.isAlcoholic,
-            thumbnail = entity.recipe.thumbnail,
-            ingredients = entity.ingredients.map { i ->
-                Ingredient(
-                    name = i.name,
-                    iconFilePath = i.iconFilePath,
-                    color = i.color,
-                    isUnlocked = i.isUnlocked,
-                    measure = recipeDao.getMeasure(rID = entity.recipe.id, iID = i.id).measure
+            val measures = recipe.ingredients.map { i ->
+                MeasureEntity(
+                    recipeID = recipeDao.getRecipeByName(recipe.name).recipe.id,
+                    ingredientID = recipeDao.getIngredientByName(i.name).id,
+                    measure = i.measure ?: "No Info"
                 )
             }
-        )
+
+            recipeDao.insertMeasures(measures)
+        }
     }
 
-    suspend fun getUserData(): UserData {
-        var entity = userDao.getUser()
-        if (entity == null) {
-            userDao.insertUser(
-                UserEntity(
-                    currentXP = 0,
-                    targetXP = 10,
-                    currentLvL = 1,
-                    hasTitle = false
+    inner class UserFunctions {
+        suspend fun getUserData(): UserData {
+            var entity = userDao.getUser()
+            if (entity == null) {
+                userDao.insertUser(
+                    UserEntity(
+                        currentXP = 0,
+                        targetXP = 10,
+                        currentLvL = 1,
+                        hasTitle = false
+                    )
                 )
+                entity = userDao.getUser()
+            }
+            val user = UserData(
+                currentXP = entity!!.currentXP,
+                targetXP = entity.targetXP,
+                level = entity.currentLvL,
+                isJUICY = entity.hasTitle
             )
-            entity = userDao.getUser()
-        }
-        val user = UserData(
-            currentXP = entity!!.currentXP,
-            targetXP = entity.targetXP,
-            level = entity.currentLvL,
-            isJUICY = entity.hasTitle
-        )
-        return user
-    }
-
-    suspend fun getArchive(): List<ArchiveEntry> {
-        TODO()
-    }
-
-    suspend fun addRecipe(recipe: RecipeStruct) {
-        recipeDao.insertRecipe(
-            RecipeEntity(
-                name = recipe.name,
-                isCustom = recipe.isCustom,
-                isAlcoholic = recipe.isAlcoholic,
-                instructions = recipe.instructions,
-                thumbnail = recipe.thumbnail,
-            )
-        )
-
-        val measures = recipe.ingredients.map { i ->
-            MeasureEntity(
-                recipeID = recipeDao.getRecipeByName(recipe.name).recipe.id,
-                ingredientID = recipeDao.getIngredientByName(i.name).id,
-                measure = i.measure ?: "No Info"
-            )
+            return user
         }
 
-        recipeDao.insertMeasures(measures)
+        suspend fun increaseXP(amount:Int){
+            userDao.increaseXP(amount)
+        }
+
+        suspend fun resetXP(){
+            userDao.resetXP()
+        }
+
+        suspend fun updateTargetXP(){
+            userDao.updateTarget()
+        }
+
+        suspend fun setTitle(title:Boolean){
+            userDao.updateTitle(title)
+        }
+
+        suspend fun increaseLvL(){
+            userDao.increaseLvL()
+        }
+    }
+
+    inner class ArchiveFunctions {
+        @Deprecated("Not yet implemented", level = DeprecationLevel.ERROR)
+        suspend fun getArchive(): List<ArchiveEntry> {
+            TODO()
+        }
     }
 
     suspend fun loadDefaultData() {
