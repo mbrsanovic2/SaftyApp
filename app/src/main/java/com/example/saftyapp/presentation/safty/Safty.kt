@@ -1,13 +1,14 @@
 package com.example.saftyapp.presentation.safty
 
-
 import androidx.compose.foundation.BorderStroke
-import androidx.compose.foundation.Canvas
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
-import androidx.compose.foundation.border
-import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.shape.GenericShape
+import androidx.compose.foundation.layout.Box
+import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
+import androidx.compose.foundation.layout.offset
+import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material3.Button
 import androidx.compose.material3.MaterialTheme
@@ -20,13 +21,9 @@ import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
-import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.alpha
-import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.draw.drawWithContent
-import androidx.compose.ui.geometry.CornerRadius
-import androidx.compose.ui.geometry.RoundRect
 import androidx.compose.ui.graphics.BlendMode
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.ColorFilter
@@ -52,34 +49,8 @@ fun Safty(
     Box(
         modifier = modifier
     ) {
-        SaftyImage(
-            image = R.drawable.safty_default,
-            contentDescription = "Safty",
-            modifier = modifier
-        )
+        SaftyImage(expression, modifier.padding(top = 52.dp), fillAmount, fillColor)
 
-        SaftyImage(
-            image = R.drawable.fill,
-            contentDescription = "Fluid",
-            colorFilter = ColorFilter.tint(fillColor, blendMode = BlendMode.Modulate),
-            modifier = modifier
-                .alpha(0.85f)
-                .drawWithContent {
-                    clipRect(
-                        top = size.height - size.height * fillAmount,
-                        bottom = size.height
-                    ) {
-                        this@drawWithContent.drawContent()
-                    }
-                }
-        )
-
-        SaftyImage(
-            image = expression.drawableRes,
-            contentDescription = "Expression",
-            modifier = modifier
-                .offset(x = 3.dp)
-        )
         if (currentText.isNotEmpty()) {
             SpeechBubble(
                 text = currentText,
@@ -89,9 +60,45 @@ fun Safty(
         }
     }
 }
-
 @Composable
 fun SaftyImage(
+    expression: SaftyExpression,
+    modifier: Modifier = Modifier,
+    fillAmount: Float = 0f,
+    fillColor: Color,
+){
+    SaftyPart(
+        image = R.drawable.safty_default,
+        contentDescription = "Safty",
+        modifier = modifier
+    )
+
+    SaftyPart(
+        image = R.drawable.fill,
+        contentDescription = "Fluid",
+        colorFilter = ColorFilter.tint(fillColor, blendMode = BlendMode.Modulate),
+        modifier = modifier
+            .alpha(0.85f)
+            .drawWithContent {
+                clipRect(
+                    top = size.height - size.height * fillAmount,
+                    bottom = size.height
+                ) {
+                    this@drawWithContent.drawContent()
+                }
+            }
+    )
+
+    SaftyPart(
+        image = expression.drawableRes,
+        contentDescription = "Expression",
+        modifier = modifier
+            .offset(x = 3.dp)
+    )
+}
+
+@Composable
+fun SaftyPart(
     image: Int,
     contentDescription: String,
     modifier: Modifier,
@@ -185,7 +192,7 @@ fun SpeechBubble(text: String, modifier: Modifier = Modifier) {
         ) {
             TypewriterText(
                 fullText = text,
-                typingSpeed = 25L, // Adjust speed to your taste
+                typingSpeed = 20L,
                 modifier = Modifier.padding(horizontal = 16.dp, vertical = 12.dp)
             )
         }

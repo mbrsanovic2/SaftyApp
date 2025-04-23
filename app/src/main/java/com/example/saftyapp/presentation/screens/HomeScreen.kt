@@ -161,6 +161,7 @@ fun HomeScreen(
                                     if (isSelected) {
                                         recipeViewModel.deselectIngredient(ingredient)
                                         viewModel.removeIngredient(Color(255, 152, 0, 255), true)
+                                        viewModel.saftySpeaketh("")
                                     } else {
                                         recipeViewModel.selectIngredient(ingredient)
                                         viewModel.addIngredient(Color(255, 152, 0, 255), true)
