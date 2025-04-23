@@ -14,7 +14,6 @@ import androidx.compose.foundation.lazy.grid.rememberLazyGridState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -25,7 +24,6 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
@@ -43,7 +41,6 @@ import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.SaftyViewModel
 import com.example.saftyapp.presentation.safty.RecipeSuggestionDialog
 import com.example.saftyapp.presentation.safty.Safty
-import com.example.saftyapp.presentation.safty.SpeechBubble
 import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 import com.example.saftyapp.ui.theme.SaftyAppTheme
 import kotlinx.coroutines.delay
@@ -54,7 +51,7 @@ import kotlin.random.Random
 @Composable
 fun HomeScreen(
     modifier: Modifier,
-    viewModel: SaftyViewModel = viewModel(),
+    saftyViewModel: SaftyViewModel = viewModel(),
     recipeViewModel: RecipeViewModel = viewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
@@ -62,12 +59,12 @@ fun HomeScreen(
     val selectedIngredients = recipeViewModel.selectedIngredients
     val scrollState = rememberLazyGridState()
 
-    val currentExpression by viewModel.currentExpression.collectAsState()
-    val fillTarget = viewModel.fillTarget.collectAsState()
+    val currentExpression by saftyViewModel.currentExpression.collectAsState()
+    val fillTarget = saftyViewModel.fillTarget.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
 
-    val liquidColor by viewModel.liquidColor.collectAsState()
-    val currentWords by viewModel.currentWords.collectAsState()
+    val liquidColor by saftyViewModel.liquidColor.collectAsState()
+    val currentWords by saftyViewModel.currentWords.collectAsState()
 
     val fillAmount = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
@@ -81,11 +78,11 @@ fun HomeScreen(
         onSelect = { selectedItem ->
             onNavigateToRecipeScreen(selectedItem)
             showDialog = false
-            viewModel.cancelDrinkFinished()
+            saftyViewModel.cancelDrinkFinished()
         },
         onDismiss = {
             showDialog = false
-            viewModel.cancelDrinkFinished()
+            saftyViewModel.cancelDrinkFinished()
         }
     )
 
@@ -122,9 +119,9 @@ fun HomeScreen(
             Button(
                 modifier = Modifier.align(Alignment.CenterHorizontally),
                 onClick = {
-                    if (!selectedIngredients.isEmpty()) {
+                    if (selectedIngredients.isNotEmpty()) {
                         coroutineScope.launch {
-                            viewModel.drinkFinished()
+                            saftyViewModel.drinkFinished()
                             delay(500L)
                             showDialog = true
                         }
@@ -145,7 +142,7 @@ fun HomeScreen(
                 IconButton(
                     onClick = {
                         recipeViewModel.deselectAllIngredients()
-                        // TODO Safty reset
+                        saftyViewModel.clearAllIngredients()
                     },
                     modifier = Modifier.size(30.dp)
                 ) {
@@ -187,18 +184,18 @@ fun HomeScreen(
                                 onClick = {
                                     if (isSelected) {
                                         recipeViewModel.deselectIngredient(ingredient)
-                                        viewModel.removeIngredient(ingredient.color, true)
-                                        viewModel.saftySpeaketh("")
+                                        saftyViewModel.removeIngredient(ingredient.color, true)
+                                        saftyViewModel.saftySpeaketh("")
                                     } else {
                                         recipeViewModel.selectIngredient(ingredient)
-                                        viewModel.addIngredient(ingredient.color, true)
+                                        saftyViewModel.addIngredient(ingredient.color, true)
                                         val comments = listOf(
                                             "Too \uD83C\uDF36 to \uFE0F\uD83D\uDC14",
                                             "Now that is rustikal\uD83D\uDE0F",
                                             "Very spaghetti carbonara"
                                         )
                                         val randomComment = comments[Random.nextInt(comments.size)]
-                                        viewModel.saftySpeaketh(randomComment)
+                                        saftyViewModel.saftySpeaketh(randomComment)
                                     }
                                     Log.i(
                                         "Ingredients",

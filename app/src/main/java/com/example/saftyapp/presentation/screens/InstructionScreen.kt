@@ -133,10 +133,6 @@ fun RecipeDetails(recipe: Recipe) {
 @Composable
 fun FinishedButton() {
     var isClicked by remember { mutableStateOf(false) }
-
-    val backgroundColor = MaterialTheme.colorScheme.primary
-    val contentColor = MaterialTheme.colorScheme.onPrimary
-
     Button(
         onClick = { isClicked = true },
         enabled = !isClicked,

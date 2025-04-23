@@ -46,6 +46,13 @@ class SaftyViewModel : ViewModel() {
     fun cancelDrinkFinished(){
         updateFill()
     }
+
+    fun clearAllIngredients(){
+        mixCount = 0
+        addedColors.clear()
+        updateFill()
+        saftySpeaketh("")
+    }
     fun saftySpeaketh(fulltext: String){
         _currentWords.value = fulltext
     }
@@ -63,6 +70,7 @@ class SaftyViewModel : ViewModel() {
             else -> SaftyExpression.Angry
         }
     }
+
 
     private fun updateFill() {
         val decay = 0.85f
