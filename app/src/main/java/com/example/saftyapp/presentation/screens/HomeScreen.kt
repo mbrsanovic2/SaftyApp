@@ -41,10 +41,12 @@ import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.SaftyViewModel
 import com.example.saftyapp.presentation.safty.RecipeSuggestionDialog
 import com.example.saftyapp.presentation.safty.Safty
+import com.example.saftyapp.presentation.safty.SpeechBubble
 import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 import com.example.saftyapp.ui.theme.SaftyAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -63,6 +65,7 @@ fun HomeScreen(
     var showDialog by remember { mutableStateOf(false) }
 
     val liquidColor by viewModel.liquidColor.collectAsState()
+    val currentWords by viewModel.currentWords.collectAsState()
 
     val fillAmount = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
@@ -94,13 +97,20 @@ fun HomeScreen(
         Column(
             modifier = Modifier.fillMaxSize()
         ) {
+
             Box(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(maxHeight * 0.5f),
                 contentAlignment = Alignment.Center
             ) {
-                Safty(currentExpression, modifier, fillAmount.value, liquidColor)
+                Safty(
+                    expression = currentExpression,
+                    modifier = Modifier.fillMaxHeight().aspectRatio(1f),
+                    fillAmount = fillAmount.value,
+                    fillColor = liquidColor,
+                    currentText = currentWords
+                )
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -154,6 +164,13 @@ fun HomeScreen(
                                     } else {
                                         recipeViewModel.selectIngredient(ingredient)
                                         viewModel.addIngredient(Color(255, 152, 0, 255), true)
+                                        val comments = listOf(
+                                            "Too \uD83C\uDF36 to \uFE0F\uD83D\uDC14",
+                                            "Now that is rustikal\uD83D\uDE0F",
+                                            "Very spaghetti carbonara"
+                                        )
+                                        val randomComment = comments[Random.nextInt(comments.size)]
+                                        viewModel.saftySpeaketh(randomComment)
                                     }
                                     Log.i(
                                         "Ingredients",

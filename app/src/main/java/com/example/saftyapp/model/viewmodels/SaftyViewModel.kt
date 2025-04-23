@@ -19,6 +19,9 @@ class SaftyViewModel : ViewModel() {
     private val _fillTarget = MutableStateFlow(0f)
     val fillTarget = _fillTarget.asStateFlow()
 
+    private val _currentWords = MutableStateFlow("")
+    val currentWords = _currentWords.asStateFlow()
+
     private val addedColors = mutableListOf<Color?>()
     private val _liquidColor = MutableStateFlow(Color.Transparent)
     val liquidColor = _liquidColor.asStateFlow()
@@ -42,6 +45,9 @@ class SaftyViewModel : ViewModel() {
 
     fun cancelDrinkFinished(){
         updateFill()
+    }
+    fun saftySpeaketh(fulltext: String){
+        _currentWords.value = fulltext
     }
 
     private fun changeExpression(wasRecommended: Boolean) {
