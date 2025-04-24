@@ -3,6 +3,7 @@ package com.example.saftyapp.presentation.screens
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -69,12 +70,15 @@ fun CameraScreen(
                 cameraProviderFuture.addListener({
                     val cameraProvider = cameraProviderFuture.get()
 
+                    // Preview
                     val preview = Preview.Builder().build().also {
                         it.setSurfaceProvider(previewView.surfaceProvider)
                     }
 
+                    // Select back camera as a default
                     val cameraSelector = CameraSelector.DEFAULT_BACK_CAMERA
 
+                    // Bind use cases to camera
                     cameraProvider.unbindAll()
                     cameraProvider.bindToLifecycle(
                         lifecycleOwner, cameraSelector, preview, imageCapture
@@ -116,9 +120,20 @@ fun CameraScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly
             ) {
                 Button(onClick = {
-                    // Keep photo and go back to instruction screen
-                    viewModel.confirmCapturedPhoto()
-                    onPhotoTaken()
+                    // Analyze Picture if drink is visible
+                    viewModel.analyzeCapturedPhoto(context) { drinkDetected ->
+                        // Optional: Toast oder Log zeigen
+                        if (drinkDetected) {
+                            Toast.makeText(context, "Drink detected! +10 XP 🎉", Toast.LENGTH_SHORT).show()
+                            Log.d("MLKit", "Drink detected! XP awarded.")
+                        } else {
+                            Toast.makeText(context, "No drink detected. Take another photo for extra XP.", Toast.LENGTH_SHORT).show()
+                            Log.d("MLKit", "No drink detected.")
+                        }
+                        // Keep photo and go back to instruction screen
+                        viewModel.confirmCapturedPhoto()
+                        onPhotoTaken()
+                    }
                 }) {
                     Text("Speichern")
                 }
@@ -142,13 +157,16 @@ fun takePhoto(
     outputDirectory: File,
     onPhotoTaken: (Uri) -> Unit
 ) {
+    // Create time stamped name and MediaStore entry
     val photoFile = File(
         outputDirectory,
         "drink_${System.currentTimeMillis()}.jpg"
     )
 
+    // Create output options object which contains file + metadata
     val outputOptions = ImageCapture.OutputFileOptions.Builder(photoFile).build()
 
+    // Set up image capture listener, which is triggered after photo has been taken
     imageCapture.takePicture(
         outputOptions,
         ContextCompat.getMainExecutor(context),
