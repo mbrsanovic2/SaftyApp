@@ -3,6 +3,7 @@ package com.example.saftyapp.presentation.uicomponents
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.*
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Create
 import androidx.compose.material.icons.filled.FavoriteBorder
 import androidx.compose.material.icons.filled.List
 import androidx.compose.material3.Icon
@@ -27,6 +28,7 @@ fun MenuDrawer(
     navigateToHome: () -> Unit,
     navigateToRecipes: () -> Unit,
     navigateToArchive: () -> Unit,
+    navigateToRecipeCreator: () -> Unit,
     closeDrawer: () -> Unit,
     modifier: Modifier,
 ) {
@@ -59,6 +61,13 @@ fun MenuDrawer(
             icon = { Icon(Icons.Filled.FavoriteBorder, "Archive") },
             selected = currentRoute == Screens.ArchiveScreen.route,
             onClick = { navigateToArchive(); closeDrawer() },
+        )
+
+        SaftyDrawerItem(
+            label = "Recipe Creator",
+            icon = { Icon(Icons.Filled.Create, "Recipe Creation") },
+            selected = currentRoute == Screens.RecipeCreationScreen.route,
+            onClick = { navigateToRecipeCreator(); closeDrawer() },
         )
     }
 }

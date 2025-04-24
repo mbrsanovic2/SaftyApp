@@ -23,6 +23,7 @@ import com.example.saftyapp.presentation.screens.HomeScreen
 import com.example.saftyapp.presentation.uicomponents.MenuDrawer
 import com.example.saftyapp.presentation.screens.RecipeScreen
 import com.example.saftyapp.presentation.screens.InstructionCard
+import com.example.saftyapp.presentation.screens.RecipeForm
 import com.example.saftyapp.presentation.uicomponents.TopBar
 import kotlinx.coroutines.launch
 
@@ -41,6 +42,7 @@ fun Navigation(modifier: Modifier = Modifier) {
         currentRoute == Screens.ArchiveScreen.route -> true
         currentRoute == Screens.RecipeScreen.route -> true
         currentRoute == Screens.CameraScreen.route -> true
+        currentRoute == Screens.RecipeCreationScreen.route -> true
         currentRoute.startsWith("instruction_screen/") -> true
         else -> false
     }
@@ -53,6 +55,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 navigateToHome = { navController.navigate(Screens.HomeScreen.route) },
                 navigateToRecipes = { navController.navigate(Screens.RecipeScreen.route) },
                 navigateToArchive = { navController.navigate(Screens.ArchiveScreen.route) },
+                navigateToRecipeCreator = {navController.navigate(Screens.RecipeCreationScreen.route)},
                 closeDrawer = { coroutineScope.launch { drawerState.close() } },
                 modifier = Modifier
             )
@@ -137,6 +140,13 @@ fun Navigation(modifier: Modifier = Modifier) {
                             navController.navigate(Screens.ArchiveScreen.route)
                         }
                     )
+                }
+
+                composable(route = Screens.RecipeCreationScreen.route) {
+                    RecipeForm(
+                    ){ _,_,_ ->
+                      print("Rezept wurde theoretisch erstellt")
+                    }
                 }
             }
         }

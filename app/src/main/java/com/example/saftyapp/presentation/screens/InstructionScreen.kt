@@ -1,6 +1,5 @@
 package com.example.saftyapp.presentation.screens
 
-import android.util.Log
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -190,13 +189,4 @@ fun FinishedButton() {
             Text("Completed")
         }
     }
-}
-
-fun Color.darken(factor: Float): Color {
-    return Color(
-        red = red * factor,
-        green = green * factor,
-        blue = blue * factor,
-        alpha = alpha
-    )
 }
