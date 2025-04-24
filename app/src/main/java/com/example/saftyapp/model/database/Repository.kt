@@ -1,11 +1,13 @@
 package com.example.saftyapp.model.database
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.example.saftyapp.model.Objects.ArchiveEntry
 import com.example.saftyapp.model.Objects.Ingredient
 import com.example.saftyapp.model.Objects.RecipeStruct
 import com.example.saftyapp.model.Objects.UserData
+import com.example.saftyapp.model.Recipe
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
@@ -74,9 +76,32 @@ class Repository(context: Context) {
             return recipeDao.getRecipeNames()
         }
 
-        @Deprecated("Not yet implemented", level = DeprecationLevel.ERROR)
         suspend fun getRecipeByIngredient(ingredient: Ingredient): List<RecipeStruct> {
-            TODO()
+            val iID = recipeDao.getIngredientByName(ingredient.name).id
+            val entities = recipeDao.getRecipeByIngredient(iID)
+            val fullrecipe = entities.map { e ->
+                recipeDao.getRecipeByName(e.name)
+            }
+            val recipes = fullrecipe.map { f ->
+                RecipeStruct(
+                    name = f.recipe.name,
+                    instructions = f.recipe.instructions,
+                    thumbnail = f.recipe.thumbnail,
+                    isCustom = f.recipe.isCustom,
+                    isAlcoholic = f.recipe.isAlcoholic,
+                    ingredients = f.ingredients.map { i ->
+                        Ingredient(
+                            name = i.name,
+                            iconFilePath = i.iconFilePath,
+                            color = i.color,
+                            isUnlocked = i.isUnlocked,
+                            measure = recipeDao.getMeasure(rID = f.recipe.id, iID = i.id).measure
+                        )
+                    },
+                )
+            }
+
+            return recipes
         }
 
         suspend fun getIngredient(name: String): Ingredient {
@@ -133,6 +158,9 @@ class Repository(context: Context) {
         }
     }
 
+    /**
+     * All database interactions for userData
+     */
     inner class UserFunctions {
         suspend fun getUserData(): UserData {
             var entity = userDao.getUser()
@@ -156,33 +184,37 @@ class Repository(context: Context) {
             return user
         }
 
-        suspend fun increaseXP(amount:Int){
+        suspend fun increaseXP(amount: Int) {
             userDao.increaseXP(amount)
         }
 
-        suspend fun resetXP(){
+        suspend fun resetXP() {
             userDao.resetXP()
         }
 
-        suspend fun updateTargetXP(){
+        suspend fun updateTargetXP() {
             userDao.updateTarget()
         }
 
-        suspend fun setTitle(title:Boolean){
+        suspend fun setTitle(title: Boolean) {
             userDao.updateTitle(title)
         }
 
-        suspend fun increaseLvL(){
+        suspend fun increaseLvL() {
             userDao.increaseLvL()
         }
     }
 
+    /**
+     * All database interactions for the archive
+     */
     inner class ArchiveFunctions {
         @Deprecated("Not yet implemented", level = DeprecationLevel.ERROR)
         suspend fun getArchive(): List<ArchiveEntry> {
             TODO()
         }
     }
+
 
     suspend fun loadDefaultData() {
         //Create default User
@@ -203,6 +235,11 @@ class Repository(context: Context) {
                 listOf(
                     IngredientEntity(
                         name = "Light rum",
+                        color = Color(1),
+                        isUnlocked = true
+                    ),
+                    IngredientEntity(
+                        name = "Cranberry Juice",
                         color = Color(1),
                         isUnlocked = true
                     ),
@@ -700,9 +737,70 @@ class Repository(context: Context) {
                         name = "Baileys irish cream",
                         color = Color(1),
                         isUnlocked = true
+                    ),
+                    IngredientEntity(
+                        name = "Salt",
+                        color = Color.White,
+                        isUnlocked = true
+                    ),
+                    IngredientEntity(
+                        name = "Apple",
+                        color = Color.Red,
+                        isUnlocked = true
                     )
                 )
             )
         }
+    }
+
+    suspend fun loadTestRecipes() {
+        val recipes = listOf(
+            RecipeStruct(
+                name = "White Russian",
+                isCustom = false,
+                isAlcoholic = true,
+                instructions = "Pour vodka and coffee liqueur over ice cubes in an old-fashioned glass. Fill with light cream and serve.",
+                ingredients = listOf(
+                    RecipeFunctions().getIngredient("Milk"),
+                    RecipeFunctions().getIngredient("Coffee liqueur"),
+                    RecipeFunctions().getIngredient("Vodka")
+                )
+            ),
+            RecipeStruct(
+                name = "Margarita",
+                isCustom = false,
+                isAlcoholic = true,
+                instructions = "Rub the rim of the glass with the lime slice to make the salt stick to it. Take care to moisten only the outer rim and sprinkle the salt on it. The salt should present to the lips of the imbiber and never mix into the cocktail. Shake the other ingredients with ice, then carefully pour into the glass.",
+                ingredients = listOf(
+                    RecipeFunctions().getIngredient("Tequila"),
+                    RecipeFunctions().getIngredient("Triple sec"),
+                    RecipeFunctions().getIngredient("Lime juice"),
+                    RecipeFunctions().getIngredient("Salt"),
+                )
+            ),
+            RecipeStruct(
+                name = "Apple Berry Smoothie",
+                isCustom = false,
+                isAlcoholic = false,
+                instructions = "Throw everything into a blender and liquify.",
+                ingredients = listOf(
+                    RecipeFunctions().getIngredient("Berries"),
+                    RecipeFunctions().getIngredient("Apple")
+                )
+            ),
+            RecipeStruct(
+                name = "Absolutely Fabulous",
+                isCustom = false,
+                isAlcoholic = false,
+                instructions = "Mix the Vodka and Cranberry juice together in a shaker and strain into a glass. Top up with Champagne.",
+                ingredients = listOf(
+                    RecipeFunctions().getIngredient("Vodka"),
+                    RecipeFunctions().getIngredient("Cranberry Juice"),
+                    RecipeFunctions().getIngredient("Champagne"),
+                )
+            )
+        )
+        for (x in recipes)
+            RecipeFunctions().addRecipe(x)
     }
 }

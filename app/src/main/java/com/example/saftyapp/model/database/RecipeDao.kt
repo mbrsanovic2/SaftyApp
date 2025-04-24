@@ -32,8 +32,8 @@ interface RecipeDao {
     @Query("SELECT * FROM recipes WHERE name = :name")
     suspend fun getRecipeByName(name: String):RecipeWithIngredientsEntity
 
-//    @Query("SELECT DISTINCT * FROM recipes rec INNER JOIN measures ref ON rec.id = ref.recipeID WHERE ref.ingredientID IN (:iID)")
-//    suspend fun getRecipeByIngredient(iID: List<Int>):List<RecipeEntity>
+    @Query("SELECT * FROM recipes rec INNER JOIN measures ref ON rec.id = ref.recipeID WHERE ref.ingredientID IN (:iID)")
+    suspend fun getRecipeByIngredient(iID: Int):List<RecipeEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipe(recipe: RecipeEntity)
