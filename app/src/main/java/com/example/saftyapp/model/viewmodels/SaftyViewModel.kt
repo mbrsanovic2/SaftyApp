@@ -7,6 +7,7 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlin.math.pow
+import kotlin.random.Random
 
 class SaftyViewModel : ViewModel() {
     private var mixCount = 0
@@ -26,34 +27,54 @@ class SaftyViewModel : ViewModel() {
     private val _liquidColor = MutableStateFlow(Color.Transparent)
     val liquidColor = _liquidColor.asStateFlow()
 
-    fun addIngredient(ingredientColor: Color?, wasRecommended: Boolean){
+    fun addIngredient(ingredientColor: Color?, wasRecommended: Boolean) {
         mixCount++
         addedColors.add(ingredientColor)
         changeExpression(wasRecommended)
+        reactToIngredient(wasRecommended)
         updateFill()
     }
 
-    fun removeIngredient(ingredientColor: Color?, wasRecommended: Boolean){
+    fun removeIngredient(ingredientColor: Color?, wasRecommended: Boolean) {
         mixCount--
         addedColors.remove(ingredientColor)
         updateFill()
     }
 
-    fun drinkFinished(){
+    fun drinkFinished() {
         _fillTarget.value = maxFill
     }
 
-    fun cancelDrinkFinished(){
+    fun cancelDrinkFinished() {
         updateFill()
     }
 
-    fun clearAllIngredients(){
+    fun clearAllIngredients() {
         mixCount = 0
         addedColors.clear()
         updateFill()
         saftySpeaketh("")
     }
-    fun saftySpeaketh(fulltext: String){
+
+    fun reactToIngredient(wasRecommended: Boolean) {
+        val comments: List<String>
+        if (wasRecommended) {
+            comments = listOf(
+                "Too \uD83C\uDF36 to \uFE0F\uD83D\uDC14",
+                "Now that is rustikal\uD83D\uDE0F",
+            )
+        } else {
+            comments = listOf(
+                "You sleeping JESASS!",
+                "Not very rustikale choice",
+                "Very spaghetti carbonara",
+            )
+        }
+        val randomComment = comments[Random.nextInt(comments.size)]
+        saftySpeaketh(randomComment)
+    }
+
+    fun saftySpeaketh(fulltext: String) {
         _currentWords.value = fulltext
     }
 
@@ -82,17 +103,35 @@ class SaftyViewModel : ViewModel() {
         updateColor()
     }
 
-    private fun updateColor(){
+    private fun updateColor() {
         val colors = addedColors.filterNotNull()
-        if(colors.isEmpty()) _liquidColor.value = Color.Transparent
-        else {
-            val r = colors.sumOf { it.red.toDouble() } / colors.size
-            val g = colors.sumOf { it.green.toDouble() } / colors.size
-            val b = colors.sumOf { it.blue.toDouble() } / colors.size
 
-            _liquidColor.value = Color(r.toFloat(), g.toFloat(), b.toFloat())
+        if (colors.isEmpty()) {
+            _liquidColor.value = Color.Transparent
+        } else {
+            var totalAlpha = 0.0
+            var weightedR = 0.0
+            var weightedG = 0.0
+            var weightedB = 0.0
+
+            for (color in colors) {
+                val alpha = color.alpha.toDouble()
+                totalAlpha += alpha
+                weightedR += color.red * alpha
+                weightedG += color.green * alpha
+                weightedB += color.blue * alpha
+            }
+
+            if (totalAlpha == 0.0) {
+                _liquidColor.value = Color(180,230,255, 100)
+            } else {
+                val r = (weightedR / totalAlpha).toFloat()
+                val g = (weightedG / totalAlpha).toFloat()
+                val b = (weightedB / totalAlpha).toFloat()
+                val a = (totalAlpha / colors.size).toFloat() // average alpha for final color
+
+                _liquidColor.value = Color(r, g, b, a)
+            }
         }
     }
-
-
 }

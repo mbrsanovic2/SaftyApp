@@ -189,13 +189,6 @@ fun HomeScreen(
                                     } else {
                                         recipeViewModel.selectIngredient(ingredient)
                                         saftyViewModel.addIngredient(ingredient.color, true)
-                                        val comments = listOf(
-                                            "Too \uD83C\uDF36 to \uFE0F\uD83D\uDC14",
-                                            "Now that is rustikal\uD83D\uDE0F",
-                                            "Very spaghetti carbonara"
-                                        )
-                                        val randomComment = comments[Random.nextInt(comments.size)]
-                                        saftyViewModel.saftySpeaketh(randomComment)
                                     }
                                     Log.i(
                                         "Ingredients",
