@@ -7,18 +7,32 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
+import androidx.lifecycle.viewmodel.compose.viewModel
+
+import com.example.saftyapp.model.database.Repository
+import com.example.saftyapp.model.viewmodels.XPViewModel
+import kotlinx.coroutines.delay
 
 @Composable
-fun BottomBarXP(modifier: Modifier = Modifier) {
-    val xpTotal: Int = 30 // TODO Wert von DB holen
-    val xpCurrent: Int = 8 // TODO Wert von DB holen
-    val xpLevel: Int = 3 // TODO Wert von DB holen
-    val hasTitle: Boolean = true // TODO Wert von DB holen
+fun BottomBarXP(modifier: Modifier = Modifier, viewModel: XPViewModel = viewModel()) {
+    val userState by viewModel.userState.collectAsState()
+    val xpTotal: Int = userState.targetXP
+    val xpCurrent: Int = userState.currentXP
+    val xpLevel: Int = userState.level
+    val hasTitle: Boolean = userState.isJUICY
+
 
     BottomAppBar(
         modifier = modifier.height(IntrinsicSize.Min),

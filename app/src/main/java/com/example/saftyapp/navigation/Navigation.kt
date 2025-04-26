@@ -6,7 +6,11 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -16,6 +20,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
+import com.example.saftyapp.model.viewmodels.XPViewModel
 import com.example.saftyapp.presentation.screens.ArchiveScreen
 import com.example.saftyapp.presentation.screens.CameraScreen
 import com.example.saftyapp.presentation.uicomponents.BottomBarXP
@@ -25,6 +30,7 @@ import com.example.saftyapp.presentation.screens.RecipeScreen
 import com.example.saftyapp.presentation.screens.InstructionCard
 import com.example.saftyapp.presentation.screens.RecipeForm
 import com.example.saftyapp.presentation.uicomponents.TopBar
+import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
 @Composable
@@ -33,8 +39,9 @@ fun Navigation(modifier: Modifier = Modifier) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val photoViewModel: PhotoViewModel = viewModel()
+    val xpViewModel: XPViewModel = viewModel()
+    var tempXPBar by remember{ mutableStateOf(false) }
 
-    // Make current route observable
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route ?: Screens.HomeScreen.route
 
@@ -55,7 +62,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 navigateToHome = { navController.navigate(Screens.HomeScreen.route) },
                 navigateToRecipes = { navController.navigate(Screens.RecipeScreen.route) },
                 navigateToArchive = { navController.navigate(Screens.ArchiveScreen.route) },
-                navigateToRecipeCreator = {navController.navigate(Screens.RecipeCreationScreen.route)},
+                navigateToRecipeCreator = { navController.navigate(Screens.RecipeCreationScreen.route) },
                 closeDrawer = { coroutineScope.launch { drawerState.close() } },
                 modifier = Modifier
             )
@@ -70,8 +77,8 @@ fun Navigation(modifier: Modifier = Modifier) {
                 )
             },
             bottomBar = {
-                if(!hideBottomBar) {
-                    BottomBarXP()
+                if (!hideBottomBar || tempXPBar) {
+                    BottomBarXP(viewModel = xpViewModel)
                 }
             }
         ) { innerPadding ->
@@ -85,7 +92,12 @@ fun Navigation(modifier: Modifier = Modifier) {
                     HomeScreen(
                         modifier = Modifier,
                         onNavigateToRecipeScreen = { recipe ->
-                            navController.navigate(Screens.InstructionScreen.createRoute(recipe, "Safty"))
+                            navController.navigate(
+                                Screens.InstructionScreen.createRoute(
+                                    recipe,
+                                    "Safty"
+                                )
+                            )
                         }
                     )
                 }
@@ -128,7 +140,17 @@ fun Navigation(modifier: Modifier = Modifier) {
                         modifier = Modifier,
                         recipeId = recipeId,
                         from = from,
-                        navigateToCamera = { navController.navigate(Screens.CameraScreen.route) }
+                        navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
+                        onFinishClicked = {
+                            coroutineScope.launch {
+                                tempXPBar = true
+                                delay(1500)
+
+                                xpViewModel.gainXP(10)
+                                delay(1500)
+                                tempXPBar = false
+                            }
+                        }
                     )
                 }
 
@@ -144,8 +166,8 @@ fun Navigation(modifier: Modifier = Modifier) {
 
                 composable(route = Screens.RecipeCreationScreen.route) {
                     RecipeForm(
-                    ){ _,_,_ ->
-                      print("Rezept wurde theoretisch erstellt")
+                    ) { _, _, _ ->
+                        print("Rezept wurde theoretisch erstellt")
                     }
                 }
             }

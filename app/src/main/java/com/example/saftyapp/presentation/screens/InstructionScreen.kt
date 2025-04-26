@@ -47,7 +47,8 @@ fun InstructionCard(
     modifier: Modifier,
     recipeId: String,
     from: String?,
-    navigateToCamera: () -> Unit
+    navigateToCamera: () -> Unit,
+    onFinishClicked: () -> Unit
 ) {
     val exampleRecipe: Recipe
     val exampleColor: Color
@@ -113,7 +114,7 @@ fun InstructionCard(
             RecipeDetails(exampleRecipe)
 
             if(from == "Safty"){
-                FinishedButton()
+                FinishedButton(onFinishClicked = onFinishClicked)
 
                 // TODO schönen button einfügen :D
                 Button(onClick = {
@@ -166,10 +167,12 @@ fun RecipeDetails(recipe: Recipe) {
 }
 
 @Composable
-fun FinishedButton() {
+fun FinishedButton(onFinishClicked: () -> Unit) {
     var isClicked by remember { mutableStateOf(false) }
     Button(
-        onClick = { isClicked = true },
+        onClick = {
+            isClicked = true
+            onFinishClicked() },
         enabled = !isClicked,
         modifier = Modifier
             .padding(16.dp)
