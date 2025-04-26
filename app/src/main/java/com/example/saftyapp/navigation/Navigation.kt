@@ -146,7 +146,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                                 tempXPBar = true
                                 delay(1500)
 
-                                xpViewModel.gainXP(10)
+                                xpViewModel.gainXP(5)
                                 delay(1500)
                                 tempXPBar = false
                             }
@@ -160,6 +160,16 @@ fun Navigation(modifier: Modifier = Modifier) {
                         viewModel = photoViewModel,
                         onPhotoTaken = {
                             navController.navigate(Screens.ArchiveScreen.route)
+                        },
+                        onDrinkDetected = {
+                            coroutineScope.launch {
+                                tempXPBar = true
+                                delay(1500)
+
+                                xpViewModel.gainXP(10)
+                                delay(1500)
+                                tempXPBar = false
+                            }
                         }
                     )
                 }

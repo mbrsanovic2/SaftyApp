@@ -50,7 +50,8 @@ import java.io.File
 @Composable
 fun CameraScreen(
     viewModel: PhotoViewModel,
-    onPhotoTaken: () -> Unit
+    onPhotoTaken: () -> Unit,
+    onDrinkDetected: () -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
@@ -125,6 +126,7 @@ fun CameraScreen(
                         // Optional: Toast oder Log zeigen
                         if (drinkDetected) {
                             Toast.makeText(context, "Drink detected! +10 XP 🎉", Toast.LENGTH_SHORT).show()
+
                             Log.d("MLKit", "Drink detected! XP awarded.")
                         } else {
                             Toast.makeText(context, "No drink detected. Take another photo for extra XP.", Toast.LENGTH_SHORT).show()
