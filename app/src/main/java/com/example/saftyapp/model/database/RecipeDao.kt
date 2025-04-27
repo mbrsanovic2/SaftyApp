@@ -4,8 +4,6 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
-import androidx.room.Transaction
-import androidx.room.Update
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
@@ -34,6 +32,9 @@ interface RecipeDao {
 
     @Query("SELECT * FROM recipes rec INNER JOIN measures ref ON rec.id = ref.recipeID WHERE ref.ingredientID IN (:iID)")
     suspend fun getRecipeByIngredient(iID: Int):List<RecipeEntity>
+
+    @Query("SELECT * FROM recipes rec INNER JOIN measures ref ON rec.id = ref.recipeID WHERE ref.ingredientID IN (:iID)")
+    suspend fun getRecommendations(iID:List<Int>):List<RecipeWithIngredientsEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipe(recipe: RecipeEntity)

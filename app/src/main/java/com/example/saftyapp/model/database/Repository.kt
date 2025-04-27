@@ -1,16 +1,15 @@
 package com.example.saftyapp.model.database
 
 import android.content.Context
-import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.example.saftyapp.model.Objects.ArchiveEntry
 import com.example.saftyapp.model.Objects.Ingredient
 import com.example.saftyapp.model.Objects.RecipeStruct
 import com.example.saftyapp.model.Objects.UserData
-import com.example.saftyapp.model.Recipe
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
+import com.example.saftyapp.model.database.entities.RecipeWithIngredientsEntity
 import com.example.saftyapp.model.database.entities.UserEntity
 
 class Repository(context: Context) {
@@ -79,10 +78,10 @@ class Repository(context: Context) {
         suspend fun getRecipeByIngredient(ingredient: Ingredient): List<RecipeStruct> {
             val iID = recipeDao.getIngredientByName(ingredient.name).id
             val entities = recipeDao.getRecipeByIngredient(iID)
-            val fullrecipe = entities.map { e ->
+            val fullRecipe = entities.map { e ->
                 recipeDao.getRecipeByName(e.name)
             }
-            val recipes = fullrecipe.map { f ->
+            val recipes = fullRecipe.map { f ->
                 RecipeStruct(
                     name = f.recipe.name,
                     instructions = f.recipe.instructions,
@@ -102,6 +101,33 @@ class Repository(context: Context) {
             }
 
             return recipes
+        }
+
+        suspend fun getRecommendations(ingredients:List<Ingredient>):List<RecipeStruct>{
+            val ids = ingredients.map { i ->
+                recipeDao.getIngredientByName(i.name).id
+            }
+            val entities:List<RecipeWithIngredientsEntity> = recipeDao.getRecommendations(ids)
+            val recommendations=entities.map { e ->
+                RecipeStruct(
+                    name = e.recipe.name,
+                    instructions = e.recipe.instructions,
+                    isAlcoholic = e.recipe.isAlcoholic,
+                    isCustom = e.recipe.isCustom,
+                    thumbnail = e.recipe.thumbnail,
+                    ingredients = e.ingredients.map { i ->
+                        Ingredient(
+                            name = i.name,
+                            measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure,
+                            isUnlocked = i.isUnlocked,
+                            color = i.color,
+                            iconFilePath = i.iconFilePath
+                        )
+                    }
+                )
+            }
+
+            return recommendations.toSet().toList()
         }
 
         suspend fun getIngredient(name: String): Ingredient {
