@@ -1,5 +1,6 @@
 package com.example.saftyapp.model.database
 
+import androidx.camera.core.imagecapture.JpegBytes2Disk.In
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
@@ -28,13 +29,22 @@ interface RecipeDao {
     suspend fun getIngredientByName(name: String): IngredientEntity
 
     @Query("SELECT * FROM recipes WHERE name = :name")
-    suspend fun getRecipeByName(name: String):RecipeWithIngredientsEntity
+    suspend fun getRecipeByName(name: String): RecipeWithIngredientsEntity
 
-    @Query("SELECT * FROM recipes rec INNER JOIN measures ref ON rec.id = ref.recipeID WHERE ref.ingredientID IN (:iID)")
-    suspend fun getRecipeByIngredient(iID: Int):List<RecipeEntity>
+    @Query("SELECT * FROM recipes WHERE id IN (SELECT DISTINCT recipeID FROM measures WHERE ingredientID = :iID)")
+    suspend fun getRecipeByIngredient(iID: Int): List<RecipeWithIngredientsEntity>
 
-    @Query("SELECT * FROM recipes rec INNER JOIN measures ref ON rec.id = ref.recipeID WHERE ref.ingredientID IN (:iID)")
-    suspend fun getRecommendations(iID:List<Int>):List<RecipeWithIngredientsEntity>
+    @Query("SELECT recipeID FROM measures WHERE ingredientID = :iID")
+    suspend fun getRecipeIDsFromIngredients(iID: Int): List<Int>
+
+    @Query("SELECT * FROM ingredients WHERE id = :id")
+    suspend fun getIngredientById(id:Int):IngredientEntity
+
+    @Query("SELECT ingredientID FROM measures WHERE recipeID IN (:rID)")
+    suspend fun getIngredientIDsFromRecipes(rID: List<Int>):List<Int>
+
+    @Query("SELECT * FROM ingredients WHERE id IN (:iID)")
+    suspend fun getRecommendations(iID: List<Int>): List<IngredientEntity>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipe(recipe: RecipeEntity)
@@ -44,6 +54,9 @@ interface RecipeDao {
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMeasures(ref: List<MeasureEntity>)
+
+    //TODO- getLockedIngredients
+    //TODO- unlockIngredients
 }
 
 @Dao
@@ -55,19 +68,19 @@ interface UserDao {
     suspend fun getUser(): UserEntity?
 
     @Query("UPDATE user SET hasTitle = :title WHERE id = 1")
-    suspend fun updateTitle(title:Boolean)
+    suspend fun updateTitle(title: Boolean)
 
     @Query("UPDATE user SET currentLvL = currentLvL + 1 WHERE id = 1")
     suspend fun increaseLvL()
 
     @Query("UPDATE user SET currentXP = currentXP + :xp WHERE id = 1")
-    suspend fun increaseXP(xp:Int)
+    suspend fun increaseXP(xp: Int)
 
     @Query("UPDATE user SET currentXP = 0 WHERE id = 1")
     suspend fun resetXP()
 
     @Query("UPDATE user SET currentLvL = :lvl WHERE id = 1")
-    suspend fun setLvL(lvl:Int)
+    suspend fun setLvL(lvl: Int)
 
     @Query("UPDATE user SET targetXP = currentLvL * 10 WHERE id = 1")
     suspend fun updateTarget()

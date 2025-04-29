@@ -1,6 +1,7 @@
 package com.example.saftyapp.model.database
 
 import android.content.Context
+import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.example.saftyapp.model.Objects.ArchiveEntry
 import com.example.saftyapp.model.Objects.Ingredient
@@ -9,7 +10,6 @@ import com.example.saftyapp.model.Objects.UserData
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
-import com.example.saftyapp.model.database.entities.RecipeWithIngredientsEntity
 import com.example.saftyapp.model.database.entities.UserEntity
 
 class Repository(context: Context) {
@@ -78,10 +78,8 @@ class Repository(context: Context) {
         suspend fun getRecipeByIngredient(ingredient: Ingredient): List<RecipeStruct> {
             val iID = recipeDao.getIngredientByName(ingredient.name).id
             val entities = recipeDao.getRecipeByIngredient(iID)
-            val fullRecipe = entities.map { e ->
-                recipeDao.getRecipeByName(e.name)
-            }
-            val recipes = fullRecipe.map { f ->
+
+            val recipes = entities.map { f ->
                 RecipeStruct(
                     name = f.recipe.name,
                     instructions = f.recipe.instructions,
@@ -103,31 +101,42 @@ class Repository(context: Context) {
             return recipes
         }
 
-        suspend fun getRecommendations(ingredients:List<Ingredient>):List<RecipeStruct>{
-            val ids = ingredients.map { i ->
-                recipeDao.getIngredientByName(i.name).id
+        suspend fun getRecommendations(ingredients: List<Ingredient>): List<Ingredient> {
+            //return ingredients that can be used as next ingredients
+            val ingredientIDs = ingredients.map { x ->
+                recipeDao.getIngredientByName(x.name).id
+            }.toSet()
+            val recipeIDsLists = ingredientIDs.map { x ->
+                recipeDao.getRecipeIDsFromIngredients(x)
             }
-            val entities:List<RecipeWithIngredientsEntity> = recipeDao.getRecommendations(ids)
-            val recommendations=entities.map { e ->
-                RecipeStruct(
-                    name = e.recipe.name,
-                    instructions = e.recipe.instructions,
-                    isAlcoholic = e.recipe.isAlcoholic,
-                    isCustom = e.recipe.isCustom,
-                    thumbnail = e.recipe.thumbnail,
-                    ingredients = e.ingredients.map { i ->
-                        Ingredient(
-                            name = i.name,
-                            measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure,
-                            isUnlocked = i.isUnlocked,
-                            color = i.color,
-                            iconFilePath = i.iconFilePath
-                        )
-                    }
+
+            //get all rIDs in one list
+            val allRIDs=recipeIDsLists.flatten().toSet().toList()
+
+            //Check for overlap in rIDLists => recipes containing ingredients
+            val overlapIngredients = allRIDs.filter{ x ->
+                recipeIDsLists.all{ x in it}
+            }
+
+            //Get ingredientIds from overlap-recipes
+            val allRecommendations = recipeDao.getIngredientIDsFromRecipes(overlapIngredients)
+
+            //Filter the input ingredients from the recommendations
+            val recommendations = (allRecommendations - ingredientIDs).map { x ->
+                val y = recipeDao.getIngredientById(x)
+                Ingredient(
+                    name = y.name,
+                    color = y.color,
+                    isUnlocked = y.isUnlocked,
+                    iconFilePath = y.iconFilePath,
                 )
             }
 
-            return recommendations.toSet().toList()
+            return recommendations
+        }
+
+        suspend fun getFinalRecommendations(ingredients: List<Ingredient>): List<RecipeStruct> {
+            TODO()
         }
 
         suspend fun getIngredient(name: String): Ingredient {
@@ -162,6 +171,7 @@ class Repository(context: Context) {
         }
 
         suspend fun addRecipe(recipe: RecipeStruct) {
+            Log.d("Database","Adding Recipe: "+recipe.name)
             recipeDao.insertRecipe(
                 RecipeEntity(
                     name = recipe.name,
@@ -181,6 +191,14 @@ class Repository(context: Context) {
             }
 
             recipeDao.insertMeasures(measures)
+        }
+
+        suspend fun unlockRandomIngredients() {
+            TODO()
+        }
+
+        suspend fun unlockAllIngredients() {
+            TODO()
         }
     }
 
@@ -228,6 +246,8 @@ class Repository(context: Context) {
 
         suspend fun increaseLvL() {
             userDao.increaseLvL()
+            resetXP()
+            updateTargetXP()
         }
     }
 
@@ -243,6 +263,7 @@ class Repository(context: Context) {
 
 
     suspend fun loadDefaultData() {
+        Log.d("Database", "Loading default data")
         //Create default User
         if (userDao.getUser() == null) {
             userDao.insertUser(
@@ -259,6 +280,11 @@ class Repository(context: Context) {
         if (recipeDao.getAllIngredients().isEmpty()) {
             recipeDao.insertIngredients(
                 listOf(
+                    IngredientEntity(
+                        name = "Tabasco sauce",
+                        color = Color.Red,
+                        isUnlocked = true
+                    ),
                     IngredientEntity(
                         name = "Light rum",
                         color = Color(1),
@@ -640,11 +666,6 @@ class Repository(context: Context) {
                         isUnlocked = true
                     ),
                     IngredientEntity(
-                        name = "Cranberry juice",
-                        color = Color.Red,
-                        isUnlocked = true
-                    ),
-                    IngredientEntity(
                         name = "Egg yolk",
                         color = Color.Yellow,
                         isUnlocked = true
@@ -773,6 +794,16 @@ class Repository(context: Context) {
                         name = "Apple",
                         color = Color.Red,
                         isUnlocked = true
+                    ),
+                    IngredientEntity(
+                        name = "Light cream",
+                        color = Color.White,
+                        isUnlocked = true
+                    ),
+                    IngredientEntity(
+                        name = "Worcestershire sauce",
+                        color = Color.Black,
+                        isUnlocked = true
                     )
                 )
             )
@@ -780,6 +811,7 @@ class Repository(context: Context) {
     }
 
     suspend fun loadTestRecipes() {
+        Log.d("Database", "Loading test recipes")
         val recipes = listOf(
             RecipeStruct(
                 name = "White Russian",
@@ -787,10 +819,25 @@ class Repository(context: Context) {
                 isAlcoholic = true,
                 instructions = "Pour vodka and coffee liqueur over ice cubes in an old-fashioned glass. Fill with light cream and serve.",
                 ingredients = listOf(
-                    RecipeFunctions().getIngredient("Milk"),
-                    RecipeFunctions().getIngredient("Coffee liqueur"),
-                    RecipeFunctions().getIngredient("Vodka")
-                )
+                    Ingredient(
+                        name = "Vodka",
+                        color = Color.Transparent,
+                        isUnlocked = true,
+                        measure = "2 oz"
+                    ),
+                    Ingredient(
+                        name = "Coffee liqueur",
+                        color = Color.Black,
+                        isUnlocked = true,
+                        measure = "1 oz"
+                    ),
+                    Ingredient(
+                        name = "Light cream",
+                        color = Color.White,
+                        isUnlocked = true,
+                    ),
+                ),
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/vsrupw1472405732.jpg"
             ),
             RecipeStruct(
                 name = "Margarita",
@@ -798,11 +845,31 @@ class Repository(context: Context) {
                 isAlcoholic = true,
                 instructions = "Rub the rim of the glass with the lime slice to make the salt stick to it. Take care to moisten only the outer rim and sprinkle the salt on it. The salt should present to the lips of the imbiber and never mix into the cocktail. Shake the other ingredients with ice, then carefully pour into the glass.",
                 ingredients = listOf(
-                    RecipeFunctions().getIngredient("Tequila"),
-                    RecipeFunctions().getIngredient("Triple sec"),
-                    RecipeFunctions().getIngredient("Lime juice"),
-                    RecipeFunctions().getIngredient("Salt"),
-                )
+                    Ingredient(
+                        name = "Tequila",
+                        color = Color.Transparent,
+                        isUnlocked = true,
+                        measure = "1 1/2 oz"
+                    ),
+                    Ingredient(
+                        name = "Triple sec",
+                        color = Color.Yellow,
+                        isUnlocked = true,
+                        measure = "1/2 oz"
+                    ),
+                    Ingredient(
+                        name = "Lime juice",
+                        color = Color.Green,
+                        isUnlocked = true,
+                        measure = "1 oz"
+                    ),
+                    Ingredient(
+                        name = "Salt",
+                        color = Color.White,
+                        isUnlocked = true,
+                    ),
+                ),
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg"
             ),
             RecipeStruct(
                 name = "Apple Berry Smoothie",
@@ -810,9 +877,20 @@ class Repository(context: Context) {
                 isAlcoholic = false,
                 instructions = "Throw everything into a blender and liquify.",
                 ingredients = listOf(
-                    RecipeFunctions().getIngredient("Berries"),
-                    RecipeFunctions().getIngredient("Apple")
-                )
+                    Ingredient(
+                        name = "Berries",
+                        color = Color.Red,
+                        isUnlocked = true,
+                        measure = "1 cup"
+                    ),
+                    Ingredient(
+                        name = "Apple",
+                        color = Color.Red,
+                        isUnlocked = true,
+                        measure = "2"
+                    ),
+                ),
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/xwqvur1468876473.jpg"
             ),
             RecipeStruct(
                 name = "Absolutely Fabulous",
@@ -820,13 +898,102 @@ class Repository(context: Context) {
                 isAlcoholic = false,
                 instructions = "Mix the Vodka and Cranberry juice together in a shaker and strain into a glass. Top up with Champagne.",
                 ingredients = listOf(
-                    RecipeFunctions().getIngredient("Vodka"),
-                    RecipeFunctions().getIngredient("Cranberry Juice"),
-                    RecipeFunctions().getIngredient("Champagne"),
+                    Ingredient(
+                        name = "Vodka",
+                        color = Color.Transparent,
+                        isUnlocked = true,
+                        measure = "1 shot"
+                    ),
+                    Ingredient(
+                        name = "Cranberry Juice",
+                        color = Color.Red,
+                        isUnlocked = true,
+                        measure = "2 shots"
+                    ),
+                    Ingredient(
+                        name = "Champagne",
+                        color = Color.Yellow,
+                        isUnlocked = true,
+                        measure = "Top up with"
+                    ),
+                ),
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/abcpwr1504817734.jpg"
+            ),
+            RecipeStruct(
+                name = "Frappé",
+                isCustom = false,
+                isAlcoholic = false,
+                instructions = "Mix together. Blend at highest blender speed for about 1 minute. Pour into a glass and drink with a straw. Notes: This works best if everything is cold (if you make fresh coffee, mix it with the milk and let it sit in the fridge for 1/2 hour. If it is not frothy, add more milk, or even just some more milk powder. The froth gradually turns to liquid at the bottom of the glass, so you will find that you can sit and drink this for about 1/2 hour, with more iced coffee continually appearing at the bottom. Very refreshing.",
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/vqwryq1441245927.jpg",
+                ingredients = listOf(
+                    Ingredient(
+                        name = "Milk",
+                        color = Color.White,
+                        isUnlocked = true,
+                        measure = "1/2 cup",
+                    ),
+                    Ingredient(
+                        name = "Coffee",
+                        color = Color.Black,
+                        isUnlocked = true,
+                        measure = "1/2 cup black"
+                    ),
+                    Ingredient(
+                        name = "Sugar",
+                        color = Color.White,
+                        isUnlocked = true,
+                        measure = "1-2 tsp"
+                    )
+                )
+            ),
+            RecipeStruct(
+                name = "Bloody Mary",
+                isCustom = false,
+                isAlcoholic = true,
+                instructions = "Stirring gently, pour all ingredients into highball glass. Garnish.",
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/t6caa21582485702.jpg",
+                ingredients = listOf(
+                    Ingredient(
+                        name = "Vodka",
+                        color = Color.Transparent,
+                        isUnlocked = true,
+                        measure = "1 1/2 oz"
+                    ),
+                    Ingredient(
+                        name = "Tomato juice",
+                        color = Color.Red,
+                        isUnlocked = true,
+                        measure = "3 oz"
+                    ),
+                    Ingredient(
+                        name = "Lemon juice",
+                        color = Color.Yellow,
+                        isUnlocked = true,
+                        measure = "1 dash"
+                    ),
+                    Ingredient(
+                        name = "Worcestershire sauce",
+                        color = Color.Black,
+                        isUnlocked = true,
+                        measure = "1/2 tsp"
+                    ),
+                    Ingredient(
+                        name = "Tabasco sauce",
+                        color = Color.Red,
+                        isUnlocked = true,
+                        measure = "2-3 drops"
+                    ),
+                    Ingredient(
+                        name = "Lime",
+                        color = Color.Green,
+                        isUnlocked = true,
+                        measure = "1 wedge"
+                    )
                 )
             )
         )
-        for (x in recipes)
+        for (x in recipes) {
             RecipeFunctions().addRecipe(x)
+        }
     }
 }

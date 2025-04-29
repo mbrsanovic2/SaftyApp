@@ -7,5 +7,6 @@ data class Ingredient(
     val iconFilePath: String? = null,
     val color: Color,
     val isUnlocked: Boolean,
-    val measure: String? = null
+    val measure: String? = null,
+    val recentlyUnlocked: Boolean = false
 )
