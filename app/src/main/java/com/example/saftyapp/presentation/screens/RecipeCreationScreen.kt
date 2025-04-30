@@ -21,7 +21,9 @@ import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
+import androidx.compose.material3.CardElevation
 import androidx.compose.material3.MaterialTheme
+import androidx.compose.material3.MaterialTheme.colorScheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Text
 import androidx.compose.material3.TextButton
@@ -34,12 +36,14 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.shadow
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
+import androidx.compose.ui.unit.Dp
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.github.skydoves.colorpicker.compose.ColorPickerController
@@ -51,18 +55,21 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 fun RecipeForm(
     onSaveRecipe: (String, List<String>, String) -> Unit
 ) {
+    val primaryColor = colorScheme.surface
     var recipeName by remember { mutableStateOf("") }
     var ingredients by remember { mutableStateOf(listOf("")) }
     var preparation by remember { mutableStateOf("") }
     var showColorPickerDialog by remember { mutableStateOf(false) }
 
-    var containerColor by remember { mutableStateOf(Color(245, 245, 245)) }
+    var containerColor by remember { mutableStateOf(primaryColor) }
+    var showError by remember { mutableStateOf(false) }
 
     if (showColorPickerDialog) {
         ColorPickerDialog(
-            initialColor = containerColor,
+            initialColor = primaryColor,
             onColorSelected = { newColor ->
-                containerColor = newColor
+                val adjustedColor = newColor.copy(alpha = 0.4f)
+                containerColor = adjustedColor
             },
             onDismissRequest = { showColorPickerDialog = false }
         )
@@ -72,7 +79,6 @@ fun RecipeForm(
         modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = containerColor
@@ -99,6 +105,13 @@ fun RecipeForm(
                 label = { Text("Recipe Name") },
                 modifier = Modifier.fillMaxWidth()
             )
+            if (showError && recipeName.isBlank()) {
+                Text(
+                    text = "Preparation steps are required",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Spacer(modifier = Modifier.height(16.dp))
 
@@ -124,7 +137,7 @@ fun RecipeForm(
             TextButton(onClick = {
                 ingredients = ingredients + ""
             }) {
-                Text("+ Add ingredient", color = Color.Blue)
+                Text("+ Add ingredient")
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -144,6 +157,13 @@ fun RecipeForm(
                     .height(150.dp),
                 maxLines = 5
             )
+            if (showError && preparation.isBlank()) {
+                Text(
+                    text = "Preparation steps are required",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
@@ -156,7 +176,13 @@ fun RecipeForm(
             Button(
                 onClick = {
                     if (recipeName.isNotBlank() && preparation.isNotBlank()) {
-                        onSaveRecipe(recipeName, ingredients.filter { it.isNotBlank() }, preparation)
+                        onSaveRecipe(
+                            recipeName,
+                            ingredients.filter { it.isNotBlank() },
+                            preparation
+                        )
+                    } else {
+                        showError = true
                     }
                 },
                 modifier = Modifier.fillMaxWidth(),
@@ -167,6 +193,7 @@ fun RecipeForm(
         }
     }
 }
+
 @Composable
 fun ColorPickerDialog(
     initialColor: Color,
@@ -203,10 +230,4 @@ fun ColorPickerDialog(
             }
         }
     )
-}
-
-@Preview
-@Composable
-fun FormPreview(){
-    RecipeForm (){ hello,re,rw -> print("") }
 }

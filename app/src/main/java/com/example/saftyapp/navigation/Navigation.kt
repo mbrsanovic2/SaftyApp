@@ -1,5 +1,10 @@
 package com.example.saftyapp.navigation
 
+import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.animation.fadeIn
+import androidx.compose.animation.fadeOut
+import androidx.compose.animation.slideInVertically
+import androidx.compose.animation.slideOutVertically
 import androidx.compose.foundation.layout.*
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ModalNavigationDrawer
@@ -12,6 +17,7 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.platform.LocalContext
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
@@ -19,6 +25,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.saftyapp.model.database.Repository
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.model.viewmodels.XPViewModel
 import com.example.saftyapp.presentation.screens.ArchiveScreen
@@ -40,6 +47,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     val photoViewModel: PhotoViewModel = viewModel()
     val xpViewModel: XPViewModel = viewModel()
+    val repository = Repository.getInstance(LocalContext.current.applicationContext)
     var tempXPBar by remember{ mutableStateOf(false) }
 
     val navBackStackEntry = navController.currentBackStackEntryAsState()
@@ -48,6 +56,15 @@ fun Navigation(modifier: Modifier = Modifier) {
     val hideBottomBar = when (currentRoute) {
         Screens.HomeScreen.route -> false
         else -> true
+    }
+
+    val gainXP: (Int) -> Unit = { amount ->
+        coroutineScope.launch {
+            tempXPBar = true
+            xpViewModel.gainXP(amount)
+            delay(amount * 200L + 1500L)
+            tempXPBar = false
+        }
     }
 
     ModalNavigationDrawer(
@@ -73,7 +90,12 @@ fun Navigation(modifier: Modifier = Modifier) {
                 )
             },
             bottomBar = {
-                if (!hideBottomBar || tempXPBar) {
+                // Bar now slides when XP Gain :)
+                AnimatedVisibility(
+                    visible = !hideBottomBar || tempXPBar,
+                    enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
+                    exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
+                ) {
                     BottomBarXP(viewModel = xpViewModel)
                 }
             }
@@ -137,16 +159,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                         recipeId = recipeId,
                         from = from,
                         navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
-                        onFinishClicked = {
-                            coroutineScope.launch {
-                                tempXPBar = true
-                                delay(1500)
-
-                                xpViewModel.gainXP(5)
-                                delay(1500)
-                                tempXPBar = false
-                            }
-                        }
+                        onFinishClicked = { gainXP(5) }
                     )
                 }
 
@@ -157,22 +170,14 @@ fun Navigation(modifier: Modifier = Modifier) {
                         onPhotoTaken = {
                             navController.navigate(Screens.ArchiveScreen.route)
                         },
-                        onDrinkDetected = {
-                            coroutineScope.launch {
-                                tempXPBar = true
-                                delay(1500)
-
-                                xpViewModel.gainXP(10)
-                                delay(1500)
-                                tempXPBar = false
-                            }
-                        }
+                        onDrinkDetected = { gainXP(10) }
                     )
                 }
 
                 composable(route = Screens.RecipeCreationScreen.route) {
                     RecipeForm { _, _, _ ->
                         print("Rezept wurde theoretisch erstellt")
+                        navController.navigate(Screens.HomeScreen.route)
                     }
                 }
             }

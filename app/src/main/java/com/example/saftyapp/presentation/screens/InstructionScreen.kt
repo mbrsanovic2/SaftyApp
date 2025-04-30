@@ -32,6 +32,7 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
+import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.saftyapp.R
@@ -55,7 +56,7 @@ fun InstructionCard(
     val image: Int
     if(recipeId == "Apple Berry Smoothie"){
         exampleDeprecatedRecipe = getTestRecipes()[0]
-        exampleColor = Color(228, 220, 233)
+        exampleColor = Color(228, 220, 100)
         image = R.drawable.smoothie_example_image
     }else{
         exampleDeprecatedRecipe = getTestRecipes()[2]
@@ -78,7 +79,6 @@ fun InstructionCard(
         modifier = modifier
             .fillMaxWidth()
             .padding(16.dp),
-        elevation = CardDefaults.cardElevation(defaultElevation = 8.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
             containerColor = exampleColor
