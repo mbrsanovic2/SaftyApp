@@ -56,7 +56,7 @@ fun InstructionCard(
     val image: Int
     if(recipeId == "Apple Berry Smoothie"){
         exampleDeprecatedRecipe = getTestRecipes()[0]
-        exampleColor = Color(228, 220, 100)
+        exampleColor = Color(228, 220, 233, 100)
         image = R.drawable.smoothie_example_image
     }else{
         exampleDeprecatedRecipe = getTestRecipes()[2]

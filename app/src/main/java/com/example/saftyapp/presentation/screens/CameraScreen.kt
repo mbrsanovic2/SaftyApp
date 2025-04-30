@@ -126,6 +126,7 @@ fun CameraScreen(
                         // Optional: Toast oder Log zeigen
                         if (drinkDetected) {
                             Toast.makeText(context, "Drink detected! +10 XP 🎉", Toast.LENGTH_SHORT).show()
+                            onDrinkDetected()
 
                             Log.d("MLKit", "Drink detected! XP awarded.")
                         } else {

@@ -36,7 +36,7 @@ fun BottomBarXP(modifier: Modifier = Modifier, viewModel: XPViewModel = viewMode
     val displayedLevel by viewModel.displayedLevel.collectAsState()
 
     LaunchedEffect(userState.currentXP) {
-        delay(600L)
+        delay(700L)
         while(xpGainToAnimate > 0){
             viewModel.reduceGainAnim(1)
             viewModel.incrementXP()
