@@ -1,8 +1,8 @@
 package com.example.saftyapp.model
 
-fun getTestRecipes(): List<Recipe> {
+fun getTestRecipes(): List<Deprecated_Recipe> {
     return listOf(
-        Recipe(
+        Deprecated_Recipe(
             name = "Apple Berry Smoothie",
             id = 12710,
             isCustom = false,
@@ -15,7 +15,7 @@ fun getTestRecipes(): List<Recipe> {
             measures = arrayOf("1 cup", "2"),
             thumbnail = "https://www.thecocktaildb.com/images/media/drink/xwqvur1468876473.jpg"
         ),
-        Recipe(
+        Deprecated_Recipe(
             name = "Kiwi Papaya Smoothie",
             id = 12714,
             isCustom = false,
@@ -28,7 +28,7 @@ fun getTestRecipes(): List<Recipe> {
             measures = arrayOf("3", "1/2"),
             thumbnail = "https://www.thecocktaildb.com/images/media/drink/jogv4w1487603571.jpg"
         ),
-        Recipe(
+        Deprecated_Recipe(
             name = "Iced Coffee",
             id = 12770,
             alcoholic = false,
@@ -48,7 +48,7 @@ fun getTestRecipes(): List<Recipe> {
             ),
             thumbnail = "https://www.thecocktaildb.com/images/media/drink/ytprxy1454513855.jpg"
         ),
-        Recipe(
+        Deprecated_Recipe(
             name = "Orange Whip",
             id = 12710,
             isCustom = false,
@@ -61,7 +61,7 @@ fun getTestRecipes(): List<Recipe> {
             measures = arrayOf("1 cup", "2"),
             thumbnail = "https://www.thecocktaildb.com/images/media/drink/ttyrxr1454514759.jpg"
         ),
-        Recipe(
+        Deprecated_Recipe(
             name = "Raspberry Cooler",
             id = 12714,
             isCustom = false,
@@ -74,7 +74,7 @@ fun getTestRecipes(): List<Recipe> {
             measures = arrayOf("3", "1/2"),
             thumbnail = "https://www.thecocktaildb.com/images/media/drink/suqyyx1441254346.jpg"
         ),
-        Recipe(
+        Deprecated_Recipe(
             name = "Ipamena",
             id = 12770,
             alcoholic = false,
@@ -94,7 +94,7 @@ fun getTestRecipes(): List<Recipe> {
             ),
             thumbnail = "https://www.thecocktaildb.com/images/media/drink/yswuwp1469090992.jpg"
         ),
-        Recipe(
+        Deprecated_Recipe(
             name = "Dark Caipirinha",
             id = 12710,
             isCustom = false,
@@ -107,7 +107,7 @@ fun getTestRecipes(): List<Recipe> {
             measures = arrayOf("1 cup", "2"),
             thumbnail = "https://www.thecocktaildb.com/images/media/drink/uwstrx1472406058.jpg"
         ),
-        Recipe(
+        Deprecated_Recipe(
             name = "Mary Pickford",
             id = 12714,
             isCustom = false,
@@ -120,7 +120,7 @@ fun getTestRecipes(): List<Recipe> {
             measures = arrayOf("3", "1/2"),
             thumbnail = "https://www.thecocktaildb.com/images/media/drink/f9erqb1504350557.jpg"
         ),
-        Recipe(
+        Deprecated_Recipe(
             name = "Monkey Gland",
             id = 12770,
             alcoholic = false,
@@ -136,7 +136,7 @@ fun getTestRecipes(): List<Recipe> {
                 "1/4 cup hot",
                 "4 cups cold"
             ),
-            thumbnail = "https://www.thecocktaildb.com/images/media/drink/94psp81504350690.jpg"
+            thumbnail = null
         ),
     )
 }

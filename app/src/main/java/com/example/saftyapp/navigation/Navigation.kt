@@ -45,13 +45,9 @@ fun Navigation(modifier: Modifier = Modifier) {
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     val currentRoute = navBackStackEntry.value?.destination?.route ?: Screens.HomeScreen.route
 
-    val hideBottomBar = when {
-        currentRoute == Screens.ArchiveScreen.route -> true
-        currentRoute == Screens.RecipeScreen.route -> true
-        currentRoute == Screens.CameraScreen.route -> true
-        currentRoute == Screens.RecipeCreationScreen.route -> true
-        currentRoute.startsWith("instruction_screen/") -> true
-        else -> false
+    val hideBottomBar = when (currentRoute) {
+        Screens.HomeScreen.route -> false
+        else -> true
     }
 
     ModalNavigationDrawer(
@@ -175,8 +171,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 }
 
                 composable(route = Screens.RecipeCreationScreen.route) {
-                    RecipeForm(
-                    ) { _, _, _ ->
+                    RecipeForm { _, _, _ ->
                         print("Rezept wurde theoretisch erstellt")
                     }
                 }

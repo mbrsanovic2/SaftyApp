@@ -35,7 +35,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.saftyapp.R
-import com.example.saftyapp.model.Recipe
+import com.example.saftyapp.model.Deprecated_Recipe
 import com.example.saftyapp.model.getTestRecipes
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
@@ -50,15 +50,15 @@ fun InstructionCard(
     navigateToCamera: () -> Unit,
     onFinishClicked: () -> Unit
 ) {
-    val exampleRecipe: Recipe
+    val exampleDeprecatedRecipe: Deprecated_Recipe
     val exampleColor: Color
     val image: Int
     if(recipeId == "Apple Berry Smoothie"){
-        exampleRecipe = getTestRecipes()[0]
+        exampleDeprecatedRecipe = getTestRecipes()[0]
         exampleColor = Color(228, 220, 233)
         image = R.drawable.smoothie_example_image
     }else{
-        exampleRecipe = getTestRecipes()[2]
+        exampleDeprecatedRecipe = getTestRecipes()[2]
         exampleColor = MaterialTheme.colorScheme.surface
         image = R.drawable.example_drink_2
     }
@@ -92,7 +92,7 @@ fun InstructionCard(
         ) {
 
             Text(
-                text = exampleRecipe.name,
+                text = exampleDeprecatedRecipe.name,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -111,7 +111,7 @@ fun InstructionCard(
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            RecipeDetails(exampleRecipe)
+            RecipeDetails(exampleDeprecatedRecipe)
 
             if(from == "Safty"){
                 FinishedButton(onFinishClicked = onFinishClicked)
@@ -133,7 +133,7 @@ fun InstructionCard(
 }
 
 @Composable
-fun RecipeDetails(recipe: Recipe) {
+fun RecipeDetails(deprecatedRecipe: Deprecated_Recipe) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Ingredients",
@@ -141,8 +141,8 @@ fun RecipeDetails(recipe: Recipe) {
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
-        recipe.ingredients.forEachIndexed { index, ingredient ->
-            val measure = recipe.measures.getOrNull(index) ?: ""
+        deprecatedRecipe.ingredients.forEachIndexed { index, ingredient ->
+            val measure = deprecatedRecipe.measures.getOrNull(index) ?: ""
             Text(
                 text = "• $ingredient: $measure",
                 style = MaterialTheme.typography.bodyMedium,
@@ -159,7 +159,7 @@ fun RecipeDetails(recipe: Recipe) {
         )
         
         Text(
-            text = recipe.instructions,
+            text = deprecatedRecipe.instructions,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(start = 8.dp)
         )

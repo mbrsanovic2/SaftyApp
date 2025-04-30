@@ -6,14 +6,13 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.*
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.grid.rememberLazyGridState
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -36,7 +35,7 @@ import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.saftyapp.model.database.entities.IngredientEntity
+import com.example.saftyapp.model.Objects.Ingredient
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.SaftyViewModel
 import com.example.saftyapp.presentation.safty.RecipeSuggestionDialog
@@ -45,7 +44,6 @@ import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 import com.example.saftyapp.ui.theme.SaftyAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import kotlin.random.Random
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -208,7 +206,7 @@ fun HomeScreen(
 
 @Composable
 private fun IngredientItem(
-    ingredient: IngredientEntity,
+    ingredient: Ingredient,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -227,17 +225,27 @@ private fun IngredientItem(
                 }
             )
     ) {
-        AsyncImage(
-            model = ingredient.iconFilePath,
-            contentDescription = null,
-            modifier = Modifier
-                .size(35.dp)
-                .padding(end = 8.dp)
-        )
+        if(ingredient.iconFilePath != null) {
+            AsyncImage(
+                model = ingredient.iconFilePath,
+                contentDescription = null,
+                modifier = Modifier.size(30.dp)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Outlined.ShoppingCart,
+                contentDescription = "Default Ingredient Icon",
+                modifier = Modifier
+                    .size(28.dp)
+                    .padding(start = 8.dp)
+            )
+        }
+
 
         Text(
             text = ingredient.name,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 16.dp)
         )
     }
 }

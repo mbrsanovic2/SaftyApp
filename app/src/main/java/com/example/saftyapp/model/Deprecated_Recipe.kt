@@ -1,6 +1,6 @@
 package com.example.saftyapp.model
 
-data class Recipe(
+data class Deprecated_Recipe(
     val name:String,
     val id:Int,
     val isCustom:Boolean,

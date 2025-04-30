@@ -2,6 +2,7 @@ package com.example.saftyapp.presentation.screens
 
 import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -11,6 +12,7 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Search
+import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.ElevatedCard
@@ -32,12 +34,14 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
-import com.example.saftyapp.model.database.entities.IngredientEntity
+import com.example.saftyapp.R
+import com.example.saftyapp.model.Objects.Ingredient
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 
@@ -118,7 +122,7 @@ fun RecipeScreen(
             visible = isFilterVisible,
             modifier = Modifier
                 .fillMaxWidth()
-                .height(120.dp)
+                .height(220.dp)
                 .border(1.dp, MaterialTheme.colorScheme.secondary, RoundedCornerShape(3.dp))
                 .clip(RoundedCornerShape(3.dp))
         ) {
@@ -149,7 +153,7 @@ fun RecipeScreen(
                                 }
                                 Log.i(
                                     "Ingredients",
-                                    "Selected ingredients: ${selectedIngredients.joinToString()}"
+                                    "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
                                 )
                             }
                         )
@@ -188,10 +192,10 @@ fun RecipeScreen(
             ) {
                 items(filteredRecipes) { recipe ->
                     RecipeCard(
-                        name = recipe.recipe.name,
-                        image = recipe.recipe.thumbnail,
+                        name = recipe.name,
+                        image = recipe.thumbnail,
                         onClick = {
-                            onNavigateToRecipeScreen(recipe.recipe.name)
+                            onNavigateToRecipeScreen(recipe.name)
                         }
                     )
                 }
@@ -230,20 +234,31 @@ fun RecipeCard(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        AsyncImage(
-            model = image,
-            contentDescription = name,
-            contentScale = ContentScale.Fit,
-            modifier = Modifier
-                .size(100.dp)
-                .align(Alignment.CenterHorizontally)
-        )
+        if(image != null) {
+            AsyncImage(
+                model = image,
+                contentDescription = name,
+                contentScale = ContentScale.Fit,
+                modifier = Modifier
+                    .size(100.dp)
+                    .align(Alignment.CenterHorizontally)
+            )
+        } else {
+            Image(
+                painterResource(R.drawable.saftyapp_logo2_free),
+                contentDescription = "Default Recipe Image",
+                modifier = Modifier
+                    .size(80.dp)
+                    .align(Alignment.CenterHorizontally)
+                    .padding(top = 10.dp)
+            )
+        }
     }
 }
 
 @Composable
 private fun IngredientItem(
-    ingredient: IngredientEntity,
+    ingredient: Ingredient,
     isSelected: Boolean,
     onClick: () -> Unit
 ) {
@@ -262,17 +277,27 @@ private fun IngredientItem(
                 }
             )
     ) {
-        AsyncImage(
-            model = ingredient.iconFilePath,
-            contentDescription = null,
-            modifier = Modifier
-                .size(35.dp)
-                .padding(end = 8.dp)
-        )
+        if(ingredient.iconFilePath != null) {
+            AsyncImage(
+                model = ingredient.iconFilePath,
+                contentDescription = ingredient.name,
+                modifier = Modifier.size(30.dp)
+            )
+        } else {
+            Icon(
+                imageVector = Icons.Outlined.ShoppingCart,
+                contentDescription = "Default Ingredient Icon",
+                modifier = Modifier
+                    .size(28.dp)
+                    .padding(start = 8.dp)
+            )
+        }
+
 
         Text(
             text = ingredient.name,
-            style = MaterialTheme.typography.bodyLarge
+            style = MaterialTheme.typography.bodyLarge,
+            modifier = Modifier.padding(start = 16.dp)
         )
     }
 }
