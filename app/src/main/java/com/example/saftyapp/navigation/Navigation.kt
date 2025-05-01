@@ -174,6 +174,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                     )
                 }
 
+                // Recipe Creation Screen
                 composable(route = Screens.RecipeCreationScreen.route) {
                     RecipeForm { _, _, _ ->
                         print("Rezept wurde theoretisch erstellt")

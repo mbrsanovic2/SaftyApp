@@ -6,7 +6,6 @@ import androidx.compose.animation.core.tween
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.draggable
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -170,7 +169,8 @@ fun HomeScreen(
                         start = 15.dp,
                         end = 5.dp,
                         top = 5.dp,
-                        bottom = 5.dp),
+                        bottom = 5.dp
+                    ),
                 ) {
                     items(ingredients) { ingredient ->
                         val isSelected = ingredient in selectedIngredients
@@ -178,22 +178,21 @@ fun HomeScreen(
                         if (ingredient.isUnlocked) {
                             IngredientItem(
                                 ingredient = ingredient,
-                                isSelected = isSelected,
-                                onClick = {
-                                    if (isSelected) {
-                                        recipeViewModel.deselectIngredient(ingredient)
-                                        saftyViewModel.removeIngredient(ingredient.color, true)
-                                        saftyViewModel.saftySpeaketh("")
-                                    } else {
-                                        recipeViewModel.selectIngredient(ingredient)
-                                        saftyViewModel.addIngredient(ingredient.color, true)
-                                    }
-                                    Log.i(
-                                        "Ingredients",
-                                        "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
-                                    )
+                                isSelected = isSelected
+                            ) {
+                                if (isSelected) {
+                                    recipeViewModel.deselectIngredient(ingredient)
+                                    saftyViewModel.removeIngredient(ingredient.color, true)
+                                    saftyViewModel.saftySpeaketh("")
+                                } else {
+                                    recipeViewModel.selectIngredient(ingredient)
+                                    saftyViewModel.addIngredient(ingredient.color, true)
                                 }
-                            )
+//                                Log.i(
+//                                    "Ingredients",
+//                                    "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
+//                                )
+                            }
                         }
                     }
                 }
@@ -225,7 +224,7 @@ private fun IngredientItem(
                 }
             )
     ) {
-        if(ingredient.iconFilePath != null) {
+        if (ingredient.iconFilePath != null) {
             AsyncImage(
                 model = ingredient.iconFilePath,
                 contentDescription = null,
@@ -240,7 +239,6 @@ private fun IngredientItem(
                     .padding(start = 8.dp)
             )
         }
-
 
         Text(
             text = ingredient.name,
@@ -257,7 +255,6 @@ fun HomeScreenPreview() {
         HomeScreen(
             modifier = Modifier,
         ) {
-
         }
     }
 }

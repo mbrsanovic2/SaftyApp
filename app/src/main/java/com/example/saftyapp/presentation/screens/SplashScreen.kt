@@ -25,6 +25,7 @@ fun SplashScreen(onFinish: () -> Unit) {
             targetValue = 1.1f,
             animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)
         )
+
         scale.animateTo(
             targetValue = 1f,
             animationSpec = tween(durationMillis = 500, easing = FastOutSlowInEasing)

@@ -141,22 +141,21 @@ fun RecipeScreen(
                 items(ingredients) { ingredient ->
                     val isSelected = ingredient in selectedIngredients
 
-                    if(ingredient.isUnlocked) {
+                    if (ingredient.isUnlocked) {
                         IngredientItem(
                             ingredient = ingredient,
-                            isSelected = isSelected,
-                            onClick = {
-                                if (isSelected) {
-                                    recipeViewModel.deselectIngredient(ingredient)
-                                } else {
-                                    recipeViewModel.selectIngredient(ingredient)
-                                }
-                                Log.i(
-                                    "Ingredients",
-                                    "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
-                                )
+                            isSelected = isSelected
+                        ) {
+                            if (isSelected) {
+                                recipeViewModel.deselectIngredient(ingredient)
+                            } else {
+                                recipeViewModel.selectIngredient(ingredient)
                             }
-                        )
+//                            Log.i(
+//                                "Ingredients",
+//                                "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
+//                            )
+                        }
                     }
                 }
             }
@@ -234,7 +233,7 @@ fun RecipeCard(
 
         Spacer(modifier = Modifier.height(8.dp))
 
-        if(image != null) {
+        if (image != null) {
             AsyncImage(
                 model = image,
                 contentDescription = name,
@@ -277,7 +276,7 @@ private fun IngredientItem(
                 }
             )
     ) {
-        if(ingredient.iconFilePath != null) {
+        if (ingredient.iconFilePath != null) {
             AsyncImage(
                 model = ingredient.iconFilePath,
                 contentDescription = ingredient.name,
@@ -292,7 +291,6 @@ private fun IngredientItem(
                     .padding(start = 8.dp)
             )
         }
-
 
         Text(
             text = ingredient.name,

@@ -38,6 +38,7 @@ fun MenuDrawer(
         SaftyAppLogo(
             modifier = Modifier.padding(horizontal = 28.dp, vertical = 24.dp)
         )
+
         SaftyDrawerItem(
             label = "Safty's Home",
             icon = {
@@ -50,12 +51,14 @@ fun MenuDrawer(
             selected = currentRoute == Screens.HomeScreen.route,
             onClick = { navigateToHome(); closeDrawer() },
         )
+
         SaftyDrawerItem(
             label = "Recipes",
             icon = { Icon(Icons.Filled.List, "Recipes") },
             selected = currentRoute == Screens.RecipeScreen.route,
             onClick = { navigateToRecipes(); closeDrawer() },
         )
+
         SaftyDrawerItem(
             label = "Archive",
             icon = { Icon(Icons.Filled.FavoriteBorder, "Archive") },
@@ -63,6 +66,7 @@ fun MenuDrawer(
             onClick = { navigateToArchive(); closeDrawer() },
         )
 
+        // TODO Restriction einfügen, dass man Title braucht dafür
         SaftyDrawerItem(
             label = "Recipe Creator",
             icon = { Icon(Icons.Filled.Create, "Recipe Creation") },
