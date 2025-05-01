@@ -13,7 +13,9 @@ import com.example.saftyapp.model.Objects.UserData
 import com.example.saftyapp.model.SaftyExpression
 import com.example.saftyapp.model.database.Repository
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
@@ -37,6 +39,9 @@ class XPViewModel(application: Application) : AndroidViewModel(application)  {
 
     private val _displayedLevel = MutableStateFlow(-1)
     val displayedLevel: StateFlow<Int> = _displayedLevel
+
+    private val _juicyUnlocked = MutableSharedFlow<Unit>(replay = 0)
+    val juicyUnlocked: SharedFlow<Unit> = _juicyUnlocked
 
     init {
         viewModelScope.launch {
@@ -62,17 +67,17 @@ class XPViewModel(application: Application) : AndroidViewModel(application)  {
 
         var newXP = current.currentXP + amount
         val targetXP = current.targetXP
-        val title : Boolean
+        val currentJuicy = (current.level) >= 5
 
         if (newXP >= targetXP) {
             newXP -= targetXP
-            title = (current.level + 1) >= 5
 
             repository.UserFunctions().increaseLvL()
-            repository.UserFunctions().resetXP()
             repository.UserFunctions().increaseXP(newXP)
-            repository.UserFunctions().updateTargetXP()
-            repository.UserFunctions().setTitle(title)
+            if(!currentJuicy && (current.level + 1) >= 5){
+                repository.UserFunctions().setTitle(true)
+                emitJuicyUnlocked()
+            }
         } else {
             repository.UserFunctions().increaseXP(amount)
         }
@@ -96,6 +101,12 @@ class XPViewModel(application: Application) : AndroidViewModel(application)  {
     fun reduceGainAnim(amount: Int){
         if(_xpGainToAnimate.value > 0) {
             _xpGainToAnimate.value -= amount
+        }
+    }
+
+    fun emitJuicyUnlocked() {
+        viewModelScope.launch {
+            _juicyUnlocked.emit(Unit)
         }
     }
 }
