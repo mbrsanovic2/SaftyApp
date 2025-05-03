@@ -4,14 +4,14 @@ import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import com.example.saftyapp.model.Objects.Ingredient
-import com.example.saftyapp.model.Objects.RecipeStruct
+import com.example.saftyapp.model.Objects.Recipe
 import com.example.saftyapp.model.getTestRecipes
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 
 class RecipeViewModel : ViewModel() { // TODO Repository einbinden
     // Recipes from database
-    private val _recipes = MutableStateFlow<List<RecipeStruct>>(emptyList())
+    private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
     val recipes = _recipes.asStateFlow()
 
     // Ingredients from database
@@ -25,7 +25,7 @@ class RecipeViewModel : ViewModel() { // TODO Repository einbinden
     // Filtering in RecipeScreen
     private val _queryText = MutableStateFlow("")
     val queryText = _queryText.asStateFlow()
-    private val _filteredRecipes = MutableStateFlow<List<RecipeStruct>>(emptyList())
+    private val _filteredRecipes = MutableStateFlow<List<Recipe>>(emptyList())
     val filteredRecipes = _filteredRecipes.asStateFlow()
 
     init {
@@ -96,7 +96,7 @@ class RecipeViewModel : ViewModel() { // TODO Repository einbinden
         val testRecipes = getTestRecipes()
 
         val mockedRecipes = testRecipes.map { recipe ->
-            RecipeStruct(
+            Recipe(
                 name = recipe.name,
                 instructions = recipe.instructions,
                 thumbnail = recipe.thumbnail,

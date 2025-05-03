@@ -1,15 +1,18 @@
 package com.example.saftyapp.model.database
 
-import androidx.camera.core.imagecapture.JpegBytes2Disk.In
 import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
+import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
+import com.example.saftyapp.model.database.entities.ArchiveWithRecipe
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.RecipeWithIngredientsEntity
 import com.example.saftyapp.model.database.entities.UserEntity
+import java.util.Date
 
 @Dao
 interface RecipeDao {
@@ -38,10 +41,10 @@ interface RecipeDao {
     suspend fun getRecipeIDsFromIngredients(iID: Int): List<Int>
 
     @Query("SELECT * FROM ingredients WHERE id = :id")
-    suspend fun getIngredientById(id:Int):IngredientEntity
+    suspend fun getIngredientById(id: Int): IngredientEntity
 
     @Query("SELECT ingredientID FROM measures WHERE recipeID IN (:rID)")
-    suspend fun getIngredientIDsFromRecipes(rID: List<Int>):List<Int>
+    suspend fun getIngredientIDsFromRecipes(rID: List<Int>): List<Int>
 
     @Query("SELECT * FROM ingredients WHERE id IN (:iID)")
     suspend fun getRecommendations(iID: List<Int>): List<IngredientEntity>
@@ -88,5 +91,15 @@ interface UserDao {
 
 @Dao
 interface ArchiveDao {
+    @Query("SELECT * FROM archiveEntry")
+    suspend fun getAllArchiveEntries(): List<ArchiveWithRecipe>
 
+    @Insert
+    suspend fun insertArchiveEntry(archiveEntryEntity: ArchiveEntryEntity)
+
+    @Insert
+    suspend fun insertArchiveCrossRef(archiveRecipeCrossRef: ArchiveRecipeCrossRef)
+
+    @Query("SELECT id FROM archiveEntry WHERE date = :date")
+    suspend fun getArchiveIdByDate(date: Date): Int
 }

@@ -1,6 +1,6 @@
 package com.example.saftyapp.model.Objects
 
-data class RecipeStruct(
+data class Recipe(
     val name: String,
     val instructions: String,
     val thumbnail: String? = null,
