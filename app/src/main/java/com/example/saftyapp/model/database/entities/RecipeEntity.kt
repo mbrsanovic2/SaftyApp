@@ -15,5 +15,5 @@ data class RecipeEntity(
     val thumbnail: String? = null,
     val hasBeenScored: Boolean = false,
     val hasPhotoScore: Boolean = false,
-    val backGroundColor: Color = Color.Gray,
+    val backGroundColor: Color?,
 )

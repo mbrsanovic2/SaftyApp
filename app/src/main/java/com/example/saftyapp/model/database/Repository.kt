@@ -58,6 +58,7 @@ class Repository @Inject constructor(
                             measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure
                         )
                     },
+                    color = e.recipe.backGroundColor
                 )
             }
 
@@ -88,6 +89,7 @@ class Repository @Inject constructor(
                             measure = recipeDao.getMeasure(rID = f.recipe.id, iID = i.id).measure
                         )
                     },
+                    color = f.recipe.backGroundColor
                 )
             }
 
@@ -159,7 +161,8 @@ class Repository @Inject constructor(
                         isUnlocked = i.isUnlocked,
                         measure = recipeDao.getMeasure(rID = entity.recipe.id, iID = i.id).measure
                     )
-                }
+                },
+                color = entity.recipe.backGroundColor
             )
         }
 
@@ -172,6 +175,7 @@ class Repository @Inject constructor(
                     isAlcoholic = recipe.isAlcoholic,
                     instructions = recipe.instructions,
                     thumbnail = recipe.thumbnail,
+                    backGroundColor = recipe.color
                 )
             )
 
@@ -267,6 +271,7 @@ class Repository @Inject constructor(
                                 measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure,
                             )
                         },
+                        color = e.recipe.backGroundColor
                     ),
                     imageFilePath = e.archive.imageFilePath,
                     date = e.archive.date
@@ -868,7 +873,8 @@ class Repository @Inject constructor(
                         isUnlocked = true,
                     ),
                 ),
-                thumbnail = "https://www.thecocktaildb.com/images/media/drink/vsrupw1472405732.jpg"
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/vsrupw1472405732.jpg",
+                color = null
             ),
             Recipe(
                 name = "Margarita",
@@ -900,7 +906,8 @@ class Repository @Inject constructor(
                         isUnlocked = true,
                     ),
                 ),
-                thumbnail = "https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg"
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg",
+                color = null
             ),
             Recipe(
                 name = "Apple Berry Smoothie",
@@ -921,7 +928,8 @@ class Repository @Inject constructor(
                         measure = "2"
                     ),
                 ),
-                thumbnail = "https://www.thecocktaildb.com/images/media/drink/xwqvur1468876473.jpg"
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/xwqvur1468876473.jpg",
+                color = null
             ),
             Recipe(
                 name = "Absolutely Fabulous",
@@ -948,7 +956,8 @@ class Repository @Inject constructor(
                         measure = "Top up with"
                     ),
                 ),
-                thumbnail = "https://www.thecocktaildb.com/images/media/drink/abcpwr1504817734.jpg"
+                thumbnail = "https://www.thecocktaildb.com/images/media/drink/abcpwr1504817734.jpg",
+                color = null
             ),
             Recipe(
                 name = "Frappé",
@@ -975,7 +984,8 @@ class Repository @Inject constructor(
                         isUnlocked = true,
                         measure = "1-2 tsp"
                     )
-                )
+                ),
+                color = null
             ),
             Recipe(
                 name = "Bloody Mary",
@@ -1020,7 +1030,8 @@ class Repository @Inject constructor(
                         isUnlocked = true,
                         measure = "1 wedge"
                     )
-                )
+                ),
+                color = null
             )
         )
         for (x in recipes) {
