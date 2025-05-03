@@ -49,7 +49,6 @@ import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun RecipeScreen(
-    modifier: Modifier,
     recipeViewModel: RecipeViewModel = hiltViewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
@@ -62,7 +61,7 @@ fun RecipeScreen(
     var isFilterVisible by remember { mutableStateOf(false) }
 
     Column(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxSize()
             .padding(16.dp),
     ) {

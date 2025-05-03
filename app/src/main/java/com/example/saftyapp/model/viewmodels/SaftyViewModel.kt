@@ -2,14 +2,25 @@ package com.example.saftyapp.model.viewmodels
 
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.saftyapp.model.Objects.Ingredient
+import com.example.saftyapp.model.Objects.Recipe
 import com.example.saftyapp.model.SaftyExpression
+import com.example.saftyapp.model.database.Repository
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 import kotlin.math.pow
 import kotlin.random.Random
 
-class SaftyViewModel : ViewModel() {
+@HiltViewModel
+class SaftyViewModel @Inject constructor(
+    private val repository: Repository
+): ViewModel() {
+
     private var mixCount = 0
     private var happiness = 4
     private val maxFill = 0.777f
@@ -27,17 +38,23 @@ class SaftyViewModel : ViewModel() {
     private val _liquidColor = MutableStateFlow(Color.Transparent)
     val liquidColor = _liquidColor.asStateFlow()
 
-    fun addIngredient(ingredientColor: Color?, wasRecommended: Boolean) {
+    private val addedIngredients: MutableList<Ingredient> = mutableListOf()
+
+    fun addIngredient(ingredient: Ingredient) {
         mixCount++
-        addedColors.add(ingredientColor)
-        changeExpression(wasRecommended)
-        reactToIngredient(wasRecommended)
+        addedIngredients.add(ingredient)
+        addedColors.add(ingredient.color)
         updateFill()
+        viewModelScope.launch {
+            changeExpression(true)
+            reactToIngredient(true)
+        }
     }
 
-    fun removeIngredient(ingredientColor: Color?, wasRecommended: Boolean) {
+    fun removeIngredient(ingredient: Ingredient) {
         mixCount--
-        addedColors.remove(ingredientColor)
+        addedIngredients.remove(ingredient)
+        addedColors.remove(ingredient.color)
         updateFill()
     }
 
@@ -56,7 +73,7 @@ class SaftyViewModel : ViewModel() {
         saftySpeaketh("")
     }
 
-    fun reactToIngredient(wasRecommended: Boolean) {
+    suspend fun reactToIngredient(wasRecommended: Boolean) {
         val comments: List<String>
         if (wasRecommended) {
             comments = listOf(
@@ -71,7 +88,9 @@ class SaftyViewModel : ViewModel() {
             )
         }
         val randomComment = comments[Random.nextInt(comments.size)]
-        saftySpeaketh(randomComment)
+        // TODO: Random
+        val recommendedIngredient = repository.RecipeFunctions().getIngredientRecommendations(addedIngredients)[0]
+        saftySpeaketh(randomComment + ". Consider adding " + recommendedIngredient.name + " next ;)")
     }
 
     fun saftySpeaketh(fulltext: String) {

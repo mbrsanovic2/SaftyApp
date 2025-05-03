@@ -1,7 +1,6 @@
 package com.example.saftyapp.model.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
-import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.saftyapp.model.Objects.Ingredient
@@ -43,7 +42,7 @@ class RecipeViewModel @Inject constructor(
     }
 
     private suspend fun loadRecipes() {
-        _recipes.value = repository.RecipeFunctions().getAllFullRecipes()
+        _recipes.value = repository.RecipeFunctions().getAllRecipes()
         updateFilteredRecipes()
     }
 

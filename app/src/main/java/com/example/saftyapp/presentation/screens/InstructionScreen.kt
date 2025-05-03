@@ -45,7 +45,6 @@ import com.google.accompanist.permissions.rememberPermissionState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun InstructionCard(
-    modifier: Modifier,
     recipeId: String,
     from: String?,
     navigateToCamera: () -> Unit,
@@ -76,7 +75,7 @@ fun InstructionCard(
     }
 
     Card(
-        modifier = modifier
+        modifier = Modifier
             .fillMaxWidth()
             .padding(16.dp),
         shape = RoundedCornerShape(16.dp),

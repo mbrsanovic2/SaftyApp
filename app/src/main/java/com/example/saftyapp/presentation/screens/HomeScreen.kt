@@ -51,8 +51,7 @@ import kotlinx.coroutines.launch
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
-    modifier: Modifier,
-    saftyViewModel: SaftyViewModel = viewModel(),
+    saftyViewModel: SaftyViewModel = hiltViewModel(),
     recipeViewModel: RecipeViewModel = hiltViewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
@@ -186,11 +185,11 @@ fun HomeScreen(
                             ) {
                                 if (isSelected) {
                                     recipeViewModel.deselectIngredient(ingredient)
-                                    saftyViewModel.removeIngredient(ingredient.color, true)
+                                    saftyViewModel.removeIngredient(ingredient)
                                     saftyViewModel.saftySpeaketh("")
                                 } else {
                                     recipeViewModel.selectIngredient(ingredient)
-                                    saftyViewModel.addIngredient(ingredient.color, true)
+                                    saftyViewModel.addIngredient(ingredient)
                                 }
 //                                Log.i(
 //                                    "Ingredients",
@@ -255,7 +254,6 @@ private fun IngredientItem(
 fun HomeScreenPreview() {
     SaftyAppTheme {
         HomeScreen(
-            modifier = Modifier,
         ) {
         }
     }

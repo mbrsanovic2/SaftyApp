@@ -110,7 +110,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                 // HomeScreen
                 composable(route = Screens.HomeScreen.route) {
                     HomeScreen(
-                        modifier = Modifier,
                         recipeViewModel = recipeViewModel,
                         onNavigateToRecipeScreen = { recipe ->
                             navController.navigate(
@@ -126,7 +125,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                 // RecipeScreen
                 composable(route = Screens.RecipeScreen.route) {
                     RecipeScreen(
-                        modifier = Modifier,
                         recipeViewModel = recipeViewModel,
                         onNavigateToRecipeScreen = { recipe ->
                             navController.navigate(Screens.InstructionScreen.createRoute(recipe))
@@ -159,7 +157,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                     val from = backStackEntry.arguments?.getString("from")
 
                     InstructionCard(
-                        modifier = Modifier,
                         recipeId = recipeId,
                         from = from,
                         navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
