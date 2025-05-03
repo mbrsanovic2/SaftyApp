@@ -3,6 +3,7 @@ package com.example.saftyapp.presentation.screens
 import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -30,11 +31,13 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
+import com.example.saftyapp.R
 import com.example.saftyapp.model.Objects.Ingredient
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.SaftyViewModel
@@ -215,7 +218,7 @@ private fun IngredientItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(10.dp)
+            .padding(top = 10.dp, bottom = 10.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(
                 if (isSelected) {
@@ -229,22 +232,20 @@ private fun IngredientItem(
             AsyncImage(
                 model = ingredient.iconFilePath,
                 contentDescription = null,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(28.dp)
             )
         } else {
-            Icon(
-                imageVector = Icons.Outlined.ShoppingCart,
+            Image(
+                painter = painterResource(R.drawable.ingredient_default),
                 contentDescription = "Default Ingredient Icon",
-                modifier = Modifier
-                    .size(28.dp)
-                    .padding(start = 8.dp)
+                modifier = Modifier.size(28.dp)
             )
         }
 
         Text(
             text = ingredient.name,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 16.dp)
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(start = 12.dp)
         )
     }
 }

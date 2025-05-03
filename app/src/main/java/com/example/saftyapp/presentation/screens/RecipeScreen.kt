@@ -267,7 +267,7 @@ private fun IngredientItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(10.dp)
+            .padding(top = 10.dp, bottom = 10.dp)
             .clip(RoundedCornerShape(8.dp))
             .background(
                 if (isSelected) {
@@ -281,22 +281,20 @@ private fun IngredientItem(
             AsyncImage(
                 model = ingredient.iconFilePath,
                 contentDescription = ingredient.name,
-                modifier = Modifier.size(30.dp)
+                modifier = Modifier.size(28.dp)
             )
         } else {
-            Icon(
-                imageVector = Icons.Outlined.ShoppingCart,
+            Image(
+                painter = painterResource(R.drawable.ingredient_default),
                 contentDescription = "Default Ingredient Icon",
-                modifier = Modifier
-                    .size(28.dp)
-                    .padding(start = 8.dp)
+                modifier = Modifier.size(28.dp)
             )
         }
 
         Text(
             text = ingredient.name,
-            style = MaterialTheme.typography.bodyLarge,
-            modifier = Modifier.padding(start = 16.dp)
+            style = MaterialTheme.typography.bodyMedium,
+            modifier = Modifier.padding(start = 12.dp)
         )
     }
 }

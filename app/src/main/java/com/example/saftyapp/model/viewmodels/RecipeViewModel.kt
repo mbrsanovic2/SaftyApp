@@ -7,7 +7,6 @@ import androidx.lifecycle.viewModelScope
 import com.example.saftyapp.model.Objects.Ingredient
 import com.example.saftyapp.model.Objects.Recipe
 import com.example.saftyapp.model.database.Repository
-import com.example.saftyapp.model.getTestRecipes
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
@@ -38,28 +37,34 @@ class RecipeViewModel @Inject constructor(
 
     init {
         viewModelScope.launch {
-            loadIngredientsFromDB()
-            loadMockRecipes()
+            loadIngredients()
+            loadRecipes()
         }
     }
 
-    fun loadIngredientsFromDB() {
+    private suspend fun loadRecipes() {
+        _recipes.value = repository.RecipeFunctions().getAllFullRecipes()
+        updateFilteredRecipes()
+    }
+
+    private suspend fun loadIngredients() {
+        _ingredients.value = repository.RecipeFunctions().getAllIngredients()
         // TODO - vorerst simuliertes Laden
-        val dbIngredients = listOf(
-            Ingredient("Strawberry", "https://www.thecocktaildb.com/images/ingredients/strawberries-small.png", Color.Red, true),
-            Ingredient("Apple", "https://www.thecocktaildb.com/images/ingredients/apple-small.png", Color.Red, true),
-            Ingredient("Pineapple", "https://www.thecocktaildb.com/images/ingredients/pineapple-small.png", Color.Yellow, true),
-            Ingredient("Water", "https://www.thecocktaildb.com/images/ingredients/water-small.png", Color.Transparent, true),
-            Ingredient("Kiwi", "https://www.thecocktaildb.com/images/ingredients/kiwi-small.png", Color.Green, true),
-            Ingredient("Papaya", "https://www.thecocktaildb.com/images/ingredients/papaya-small.png", Color.Yellow, true),
-            Ingredient("Berries", "https://www.thecocktaildb.com/images/ingredients/berries-small.png", Color.Red, true),
-            Ingredient("Coffee", "https://www.thecocktaildb.com/images/ingredients/coffee-small.png", Color.Black, true),
-            Ingredient("Milk", "https://www.thecocktaildb.com/images/ingredients/milk-small.png", Color.White, true),
-            Ingredient("Ice", "https://www.thecocktaildb.com/images/ingredients/ice-small.png", Color.Transparent, true),
-            Ingredient("Ham", null, Color.Gray, true),
-            Ingredient("Orange", "https://www.thecocktaildb.com/images/ingredients/orange-small.png", Color.Yellow, false)
-        )
-        _ingredients.value = dbIngredients
+//        val dbIngredients = listOf(
+//            Ingredient("Strawberry", "https://www.thecocktaildb.com/images/ingredients/strawberries-small.png", Color.Red, true),
+//            Ingredient("Apple", "https://www.thecocktaildb.com/images/ingredients/apple-small.png", Color.Red, true),
+//            Ingredient("Pineapple", "https://www.thecocktaildb.com/images/ingredients/pineapple-small.png", Color.Yellow, true),
+//            Ingredient("Water", "https://www.thecocktaildb.com/images/ingredients/water-small.png", Color.Transparent, true),
+//            Ingredient("Kiwi", "https://www.thecocktaildb.com/images/ingredients/kiwi-small.png", Color.Green, true),
+//            Ingredient("Papaya", "https://www.thecocktaildb.com/images/ingredients/papaya-small.png", Color.Yellow, true),
+//            Ingredient("Berries", "https://www.thecocktaildb.com/images/ingredients/berries-small.png", Color.Red, true),
+//            Ingredient("Coffee", "https://www.thecocktaildb.com/images/ingredients/coffee-small.png", Color.Black, true),
+//            Ingredient("Milk", "https://www.thecocktaildb.com/images/ingredients/milk-small.png", Color.White, true),
+//            Ingredient("Ice", "https://www.thecocktaildb.com/images/ingredients/ice-small.png", Color.Transparent, true),
+//            Ingredient("Ham", null, Color.Gray, true),
+//            Ingredient("Orange", "https://www.thecocktaildb.com/images/ingredients/orange-small.png", Color.Yellow, false)
+//        )
+//        _ingredients.value = dbIngredients
     }
 
     fun selectIngredient(ingredient: Ingredient) {
@@ -82,7 +87,7 @@ class RecipeViewModel @Inject constructor(
         updateQuery("")
     }
 
-    fun updateFilteredRecipes() {
+    private fun updateFilteredRecipes() {
         val currentRecipes = _recipes.value
         val query = _queryText.value
 
@@ -99,30 +104,6 @@ class RecipeViewModel @Inject constructor(
 
     fun updateQuery(newQuery: String) {
         _queryText.value = newQuery
-        updateFilteredRecipes()
-    }
-
-    private suspend fun loadMockRecipes() {
-        val testRecipes = getTestRecipes()
-
-        val mockedRecipes = testRecipes.map { recipe ->
-            Recipe(
-                name = recipe.name,
-                instructions = recipe.instructions,
-                thumbnail = recipe.thumbnail,
-                isCustom = recipe.isCustom,
-                isAlcoholic = recipe.alcoholic,
-                ingredients = recipe.ingredients.map { ingredientName ->
-                    Ingredient(
-                        name = ingredientName,
-                        color = Color.Cyan,
-                        isUnlocked = true
-                    )
-                }
-            )
-        }
-
-        _recipes.value = mockedRecipes
         updateFilteredRecipes()
     }
 }
