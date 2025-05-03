@@ -38,6 +38,7 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.saftyapp.R
@@ -49,7 +50,7 @@ import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 @Composable
 fun RecipeScreen(
     modifier: Modifier,
-    recipeViewModel: RecipeViewModel = viewModel(),
+    recipeViewModel: RecipeViewModel = hiltViewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
     val ingredients by recipeViewModel.ingredients.collectAsState()

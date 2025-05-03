@@ -28,6 +28,7 @@ import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.saftyapp.model.database.Repository
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
+import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.XPViewModel
 import com.example.saftyapp.presentation.screens.ArchiveScreen
 import com.example.saftyapp.presentation.screens.CameraScreen
@@ -48,6 +49,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     val coroutineScope = rememberCoroutineScope()
     val photoViewModel: PhotoViewModel = viewModel()
     val xpViewModel: XPViewModel = hiltViewModel()
+    val recipeViewModel: RecipeViewModel = hiltViewModel()
     var tempXPBar by remember{ mutableStateOf(false) }
 
     val navBackStackEntry = navController.currentBackStackEntryAsState()
@@ -109,6 +111,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 composable(route = Screens.HomeScreen.route) {
                     HomeScreen(
                         modifier = Modifier,
+                        recipeViewModel = recipeViewModel,
                         onNavigateToRecipeScreen = { recipe ->
                             navController.navigate(
                                 Screens.InstructionScreen.createRoute(
@@ -124,6 +127,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 composable(route = Screens.RecipeScreen.route) {
                     RecipeScreen(
                         modifier = Modifier,
+                        recipeViewModel = recipeViewModel,
                         onNavigateToRecipeScreen = { recipe ->
                             navController.navigate(Screens.InstructionScreen.createRoute(recipe))
                         })

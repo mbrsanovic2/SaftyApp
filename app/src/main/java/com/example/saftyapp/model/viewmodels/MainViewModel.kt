@@ -15,6 +15,8 @@ class MainViewModel @Inject constructor(
     fun initializeApp() {
         viewModelScope.launch {
             // Erfuelle deine Traeume herr Konzetti
+            repository.loadDefaultData()
+            repository.loadTestRecipes()
         }
     }
 }

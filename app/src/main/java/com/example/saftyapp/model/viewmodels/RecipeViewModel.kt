@@ -3,13 +3,21 @@ package com.example.saftyapp.model.viewmodels
 import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
 import com.example.saftyapp.model.Objects.Ingredient
 import com.example.saftyapp.model.Objects.Recipe
+import com.example.saftyapp.model.database.Repository
 import com.example.saftyapp.model.getTestRecipes
+import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
+import kotlinx.coroutines.launch
+import javax.inject.Inject
 
-class RecipeViewModel : ViewModel() { // TODO Repository einbinden
+@HiltViewModel
+class RecipeViewModel @Inject constructor(
+    private val repository: Repository
+): ViewModel()  {
     // Recipes from database
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
     val recipes = _recipes.asStateFlow()
@@ -29,8 +37,10 @@ class RecipeViewModel : ViewModel() { // TODO Repository einbinden
     val filteredRecipes = _filteredRecipes.asStateFlow()
 
     init {
-        loadIngredientsFromDB()
-        loadMockRecipes()
+        viewModelScope.launch {
+            loadIngredientsFromDB()
+            loadMockRecipes()
+        }
     }
 
     fun loadIngredientsFromDB() {
@@ -92,7 +102,7 @@ class RecipeViewModel : ViewModel() { // TODO Repository einbinden
         updateFilteredRecipes()
     }
 
-    private fun loadMockRecipes() {
+    private suspend fun loadMockRecipes() {
         val testRecipes = getTestRecipes()
 
         val mockedRecipes = testRecipes.map { recipe ->

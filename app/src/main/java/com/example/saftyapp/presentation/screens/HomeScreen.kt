@@ -32,6 +32,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.saftyapp.model.Objects.Ingredient
@@ -49,7 +50,7 @@ import kotlinx.coroutines.launch
 fun HomeScreen(
     modifier: Modifier,
     saftyViewModel: SaftyViewModel = viewModel(),
-    recipeViewModel: RecipeViewModel = viewModel(),
+    recipeViewModel: RecipeViewModel = hiltViewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
     val ingredients by recipeViewModel.ingredients.collectAsState()
