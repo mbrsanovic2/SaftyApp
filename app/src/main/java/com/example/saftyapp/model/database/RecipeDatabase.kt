@@ -6,14 +6,15 @@ import androidx.room.Room
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
+import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.UserEntity
 
 @Database(
-    entities = [RecipeEntity::class, IngredientEntity::class, UserEntity::class, ArchiveEntryEntity::class, MeasureEntity::class],
-    version = 6,
+    entities = [RecipeEntity::class, ArchiveRecipeCrossRef::class, IngredientEntity::class, UserEntity::class, ArchiveEntryEntity::class, MeasureEntity::class],
+    version = 1,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

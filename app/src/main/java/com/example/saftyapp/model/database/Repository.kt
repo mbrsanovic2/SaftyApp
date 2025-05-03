@@ -5,8 +5,10 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.example.saftyapp.model.Objects.ArchiveEntry
 import com.example.saftyapp.model.Objects.Ingredient
-import com.example.saftyapp.model.Objects.RecipeStruct
+import com.example.saftyapp.model.Objects.Recipe
 import com.example.saftyapp.model.Objects.UserData
+import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
+import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
@@ -47,10 +49,10 @@ class Repository(context: Context) {
             return ingredients
         }
 
-        suspend fun getAllFullRecipes(): List<RecipeStruct> {
+        suspend fun getAllFullRecipes(): List<Recipe> {
             val entities = recipeDao.getRecipesWithIngredients()
-            val recipes: List<RecipeStruct> = entities.map { e ->
-                RecipeStruct(
+            val recipes: List<Recipe> = entities.map { e ->
+                Recipe(
                     name = e.recipe.name,
                     instructions = e.recipe.instructions,
                     thumbnail = e.recipe.thumbnail,
@@ -75,12 +77,12 @@ class Repository(context: Context) {
             return recipeDao.getRecipeNames()
         }
 
-        suspend fun getRecipeByIngredient(ingredient: Ingredient): List<RecipeStruct> {
+        suspend fun getRecipeByIngredient(ingredient: Ingredient): List<Recipe> {
             val iID = recipeDao.getIngredientByName(ingredient.name).id
             val entities = recipeDao.getRecipeByIngredient(iID)
 
             val recipes = entities.map { f ->
-                RecipeStruct(
+                Recipe(
                     name = f.recipe.name,
                     instructions = f.recipe.instructions,
                     thumbnail = f.recipe.thumbnail,
@@ -135,7 +137,7 @@ class Repository(context: Context) {
             return recommendations
         }
 
-        suspend fun getFinalRecommendations(ingredients: List<Ingredient>): List<RecipeStruct> {
+        suspend fun getFinalRecommendations(ingredients: List<Ingredient>): List<Recipe> {
             TODO()
         }
 
@@ -150,9 +152,9 @@ class Repository(context: Context) {
             return ingredient
         }
 
-        suspend fun getRecipeByName(name: String): RecipeStruct {
+        suspend fun getRecipeByName(name: String): Recipe {
             val entity = recipeDao.getRecipeByName(name)
-            return RecipeStruct(
+            return Recipe(
                 name = entity.recipe.name,
                 instructions = entity.recipe.instructions,
                 isCustom = entity.recipe.isCustom,
@@ -170,7 +172,7 @@ class Repository(context: Context) {
             )
         }
 
-        suspend fun addRecipe(recipe: RecipeStruct) {
+        suspend fun addRecipe(recipe: Recipe) {
             Log.d("Database","Adding Recipe: "+recipe.name)
             recipeDao.insertRecipe(
                 RecipeEntity(
@@ -255,9 +257,44 @@ class Repository(context: Context) {
      * All database interactions for the archive
      */
     inner class ArchiveFunctions {
-        @Deprecated("Not yet implemented", level = DeprecationLevel.ERROR)
         suspend fun getArchive(): List<ArchiveEntry> {
-            TODO()
+            val entities = archiveDao.getAllArchiveEntries()
+            return entities.map { e ->
+                ArchiveEntry(
+                    recipe = Recipe(
+                        name = e.recipe.name,
+                        instructions = e.recipe.instructions,
+                        thumbnail = e.recipe.thumbnail,
+                        isCustom = e.recipe.isCustom,
+                        isAlcoholic = e.recipe.isAlcoholic,
+                        ingredients = recipeDao.getRecipeByName(e.recipe.name).ingredients.map { i ->
+                            Ingredient(
+                                name = i.name,
+                                iconFilePath = i.iconFilePath,
+                                color = i.color,
+                                isUnlocked = i.isUnlocked,
+                                measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure,
+                            )
+                        },
+                    ),
+                    imageFilePath = e.archive.imageFilePath,
+                    date = e.archive.date
+                )
+            }
+        }
+
+        suspend fun addArchiveEntry(archiveEntry: ArchiveEntry){
+            val aEntity = ArchiveEntryEntity(
+                imageFilePath = archiveEntry.imageFilePath,
+                date = archiveEntry.date
+            )
+            archiveDao.insertArchiveEntry(aEntity)
+
+            val crossRef = ArchiveRecipeCrossRef(
+                recipeId = recipeDao.getRecipeByName(archiveEntry.recipe.name).recipe.id,
+                archiveId = archiveDao.getArchiveIdByDate(archiveEntry.date)
+            )
+            archiveDao.insertArchiveCrossRef(crossRef)
         }
     }
 
@@ -813,7 +850,7 @@ class Repository(context: Context) {
     suspend fun loadTestRecipes() {
         Log.d("Database", "Loading test recipes")
         val recipes = listOf(
-            RecipeStruct(
+            Recipe(
                 name = "White Russian",
                 isCustom = false,
                 isAlcoholic = true,
@@ -839,7 +876,7 @@ class Repository(context: Context) {
                 ),
                 thumbnail = "https://www.thecocktaildb.com/images/media/drink/vsrupw1472405732.jpg"
             ),
-            RecipeStruct(
+            Recipe(
                 name = "Margarita",
                 isCustom = false,
                 isAlcoholic = true,
@@ -871,7 +908,7 @@ class Repository(context: Context) {
                 ),
                 thumbnail = "https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg"
             ),
-            RecipeStruct(
+            Recipe(
                 name = "Apple Berry Smoothie",
                 isCustom = false,
                 isAlcoholic = false,
@@ -892,7 +929,7 @@ class Repository(context: Context) {
                 ),
                 thumbnail = "https://www.thecocktaildb.com/images/media/drink/xwqvur1468876473.jpg"
             ),
-            RecipeStruct(
+            Recipe(
                 name = "Absolutely Fabulous",
                 isCustom = false,
                 isAlcoholic = false,
@@ -919,7 +956,7 @@ class Repository(context: Context) {
                 ),
                 thumbnail = "https://www.thecocktaildb.com/images/media/drink/abcpwr1504817734.jpg"
             ),
-            RecipeStruct(
+            Recipe(
                 name = "Frappé",
                 isCustom = false,
                 isAlcoholic = false,
@@ -946,7 +983,7 @@ class Repository(context: Context) {
                     )
                 )
             ),
-            RecipeStruct(
+            Recipe(
                 name = "Bloody Mary",
                 isCustom = false,
                 isAlcoholic = true,
