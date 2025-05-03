@@ -839,6 +839,9 @@ class Repository @Inject constructor(
     }
 
     suspend fun loadTestRecipes() {
+        if(recipeDao.getRecipeNames().isNotEmpty())
+            return
+
         Log.d("Database", "Loading test recipes")
         val recipes = listOf(
             Recipe(
