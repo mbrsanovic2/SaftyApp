@@ -1,30 +1,23 @@
 package com.example.saftyapp.model.viewmodels
 
-import android.app.Application
-import android.content.Context
-import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateOf
-import androidx.compose.runtime.setValue
-import androidx.compose.ui.graphics.Color
-import androidx.lifecycle.AndroidViewModel
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.saftyapp.model.Objects.UserData
 import com.example.saftyapp.model.SaftyExpression
 import com.example.saftyapp.model.database.Repository
+import dagger.hilt.android.lifecycle.HiltViewModel
+import javax.inject.Inject
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
-import kotlin.math.pow
-import kotlin.random.Random
 
-class XPViewModel(application: Application) : AndroidViewModel(application)  {
-    private val repository = Repository.getInstance(application.applicationContext)
-
+@HiltViewModel
+class XPViewModel @Inject constructor(
+    private val repository: Repository
+): ViewModel() {
     private val _userState = MutableStateFlow(UserData(-1,-1,-1, false))
     val userState: StateFlow<UserData> = _userState
 

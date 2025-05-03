@@ -11,25 +11,16 @@ import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.UserEntity
+import dagger.hilt.android.qualifiers.ApplicationContext
+import javax.inject.Inject
+import javax.inject.Singleton
 
-class Repository(context: Context) {
-
-    companion object {
-        @Volatile
-        private var instance: Repository? = null
-
-        fun getInstance(context: Context): Repository {
-            return instance ?: synchronized(this) {
-                instance ?: Repository(context).also { instance = it }
-            }
-        }
-    }
-
-    private val db: RecipeDatabase = RecipeDatabase.getDatabase(context)
-    private val recipeDao: RecipeDao = db.recipeDao()
-    private val userDao: UserDao = db.userDao()
-    private val archiveDao: ArchiveDao = db.archiveDao()
-
+@Singleton
+class Repository @Inject constructor(
+    private val recipeDao: RecipeDao,
+    private val userDao: UserDao,
+    private val archiveDao: ArchiveDao
+) {
     /**
      * All database interactions for recipes and interactions
      */

@@ -18,6 +18,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.platform.LocalContext
+import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
 import androidx.navigation.compose.rememberNavController
@@ -46,8 +47,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val coroutineScope = rememberCoroutineScope()
     val photoViewModel: PhotoViewModel = viewModel()
-    val xpViewModel: XPViewModel = viewModel()
-    val repository = Repository.getInstance(LocalContext.current.applicationContext)
+    val xpViewModel: XPViewModel = hiltViewModel()
     var tempXPBar by remember{ mutableStateOf(false) }
 
     val navBackStackEntry = navController.currentBackStackEntryAsState()

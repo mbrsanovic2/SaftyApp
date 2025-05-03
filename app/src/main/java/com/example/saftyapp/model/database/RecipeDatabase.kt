@@ -12,7 +12,13 @@ import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.UserEntity
 
 @Database(
-    entities = [RecipeEntity::class, IngredientEntity::class, UserEntity::class, ArchiveEntryEntity::class, MeasureEntity::class],
+    entities = [
+        RecipeEntity::class,
+        IngredientEntity::class,
+        UserEntity::class,
+        ArchiveEntryEntity::class,
+        MeasureEntity::class
+    ],
     version = 6,
     exportSchema = false
 )
@@ -21,16 +27,4 @@ abstract class RecipeDatabase : RoomDatabase() {
     abstract fun recipeDao(): RecipeDao
     abstract fun userDao(): UserDao
     abstract fun archiveDao(): ArchiveDao
-
-    companion object {
-        @Volatile
-        private var Instance: RecipeDatabase? = null
-
-        fun getDatabase(context: Context): RecipeDatabase {
-            return Instance ?: synchronized(this) {
-                Room.databaseBuilder(context, RecipeDatabase::class.java, "recipe_database")
-                    .fallbackToDestructiveMigration(true).build().also { Instance = it }
-            }
-        }
-    }
 }
