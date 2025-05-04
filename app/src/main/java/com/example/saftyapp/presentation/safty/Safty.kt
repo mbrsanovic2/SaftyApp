@@ -43,13 +43,16 @@ fun Safty(
     expression: SaftyExpression,
     modifier: Modifier = Modifier,
     fillAmount: Float = 0f,
-    fillColor: Color,
-    currentText: String
+    fillColor: Color = Color.Transparent,
+    currentText: String = "",
+    saftyGone: Boolean = false,
 ) {
     Box(
         modifier = modifier
     ) {
-        SaftyImage(expression, modifier.padding(top = 52.dp), fillAmount, fillColor)
+        if(!saftyGone) {
+            SaftyImage(expression, modifier.padding(top = 52.dp), fillAmount, fillColor)
+        }
 
         if (currentText.isNotEmpty()) {
             SpeechBubble(

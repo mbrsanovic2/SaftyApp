@@ -60,6 +60,7 @@ fun HomeScreen(
     val scrollState = rememberLazyGridState()
 
     val currentExpression by saftyViewModel.currentExpression.collectAsState()
+    val saftyGone by saftyViewModel.saftyGone.collectAsState()
     val fillTarget = saftyViewModel.fillTarget.collectAsState()
     var showDialog by remember { mutableStateOf(false) }
 
@@ -110,7 +111,8 @@ fun HomeScreen(
                         .aspectRatio(1f),
                     fillAmount = fillAmount.value,
                     fillColor = liquidColor,
-                    currentText = currentWords
+                    currentText = currentWords,
+                    saftyGone = saftyGone
                 )
             }
 
