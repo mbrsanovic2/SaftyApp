@@ -1,6 +1,5 @@
 package com.example.saftyapp.presentation.screens
 
-import android.util.Log
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
@@ -12,7 +11,6 @@ import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,10 +33,9 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.saftyapp.R
-import com.example.saftyapp.model.Objects.Ingredient
+import com.example.saftyapp.model.objects.Ingredient
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.SaftyViewModel
 import com.example.saftyapp.presentation.safty.RecipeSuggestionDialog

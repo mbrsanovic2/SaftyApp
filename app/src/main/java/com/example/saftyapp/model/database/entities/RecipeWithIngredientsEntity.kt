@@ -3,6 +3,7 @@ package com.example.saftyapp.model.database.entities
 import androidx.room.Embedded
 import androidx.room.Junction
 import androidx.room.Relation
+import androidx.room.Transaction
 
 data class RecipeWithIngredientsEntity(
     @Embedded
@@ -11,7 +12,7 @@ data class RecipeWithIngredientsEntity(
         parentColumn = "id",
         entityColumn = "id",
         associateBy = Junction(
-            value = MeasureEntity::class,
+            value = RecipeIngredientCrossRef::class,
             parentColumn = "recipeID",
             entityColumn = "ingredientID"
         )

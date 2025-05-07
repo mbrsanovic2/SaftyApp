@@ -1,16 +1,13 @@
 package com.example.saftyapp.model.database
 
-import android.content.Context
 import android.util.Log
-import androidx.compose.ui.graphics.Color
-import com.example.saftyapp.model.Objects.ArchiveEntry
-import com.example.saftyapp.model.Objects.Ingredient
-import com.example.saftyapp.model.Objects.Recipe
-import com.example.saftyapp.model.Objects.UserData
+import com.example.saftyapp.model.objects.ArchiveEntry
+import com.example.saftyapp.model.objects.Ingredient
+import com.example.saftyapp.model.objects.Recipe
+import com.example.saftyapp.model.objects.UserData
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
 import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
-import com.example.saftyapp.model.database.entities.IngredientEntity
-import com.example.saftyapp.model.database.entities.MeasureEntity
+import com.example.saftyapp.model.database.entities.RecipeIngredientCrossRef
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.UserEntity
 import com.example.saftyapp.model.database.staticdata.IngredientData
@@ -52,15 +49,15 @@ class Repository @Inject constructor(
                     thumbnail = e.recipe.thumbnail,
                     isCustom = e.recipe.isCustom,
                     isAlcoholic = e.recipe.isAlcoholic,
-                    ingredients = e.ingredients.map { i ->
+                    keyIngredients = e.ingredients.map { i ->
                         Ingredient(
                             name = i.name,
                             iconFilePath = i.iconFilePath,
                             color = i.color,
                             isUnlocked = i.isUnlocked,
-                            measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure
                         )
                     },
+                    allIngredients = e.recipe.allIngredients.split(","),
                     color = e.recipe.backGroundColor
                 )
             }
@@ -126,16 +123,16 @@ class Repository @Inject constructor(
                 isCustom = entity.recipe.isCustom,
                 isAlcoholic = entity.recipe.isAlcoholic,
                 thumbnail = entity.recipe.thumbnail,
-                ingredients = entity.ingredients.map { i ->
+                keyIngredients = entity.ingredients.map { i ->
                     Ingredient(
                         name = i.name,
                         iconFilePath = i.iconFilePath,
                         color = i.color,
                         isUnlocked = i.isUnlocked,
-                        measure = recipeDao.getMeasure(rID = entity.recipe.id, iID = i.id).measure
                     )
                 },
-                color = entity.recipe.backGroundColor
+                color = entity.recipe.backGroundColor,
+                allIngredients = entity.recipe.allIngredients.split(","),
             )
         }
 
@@ -148,15 +145,15 @@ class Repository @Inject constructor(
                     isAlcoholic = recipe.isAlcoholic,
                     instructions = recipe.instructions,
                     thumbnail = recipe.thumbnail,
-                    backGroundColor = recipe.color
+                    backGroundColor = recipe.color,
+                    allIngredients = recipe.allIngredients.joinToString(",")
                 )
             )
 
-            val measures = recipe.ingredients.map { i ->
-                MeasureEntity(
+            val measures = recipe.keyIngredients.map { i ->
+                RecipeIngredientCrossRef(
                     recipeID = recipeDao.getRecipeByName(recipe.name).recipe.id,
                     ingredientID = recipeDao.getIngredientByName(i.name).id,
-                    measure = i.measure ?: "No Info"
                 )
             }
 
@@ -235,15 +232,15 @@ class Repository @Inject constructor(
                         thumbnail = e.recipe.thumbnail,
                         isCustom = e.recipe.isCustom,
                         isAlcoholic = e.recipe.isAlcoholic,
-                        ingredients = recipeDao.getRecipeByName(e.recipe.name).ingredients.map { i ->
+                        keyIngredients = recipeDao.getRecipeByName(e.recipe.name).ingredients.map { i ->
                             Ingredient(
                                 name = i.name,
                                 iconFilePath = i.iconFilePath,
                                 color = i.color,
                                 isUnlocked = i.isUnlocked,
-                                measure = recipeDao.getMeasure(rID = e.recipe.id, iID = i.id).measure,
                             )
                         },
+                        allIngredients = e.recipe.allIngredients.split(","),
                         color = e.recipe.backGroundColor
                     ),
                     imageFilePath = e.archive.imageFilePath,

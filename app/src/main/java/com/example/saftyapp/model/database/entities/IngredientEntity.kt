@@ -12,5 +12,5 @@ data class IngredientEntity(
     val name: String,
     val iconFilePath: String? = null,
     var color: Color,
-    val isUnlocked: Boolean
+    val isUnlocked: Boolean = false
 )

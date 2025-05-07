@@ -16,4 +16,5 @@ data class RecipeEntity(
     val hasBeenScored: Boolean = false,
     val hasPhotoScore: Boolean = false,
     val backGroundColor: Color?,
+    val allIngredients: String, //contains all ings with measure, separated by commas
 )
