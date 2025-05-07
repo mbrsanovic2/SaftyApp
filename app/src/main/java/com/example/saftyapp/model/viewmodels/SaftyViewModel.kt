@@ -1,5 +1,6 @@
 package com.example.saftyapp.model.viewmodels
 
+import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
@@ -23,8 +24,10 @@ class SaftyViewModel @Inject constructor(
     private var mixCount = 0
     private var happiness = 50
     private val maxFill = 0.777f
-    private val addedIngredients: MutableList<Ingredient> = mutableListOf()
-    private val ingredientsUsedForRecipe: MutableList<Ingredient> = mutableListOf()
+
+    private val _addedIngredients: MutableList<Ingredient> = mutableListOf()
+    val addedIngredients: List<Ingredient> get() = _addedIngredients
+
     private var acceptedIngredients: List<Ingredient>? = null
     private var recommendedIngredient: Ingredient? = null
     private var saftyNoMoreIdeas = false
@@ -71,7 +74,7 @@ class SaftyViewModel @Inject constructor(
 
     private fun acceptIngredient(ingredient: Ingredient, recommendationScore: Int) {
         mixCount++
-        addedIngredients.add(ingredient)
+        _addedIngredients.add(ingredient)
         addedColors.add(ingredient.color)
         updateFill()
         viewModelScope.launch {
@@ -86,7 +89,7 @@ class SaftyViewModel @Inject constructor(
         if(mixCount == 0){
             clearAllIngredients()
         }else {
-            addedIngredients.remove(ingredient)
+            _addedIngredients.remove(ingredient)
             addedColors.remove(ingredient.color)
             updateFill()
             viewModelScope.launch {
@@ -108,7 +111,7 @@ class SaftyViewModel @Inject constructor(
         happiness = 75
         _saftyGone.value = false
         addedColors.clear()
-        addedIngredients.clear()
+        _addedIngredients.clear()
         acceptedIngredients = null
         recommendedIngredient = null
         saftyNoMoreIdeas = false

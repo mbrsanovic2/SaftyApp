@@ -53,7 +53,7 @@ fun HomeScreen(
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
     val ingredients by recipeViewModel.unlockedIngredients.collectAsState()
-    val selectedIngredients = recipeViewModel.selectedIngredients
+    val selectedIngredients = saftyViewModel.addedIngredients
     val scrollState = rememberLazyGridState()
 
     val currentExpression by saftyViewModel.currentExpression.collectAsState()
@@ -183,14 +183,10 @@ fun HomeScreen(
                         ) {
                             Log.i("Path", "Path: ${ingredient.iconFilePath}")
                             if (isSelected) {
-                                recipeViewModel.deselectIngredient(ingredient)
                                 saftyViewModel.removeIngredient(ingredient)
                                 saftyViewModel.saftySpeaketh("")
                             } else {
-                                val saftyAccepted = saftyViewModel.addIngredient(ingredient)
-                                if(saftyAccepted) {
-                                    recipeViewModel.selectIngredient(ingredient)
-                                }
+                                saftyViewModel.addIngredient(ingredient)
                             }
 //                                Log.i(
 //                                    "Ingredients",
