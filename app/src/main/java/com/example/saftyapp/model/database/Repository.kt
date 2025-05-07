@@ -1,5 +1,6 @@
 package com.example.saftyapp.model.database
 
+import android.content.Context
 import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.example.saftyapp.model.Objects.ArchiveEntry
@@ -8,6 +9,7 @@ import com.example.saftyapp.model.Objects.Recipe
 import com.example.saftyapp.model.Objects.UserData
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
 import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
+import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.MeasureEntity
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.UserEntity
@@ -23,7 +25,7 @@ class Repository @Inject constructor(
     private val archiveDao: ArchiveDao
 ) {
     /**
-     * All database interactions for recipes and interactions
+     * All database interactions for recipes and ingredients
      */
     inner class RecipeFunctions {
         // Returns all Ingredients

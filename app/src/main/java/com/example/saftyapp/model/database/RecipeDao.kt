@@ -64,7 +64,7 @@ interface RecipeDao {
 
 @Dao
 interface UserDao {
-    @Insert(onConflict = OnConflictStrategy.ABORT)
+    @Insert(onConflict = OnConflictStrategy.IGNORE)
     suspend fun insertUser(user: UserEntity)
 
     @Query("SELECT * FROM user WHERE id = 1")
