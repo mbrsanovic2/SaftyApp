@@ -45,7 +45,6 @@ import com.example.saftyapp.ui.theme.SaftyAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
 fun HomeScreen(
     saftyViewModel: SaftyViewModel = hiltViewModel(),
@@ -181,17 +180,12 @@ fun HomeScreen(
                             ingredient = ingredient,
                             isSelected = isSelected
                         ) {
-                            Log.i("Path", "Path: ${ingredient.iconFilePath}")
                             if (isSelected) {
                                 saftyViewModel.removeIngredient(ingredient)
                                 saftyViewModel.saftySpeaketh("")
                             } else {
                                 saftyViewModel.addIngredient(ingredient)
                             }
-//                                Log.i(
-//                                    "Ingredients",
-//                                    "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
-//                                )
                         }
                     }
                 }
@@ -242,15 +236,5 @@ private fun IngredientItem(
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(start = 12.dp)
         )
-    }
-}
-
-@Preview
-@Composable
-fun HomeScreenPreview() {
-    SaftyAppTheme {
-        HomeScreen(
-        ) {
-        }
     }
 }
