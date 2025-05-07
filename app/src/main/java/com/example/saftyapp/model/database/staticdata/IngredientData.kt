@@ -104,16 +104,16 @@ class IngredientData {
             IngredientEntity(name = "Baileys irish cream", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Bourbon", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Brandy", color = Color(1), isUnlocked = false),
-            IngredientEntity(name = "Champagne", color = Color(1), isUnlocked = true),
+            IngredientEntity(name = "Champagne", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Cider", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Cocoa powder", color = Color(1), isUnlocked = false),
-            IngredientEntity(name = "Coffee liqueur", color = Color(1), isUnlocked = true),
+            IngredientEntity(name = "Coffee liqueur", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Cognac", color = Color(1), isUnlocked = false),
             IngredientEntity(
                 name = "Cranberry Juice",
                 iconFilePath = "https://www.thecocktaildb.com/images/ingredients/cranberry%20juice-small.png",
                 color = Color(1),
-                isUnlocked = true
+                isUnlocked = false
             ),
             IngredientEntity(name = "Creme de Cassis", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Dark rum", color = Color(1), isUnlocked = false),
@@ -133,12 +133,12 @@ class IngredientData {
             IngredientEntity(name = "Irish cream", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Jack Daniels", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Kahlua", color = Color(1), isUnlocked = false),
-            IngredientEntity(name = "Lemon juice", color = Color(1), isUnlocked = true),
-            IngredientEntity(name = "Light cream", color = Color.White, isUnlocked = true),
-            IngredientEntity(name = "Lime juice", color = Color(1), isUnlocked = true),
+            IngredientEntity(name = "Lemon juice", color = Color(1), isUnlocked = false),
+            IngredientEntity(name = "Light cream", color = Color.White, isUnlocked = false),
+            IngredientEntity(name = "Lime juice", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Lemon", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Lemonade", color = Color(1), isUnlocked = false),
-            IngredientEntity(name = "Milk", color = Color.White, isUnlocked = true),
+            IngredientEntity(name = "Milk", color = Color.White, isUnlocked = false),
             IngredientEntity(name = "Ouzo", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Peach nectar", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Red wine", color = Color(1), isUnlocked = false),
@@ -146,15 +146,15 @@ class IngredientData {
             IngredientEntity(name = "Scotch", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Sherry", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Sprite", color = Color(1), isUnlocked = false),
-            IngredientEntity(name = "Tabasco sauce", color = Color.Red, isUnlocked = true),
-            IngredientEntity(name = "Tequila", color = Color(1), isUnlocked = true),
-            IngredientEntity(name = "Tomato juice", color = Color(1), isUnlocked = true),
-            IngredientEntity(name = "Triple sec", color = Color(1), isUnlocked = true),
+            IngredientEntity(name = "Tabasco sauce", color = Color.Red, isUnlocked = false),
+            IngredientEntity(name = "Tequila", color = Color(1), isUnlocked = false),
+            IngredientEntity(name = "Tomato juice", color = Color(1), isUnlocked = false),
+            IngredientEntity(name = "Triple sec", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Whiskey", color = Color(1), isUnlocked = false),
             IngredientEntity(
                 name = "Worcestershire sauce",
                 color = Color.Black,
-                isUnlocked = true
+                isUnlocked = false
             ),
 
 
