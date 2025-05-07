@@ -32,7 +32,6 @@ import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import com.example.saftyapp.R
@@ -45,7 +44,7 @@ import com.google.accompanist.permissions.rememberPermissionState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun InstructionCard(
-    recipeId: String,
+    recipeName: String,
     from: String?,
     navigateToCamera: () -> Unit,
     onFinishClicked: () -> Unit
@@ -53,7 +52,7 @@ fun InstructionCard(
     val exampleDeprecatedRecipe: Deprecated_Recipe
     val exampleColor: Color
     val image: Int
-    if(recipeId == "Apple Berry Smoothie"){
+    if(recipeName == "Apple Berry Smoothie"){
         exampleDeprecatedRecipe = getTestRecipes()[0]
         exampleColor = Color(228, 220, 233, 100)
         image = R.drawable.smoothie_example_image

@@ -17,7 +17,6 @@ import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
-import androidx.compose.ui.platform.LocalContext
 import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavType
@@ -26,7 +25,6 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
-import com.example.saftyapp.model.database.Repository
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.XPViewModel
@@ -157,7 +155,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                     val from = backStackEntry.arguments?.getString("from")
 
                     InstructionCard(
-                        recipeId = recipeId,
+                        recipeName = recipeId,
                         from = from,
                         navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
                         onFinishClicked = { gainXP(5) }

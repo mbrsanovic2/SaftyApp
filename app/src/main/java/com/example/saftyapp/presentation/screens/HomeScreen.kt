@@ -188,8 +188,10 @@ fun HomeScreen(
                                 saftyViewModel.removeIngredient(ingredient)
                                 saftyViewModel.saftySpeaketh("")
                             } else {
-                                recipeViewModel.selectIngredient(ingredient)
-                                saftyViewModel.addIngredient(ingredient)
+                                val saftyAccepted = saftyViewModel.addIngredient(ingredient)
+                                if(saftyAccepted) {
+                                    recipeViewModel.selectIngredient(ingredient)
+                                }
                             }
 //                                Log.i(
 //                                    "Ingredients",

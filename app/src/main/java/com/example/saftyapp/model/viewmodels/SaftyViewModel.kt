@@ -18,14 +18,16 @@ import kotlin.random.Random
 @HiltViewModel
 class SaftyViewModel @Inject constructor(
     private val repository: Repository
-): ViewModel() {
+) : ViewModel() {
 
     private var mixCount = 0
     private var happiness = 50
     private val maxFill = 0.777f
     private val addedIngredients: MutableList<Ingredient> = mutableListOf()
+    private val ingredientsUsedForRecipe: MutableList<Ingredient> = mutableListOf()
     private var acceptedIngredients: List<Ingredient>? = null
     private var recommendedIngredient: Ingredient? = null
+    private var saftyNoMoreIdeas = false
 
     private val _currentExpression = MutableStateFlow(SaftyExpression.Happy)
     val currentExpression: StateFlow<SaftyExpression> = _currentExpression.asStateFlow()
@@ -44,11 +46,11 @@ class SaftyViewModel @Inject constructor(
     val saftyGone = _saftyGone.asStateFlow()
 
     fun addIngredient(ingredient: Ingredient): Boolean {
-        if(_saftyGone.value) return false
+        if (_saftyGone.value) return false
 
         when {
             // Case 1: First Ingredient or Ingredient recommended
-            acceptedIngredients == null || ingredient == recommendedIngredient -> {
+            acceptedIngredients == null || recommendedIngredient == null || ingredient == recommendedIngredient -> {
                 acceptIngredient(ingredient, 25)
             }
             // Case 2: Not recommended but accepted
@@ -58,8 +60,8 @@ class SaftyViewModel @Inject constructor(
             // Case 3: Completely ignored Safty
             else -> {
                 viewModelScope.launch {
-                    reactToIngredient(-30)
-                    changeHappinessLevel(-30)
+                    reactToIngredient(-24)
+                    changeHappinessLevel(-24)
                 }
                 return false
             }
@@ -67,7 +69,7 @@ class SaftyViewModel @Inject constructor(
         return true
     }
 
-    private fun acceptIngredient(ingredient: Ingredient, recommendationScore: Int){
+    private fun acceptIngredient(ingredient: Ingredient, recommendationScore: Int) {
         mixCount++
         addedIngredients.add(ingredient)
         addedColors.add(ingredient.color)
@@ -80,9 +82,17 @@ class SaftyViewModel @Inject constructor(
 
     fun removeIngredient(ingredient: Ingredient) {
         mixCount--
-        addedIngredients.remove(ingredient)
-        addedColors.remove(ingredient.color)
-        updateFill()
+        saftyNoMoreIdeas = false
+        if(mixCount == 0){
+            clearAllIngredients()
+        }else {
+            addedIngredients.remove(ingredient)
+            addedColors.remove(ingredient.color)
+            updateFill()
+            viewModelScope.launch {
+                reactToIngredient(0)
+            }
+        }
     }
 
     fun drinkFinished() {
@@ -116,55 +126,57 @@ class SaftyViewModel @Inject constructor(
 
         when (happiness) {
             in 75..100 -> {
-                if(recommendationScore > 0) {
+                if (recommendationScore > 0) {
                     comments = listOf(
                         "Des ist ein \uD83C\uDF36 \uFE0F\uD83D\uDC14",
                         "Its getting rustikaler \uD83D\uDE0F",
                         "It gets better \uD83D\uDE0F"
                     )
-                }else if(recommendationScore >= -15){
+                } else if (recommendationScore >= -15) {
                     comments = listOf(
                         "Also a good choice",
                         "Very fitting as well",
                     )
-                }else{
+                } else {
                     comments = listOf(
                         "Lets not add that",
                         "Lets leave that out",
                     )
                 }
             }
+
             in 50..75 -> {
-                if(recommendationScore > 0) {
+                if (recommendationScore > 0) {
                     comments = listOf(
                         "Des ist ein \uD83C\uDF36 \uFE0F\uD83D\uDC14",
                         "Its getting rustikaler \uD83D\uDE0F",
                         "It gets better \uD83D\uDE0F"
                     )
-                }else if(recommendationScore >= -15){
+                } else if (recommendationScore >= -15) {
                     comments = listOf(
                         "A okay choice",
                         "Sure you can add this",
                     )
-                }else{
+                } else {
                     comments = listOf(
                         "A very bad idea",
                         "This does not fit well",
                     )
                 }
             }
+
             in 1..50 -> {
-                if(recommendationScore > 0) {
+                if (recommendationScore > 0) {
                     comments = listOf(
                         "Finally a good choice",
                         "Lets continue like this",
                     )
-                }else if(recommendationScore >= -15){
+                } else if (recommendationScore >= -15) {
                     comments = listOf(
                         "Why am I here",
                         "Don't ignore me",
                     )
-                }else{
+                } else {
                     comments = listOf(
                         "You sleeping JESASS!",
                         "Not very rustikale choice",
@@ -172,6 +184,7 @@ class SaftyViewModel @Inject constructor(
                     )
                 }
             }
+
             0 -> {
                 _saftyGone.value = true
                 saftySpeaketh("Au revoir frerot!")
@@ -179,25 +192,34 @@ class SaftyViewModel @Inject constructor(
             }
         }
 
-        val randomComment = comments[Random.nextInt(comments.size)]
+        var randomComment = comments[Random.nextInt(comments.size)]
 
-        acceptedIngredients = repository.RecipeFunctions().getIngredientRecommendations(addedIngredients)
+        acceptedIngredients =
+            repository.RecipeFunctions().getIngredientRecommendations(addedIngredients)
         recommendedIngredient = acceptedIngredients?.randomOrNull()
 
-        val newHappyness = happiness + recommendationScore
+        val newHappiness = happiness + recommendationScore
 
-        val recommendationComment = when (newHappyness) {
+        val recommendationComment = when (newHappiness) {
             in 76..100 -> ". Consider adding "
             in 50..75 -> ". Please add "
             in 25..50 -> ". I hope you add "
             else -> ". You have to add "
+        }
+        if (recommendationScore == 0) {
+            randomComment = "As before"
         }
 
         val message = recommendedIngredient?.let {
             "$randomComment$recommendationComment${it.name} next"
         } ?: "$randomComment. No more ideas for now ;)"
 
-        saftySpeaketh(message)
+        if(!saftyNoMoreIdeas) {
+            saftySpeaketh(message)
+        }
+        if(recommendedIngredient == null){
+            saftyNoMoreIdeas = true
+        }
     }
 
     private fun changeHappinessLevel(recommendationScore: Int) {
@@ -247,7 +269,7 @@ class SaftyViewModel @Inject constructor(
             }
 
             if (totalAlpha == 0.0) {
-                _liquidColor.value = Color(180,230,255, 100)
+                _liquidColor.value = Color(180, 230, 255, 100)
             } else {
                 val r = (weightedR / totalAlpha).toFloat()
                 val g = (weightedG / totalAlpha).toFloat()
