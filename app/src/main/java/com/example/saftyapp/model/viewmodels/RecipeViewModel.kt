@@ -3,8 +3,8 @@ package com.example.saftyapp.model.viewmodels
 import androidx.compose.runtime.mutableStateListOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.saftyapp.model.Objects.Ingredient
-import com.example.saftyapp.model.Objects.Recipe
+import com.example.saftyapp.model.objects.Ingredient
+import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.database.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
@@ -94,7 +94,7 @@ class RecipeViewModel @Inject constructor(
         val filtered = currentRecipes.filter { recipe ->
             val matchesQuery = recipe.name.contains(query, ignoreCase = true)
             val matchesIngredients = _selectedIngredients.isEmpty() || _selectedIngredients.all { selected ->
-                recipe.ingredients.any { it.name.equals(selected.name, ignoreCase = true) }
+                recipe.keyIngredients.any { it.name.equals(selected.name, ignoreCase = true) }
             }
             matchesQuery && matchesIngredients
         }

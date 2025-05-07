@@ -1,4 +1,4 @@
-package com.example.saftyapp.model.Objects
+package com.example.saftyapp.model.objects
 
 import androidx.compose.ui.graphics.Color
 
@@ -8,6 +8,7 @@ data class Recipe(
     val thumbnail: String? = null,
     val isCustom: Boolean,
     val isAlcoholic: Boolean,
-    val ingredients: List<Ingredient>,
+    val keyIngredients: List<Ingredient>,
     val color: Color?,
+    val allIngredients: List<String>
 )

@@ -1,4 +1,4 @@
-package com.example.saftyapp.model.Objects
+package com.example.saftyapp.model.objects
 
 import java.util.Date
 

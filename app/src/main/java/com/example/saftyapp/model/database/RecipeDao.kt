@@ -8,7 +8,7 @@ import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
 import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
 import com.example.saftyapp.model.database.entities.ArchiveWithRecipe
 import com.example.saftyapp.model.database.entities.IngredientEntity
-import com.example.saftyapp.model.database.entities.MeasureEntity
+import com.example.saftyapp.model.database.entities.RecipeIngredientCrossRef
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.RecipeWithIngredientsEntity
 import com.example.saftyapp.model.database.entities.UserEntity
@@ -19,8 +19,8 @@ interface RecipeDao {
     @Query("SELECT * FROM recipes")
     suspend fun getRecipesWithIngredients(): List<RecipeWithIngredientsEntity>
 
-    @Query("SELECT * FROM measures WHERE recipeID = :rID AND ingredientID = :iID")
-    suspend fun getMeasure(rID: Int, iID: Int): MeasureEntity
+    @Query("SELECT * FROM recipeIngredientCrossRef WHERE recipeID = :rID AND ingredientID = :iID")
+    suspend fun getMeasure(rID: Int, iID: Int): RecipeIngredientCrossRef
 
     @Query("SELECT * FROM ingredients")
     suspend fun getAllIngredients(): List<IngredientEntity>
@@ -34,16 +34,16 @@ interface RecipeDao {
     @Query("SELECT * FROM recipes WHERE name = :name")
     suspend fun getRecipeByName(name: String): RecipeWithIngredientsEntity
 
-    @Query("SELECT * FROM recipes WHERE id IN (SELECT DISTINCT recipeID FROM measures WHERE ingredientID = :iID)")
+    @Query("SELECT * FROM recipes WHERE id IN (SELECT DISTINCT recipeID FROM recipeIngredientCrossRef WHERE ingredientID = :iID)")
     suspend fun getRecipeByIngredient(iID: Int): List<RecipeWithIngredientsEntity>
 
-    @Query("SELECT recipeID FROM measures WHERE ingredientID = :iID")
+    @Query("SELECT recipeID FROM recipeIngredientCrossRef WHERE ingredientID = :iID")
     suspend fun getRecipeIDsFromIngredients(iID: Int): List<Int>
 
     @Query("SELECT * FROM ingredients WHERE id = :id")
     suspend fun getIngredientById(id: Int): IngredientEntity
 
-    @Query("SELECT ingredientID FROM measures WHERE recipeID IN (:rID)")
+    @Query("SELECT ingredientID FROM recipeIngredientCrossRef WHERE recipeID IN (:rID)")
     suspend fun getIngredientIDsFromRecipes(rID: List<Int>): List<Int>
 
     @Query("SELECT * FROM ingredients WHERE id IN (:iID)")
@@ -56,7 +56,7 @@ interface RecipeDao {
     suspend fun insertIngredients(ingredients: List<IngredientEntity>)
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
-    suspend fun insertMeasures(ref: List<MeasureEntity>)
+    suspend fun insertMeasures(ref: List<RecipeIngredientCrossRef>)
 
     //TODO- getLockedIngredients
     //TODO- unlockIngredients

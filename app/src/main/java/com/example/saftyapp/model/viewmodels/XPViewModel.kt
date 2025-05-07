@@ -2,12 +2,10 @@ package com.example.saftyapp.model.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
-import com.example.saftyapp.model.Objects.UserData
-import com.example.saftyapp.model.SaftyExpression
+import com.example.saftyapp.model.objects.UserData
 import com.example.saftyapp.model.database.Repository
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
-import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableSharedFlow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.SharedFlow

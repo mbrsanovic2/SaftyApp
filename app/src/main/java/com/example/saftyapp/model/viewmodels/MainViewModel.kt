@@ -1,5 +1,6 @@
 package com.example.saftyapp.model.viewmodels
 
+import android.util.Log
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.saftyapp.model.database.Repository
@@ -17,6 +18,12 @@ class MainViewModel @Inject constructor(
             // Erfuelle deine Traeume herr Konzetti
             repository.loadDefaultData()
             repository.loadTestRecipes()
+        }
+    }
+
+    fun test(){
+        viewModelScope.launch {
+
         }
     }
 }

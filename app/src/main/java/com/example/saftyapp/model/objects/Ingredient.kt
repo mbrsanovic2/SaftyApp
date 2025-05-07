@@ -1,4 +1,4 @@
-package com.example.saftyapp.model.Objects
+package com.example.saftyapp.model.objects
 
 import androidx.compose.ui.graphics.Color
 
@@ -7,6 +7,5 @@ data class Ingredient(
     val iconFilePath: String? = null,
     val color: Color,
     val isUnlocked: Boolean,
-    val measure: String? = null,
     val recentlyUnlocked: Boolean = false
 )
