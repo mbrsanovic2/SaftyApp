@@ -12,7 +12,6 @@ import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
-import androidx.compose.material.icons.outlined.ShoppingCart
 import androidx.compose.material3.Button
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
@@ -35,7 +34,6 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import androidx.lifecycle.viewmodel.compose.viewModel
 import coil.compose.AsyncImage
 import com.example.saftyapp.R
 import com.example.saftyapp.model.Objects.Ingredient
@@ -55,7 +53,7 @@ fun HomeScreen(
     recipeViewModel: RecipeViewModel = hiltViewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
-    val ingredients by recipeViewModel.ingredients.collectAsState()
+    val ingredients by recipeViewModel.unlockedIngredients.collectAsState()
     val selectedIngredients = recipeViewModel.selectedIngredients
     val scrollState = rememberLazyGridState()
 
@@ -180,24 +178,23 @@ fun HomeScreen(
                     items(ingredients) { ingredient ->
                         val isSelected = ingredient in selectedIngredients
 
-                        if (ingredient.isUnlocked) {
-                            IngredientItem(
-                                ingredient = ingredient,
-                                isSelected = isSelected
-                            ) {
-                                if (isSelected) {
-                                    recipeViewModel.deselectIngredient(ingredient)
-                                    saftyViewModel.removeIngredient(ingredient)
-                                    saftyViewModel.saftySpeaketh("")
-                                } else {
-                                    recipeViewModel.selectIngredient(ingredient)
-                                    saftyViewModel.addIngredient(ingredient)
-                                }
+                        IngredientItem(
+                            ingredient = ingredient,
+                            isSelected = isSelected
+                        ) {
+                            Log.i("Path", "Path: ${ingredient.iconFilePath}")
+                            if (isSelected) {
+                                recipeViewModel.deselectIngredient(ingredient)
+                                saftyViewModel.removeIngredient(ingredient)
+                                saftyViewModel.saftySpeaketh("")
+                            } else {
+                                recipeViewModel.selectIngredient(ingredient)
+                                saftyViewModel.addIngredient(ingredient)
+                            }
 //                                Log.i(
 //                                    "Ingredients",
 //                                    "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
 //                                )
-                            }
                         }
                     }
                 }

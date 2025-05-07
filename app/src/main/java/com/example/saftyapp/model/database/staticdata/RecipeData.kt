@@ -58,11 +58,11 @@ class RecipeData {
                         isUnlocked = true,
                         measure = "1 oz"
                     ),
-                    Ingredient(
-                        name = "Salt",
-                        color = Color.White,
-                        isUnlocked = true,
-                    ),
+//                    Ingredient(
+//                        name = "Salt",
+//                        color = Color.White,
+//                        isUnlocked = true,
+//                    ),
                 ),
                 thumbnail = "https://www.thecocktaildb.com/images/media/drink/5noda61589575158.jpg",
                 color = null
@@ -136,12 +136,12 @@ class RecipeData {
                         isUnlocked = true,
                         measure = "1/2 cup black"
                     ),
-                    Ingredient(
-                        name = "Sugar",
-                        color = Color.White,
-                        isUnlocked = true,
-                        measure = "1-2 tsp"
-                    )
+//                    Ingredient(
+//                        name = "Sugar",
+//                        color = Color.White,
+//                        isUnlocked = true,
+//                        measure = "1-2 tsp"
+//                    )
                 ),
                 color = null
             ),

@@ -21,8 +21,8 @@ class RecipeViewModel @Inject constructor(
     val recipes = _recipes.asStateFlow()
 
     // Ingredients from database
-    private val _ingredients = MutableStateFlow<List<Ingredient>>(emptyList())
-    val ingredients = _ingredients.asStateFlow()
+    private val _unlockedIngredients = MutableStateFlow<List<Ingredient>>(emptyList())
+    val unlockedIngredients = _unlockedIngredients.asStateFlow()
 
     // Selected ingredients in HomeScreen or RecipeScreen
     private val _selectedIngredients = mutableStateListOf<Ingredient>()
@@ -47,7 +47,8 @@ class RecipeViewModel @Inject constructor(
     }
 
     private suspend fun loadIngredients() {
-        _ingredients.value = repository.RecipeFunctions().getAllIngredients()
+        val allIngredients: List<Ingredient> = repository.RecipeFunctions().getAllIngredients()
+        _unlockedIngredients.value = allIngredients.filter { it.isUnlocked }
         // TODO - vorerst simuliertes Laden
 //        val dbIngredients = listOf(
 //            Ingredient("Strawberry", "https://www.thecocktaildb.com/images/ingredients/strawberries-small.png", Color.Red, true),

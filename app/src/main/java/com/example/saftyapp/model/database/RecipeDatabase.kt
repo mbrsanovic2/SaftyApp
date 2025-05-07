@@ -21,7 +21,7 @@ import com.example.saftyapp.model.database.entities.UserEntity
         MeasureEntity::class,
         ArchiveRecipeCrossRef::class
     ],
-    version = 1,
+    version = 2,
     exportSchema = false
 )
 @TypeConverters(Converters::class)
