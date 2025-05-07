@@ -111,6 +111,7 @@ class SaftyViewModel @Inject constructor(
         addedIngredients.clear()
         acceptedIngredients = null
         recommendedIngredient = null
+        saftyNoMoreIdeas = false
 
         updateFill()
         updateExpression()
@@ -186,9 +187,16 @@ class SaftyViewModel @Inject constructor(
             }
 
             0 -> {
-                _saftyGone.value = true
-                saftySpeaketh("Au revoir frerot!")
-                return
+                if (recommendationScore > 0) {
+                    comments = listOf(
+                        "Finally a good choice",
+                        "Lets continue like this",
+                    )
+                }else {
+                    _saftyGone.value = true
+                    saftySpeaketh("Au revoir frerot!")
+                    return
+                }
             }
         }
 
