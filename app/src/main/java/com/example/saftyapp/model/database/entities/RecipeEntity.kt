@@ -6,8 +6,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "recipes")
 data class RecipeEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
     val name: String,
     val isCustom: Boolean,
     val isAlcoholic: Boolean=false,
@@ -16,5 +15,5 @@ data class RecipeEntity(
     val hasBeenScored: Boolean = false,
     val hasPhotoScore: Boolean = false,
     val backGroundColor: Color?,
-    val allIngredients: String, //contains all ings with measure, separated by commas
+    val allIngredients: String,
 )

@@ -4,9 +4,8 @@ import androidx.room.Dao
 import androidx.room.Insert
 import androidx.room.OnConflictStrategy
 import androidx.room.Query
+import com.example.saftyapp.model.database.entities.ArchiveAndRecipe
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
-import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
-import com.example.saftyapp.model.database.entities.ArchiveWithRecipe
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.RecipeIngredientCrossRef
 import com.example.saftyapp.model.database.entities.RecipeEntity
@@ -19,8 +18,8 @@ interface RecipeDao {
     @Query("SELECT * FROM recipes")
     suspend fun getRecipesWithIngredients(): List<RecipeWithIngredientsEntity>
 
-    @Query("SELECT * FROM recipeIngredientCrossRef WHERE recipeID = :rID AND ingredientID = :iID")
-    suspend fun getMeasure(rID: Int, iID: Int): RecipeIngredientCrossRef
+    @Query("SELECT * FROM recipeIngredientCrossRef WHERE recipeName = :rName AND ingredientName = :iName")
+    suspend fun getMeasure(rName: String, iName: String): RecipeIngredientCrossRef
 
     @Query("SELECT * FROM ingredients")
     suspend fun getAllIngredients(): List<IngredientEntity>
@@ -34,20 +33,17 @@ interface RecipeDao {
     @Query("SELECT * FROM recipes WHERE name = :name")
     suspend fun getRecipeByName(name: String): RecipeWithIngredientsEntity
 
-    @Query("SELECT * FROM recipes WHERE id IN (SELECT DISTINCT recipeID FROM recipeIngredientCrossRef WHERE ingredientID = :iID)")
-    suspend fun getRecipeByIngredient(iID: Int): List<RecipeWithIngredientsEntity>
+    @Query("SELECT * FROM recipes WHERE name IN (SELECT DISTINCT recipeName FROM recipeIngredientCrossRef WHERE ingredientName = :iName)")
+    suspend fun getRecipeByIngredient(iName: String): List<RecipeWithIngredientsEntity>
 
-    @Query("SELECT recipeID FROM recipeIngredientCrossRef WHERE ingredientID = :iID")
-    suspend fun getRecipeIDsFromIngredients(iID: Int): List<Int>
+    @Query("SELECT DISTINCT recipeName FROM recipeIngredientCrossRef WHERE ingredientName IN (SELECT name FROM ingredients WHERE name IN (:ingredientNames))")
+    suspend fun getRecipesByIngredients(ingredientNames: List<String>): List<String>
 
-    @Query("SELECT * FROM ingredients WHERE id = :id")
-    suspend fun getIngredientById(id: Int): IngredientEntity
+    @Query("SELECT * FROM ingredients WHERE name IN (SELECT DISTINCT ingredientName FROM recipeIngredientCrossRef WHERE recipeName IN ( :recipes ))")
+    suspend fun getIngredientsByRecipe(recipes: List<String>): List<IngredientEntity>
 
-    @Query("SELECT ingredientID FROM recipeIngredientCrossRef WHERE recipeID IN (:rID)")
-    suspend fun getIngredientIDsFromRecipes(rID: List<Int>): List<Int>
-
-    @Query("SELECT * FROM ingredients WHERE id IN (:iID)")
-    suspend fun getRecommendations(iID: List<Int>): List<IngredientEntity>
+    @Query("SELECT recipeName FROM recipeIngredientCrossRef r WHERE NOT EXISTS (SELECT 1 FROM ingredients WHERE name IN (SELECT ingredientName FROM recipeIngredientCrossRef WHERE recipeName = r.recipeName) AND isUnlocked = 0) AND recipeName IN (:recipes)")
+    suspend fun getUnlockedRecipes(recipes: List<String>):List<String>
 
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertRecipe(recipe: RecipeEntity)
@@ -58,8 +54,17 @@ interface RecipeDao {
     @Insert(onConflict = OnConflictStrategy.REPLACE)
     suspend fun insertMeasures(ref: List<RecipeIngredientCrossRef>)
 
-    //TODO- getLockedIngredients
-    //TODO- unlockIngredients
+    @Query("SELECT * FROM ingredients WHERE isUnlocked = 0 ORDER BY RANDOM() LIMIT 5")
+    suspend fun getFiveLockedIngredients(): List<IngredientEntity>
+
+    @Query("UPDATE ingredients SET isUnlocked = 1 WHERE name IN (:ingredients)")
+    suspend fun unlockIngredients(ingredients:List<String>)
+
+    @Query("SELECT * FROM ingredients WHERE isUnlocked = 0")
+    suspend fun getAllLockedIngredients():List<IngredientEntity>
+
+    @Query("UPDATE ingredients SET isUnlocked = 1")
+    suspend fun unlockAllIngredients()
 }
 
 @Dao
@@ -91,14 +96,11 @@ interface UserDao {
 
 @Dao
 interface ArchiveDao {
-    @Query("SELECT * FROM archiveEntry")
-    suspend fun getAllArchiveEntries(): List<ArchiveWithRecipe>
-
     @Insert
     suspend fun insertArchiveEntry(archiveEntryEntity: ArchiveEntryEntity)
 
-    @Insert
-    suspend fun insertArchiveCrossRef(archiveRecipeCrossRef: ArchiveRecipeCrossRef)
+    @Query("SELECT * FROM recipes WHERE name IN (SELECT recipeName FROM archiveEntry)")
+    suspend fun getAllArchiveEntries():List<ArchiveAndRecipe>
 
     @Query("SELECT id FROM archiveEntry WHERE date = :date")
     suspend fun getArchiveIdByDate(date: Date): Int

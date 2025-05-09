@@ -2,8 +2,8 @@ package com.example.saftyapp.model.database.entities
 
 import androidx.room.Entity
 
-@Entity(tableName = "recipeIngredientCrossRef", primaryKeys = ["recipeID", "ingredientID"])
+@Entity(tableName = "recipeIngredientCrossRef", primaryKeys = ["recipeName", "ingredientName"])
 data class RecipeIngredientCrossRef(
-    val recipeID: Int,
-    val ingredientID: Int,
+    val recipeName: String,
+    val ingredientName: String,
 )

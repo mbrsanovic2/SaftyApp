@@ -7,8 +7,7 @@ import androidx.room.PrimaryKey
 
 @Entity(tableName = "ingredients")
 data class IngredientEntity(
-    @PrimaryKey(autoGenerate = true)
-    val id: Int = 0,
+    @PrimaryKey
     val name: String,
     val iconFilePath: String? = null,
     var color: Color,

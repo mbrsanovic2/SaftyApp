@@ -4,7 +4,6 @@ import androidx.room.Database
 import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
-import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
 import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.RecipeIngredientCrossRef
 import com.example.saftyapp.model.database.entities.RecipeEntity
@@ -17,9 +16,8 @@ import com.example.saftyapp.model.database.entities.UserEntity
         UserEntity::class,
         ArchiveEntryEntity::class,
         RecipeIngredientCrossRef::class,
-        ArchiveRecipeCrossRef::class
     ],
-    version = 2,
+    version = 4,
     exportSchema = false
 )
 @TypeConverters(Converters::class)

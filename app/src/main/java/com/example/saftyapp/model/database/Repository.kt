@@ -1,12 +1,12 @@
 package com.example.saftyapp.model.database
 
 import android.util.Log
+import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
 import com.example.saftyapp.model.objects.ArchiveEntry
 import com.example.saftyapp.model.objects.Ingredient
 import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.objects.UserData
-import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
-import com.example.saftyapp.model.database.entities.ArchiveRecipeCrossRef
+import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.RecipeIngredientCrossRef
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.UserEntity
@@ -66,37 +66,24 @@ class Repository @Inject constructor(
         }
 
         suspend fun getIngredientRecommendations(ingredients: List<Ingredient>): List<Ingredient> {
-            //return ingredients that can be used as next ingredients
-            val ingredientIDs = ingredients.map { x ->
-                recipeDao.getIngredientByName(x.name).id
-            }.toSet()
-            val recipeIDsLists = ingredientIDs.map { x ->
-                recipeDao.getRecipeIDsFromIngredients(x)
+            val input = ingredients.map { x ->
+                x.name
             }
+            val recipes = recipeDao.getRecipesByIngredients(input)
+            val filtered =recipeDao.getUnlockedRecipes(recipes)
 
-            //get all rIDs in one list
-            val allRIDs=recipeIDsLists.flatten().toSet().toList()
-
-            //Check for overlap in rIDLists => recipes containing ingredients
-            val overlapIngredients = allRIDs.filter{ x ->
-                recipeIDsLists.all{ x in it}
-            }
-
-            //Get ingredientIds from overlap-recipes
-            val allRecommendations = recipeDao.getIngredientIDsFromRecipes(overlapIngredients)
-
-            //Filter the input ingredients from the recommendations
-            val recommendations = (allRecommendations - ingredientIDs).map { x ->
-                val y = recipeDao.getIngredientById(x)
+            //Get all ingredients used by recipes and remove input ingredients
+            val retIng = recipeDao.getIngredientsByRecipe(filtered).map { e ->
                 Ingredient(
-                    name = y.name,
-                    color = y.color,
-                    isUnlocked = y.isUnlocked,
-                    iconFilePath = y.iconFilePath,
+                    name = e.name,
+                    isUnlocked = e.isUnlocked,
+                    iconFilePath = e.iconFilePath,
+                    color = e.color,
+                    recentlyUnlocked = false,
                 )
-            }
+            }- ingredients.toSet()
 
-            return recommendations
+            return retIng
         }
 
         suspend fun getRecipeRecommendations(ingredients: List<Ingredient>): List<Recipe> {
@@ -137,7 +124,7 @@ class Repository @Inject constructor(
         }
 
         suspend fun addRecipe(recipe: Recipe) {
-            Log.d("Database","Adding Recipe: "+recipe.name)
+            Log.d("Database", "Adding Recipe: " + recipe.name)
             recipeDao.insertRecipe(
                 RecipeEntity(
                     name = recipe.name,
@@ -152,19 +139,45 @@ class Repository @Inject constructor(
 
             val measures = recipe.keyIngredients.map { i ->
                 RecipeIngredientCrossRef(
-                    recipeID = recipeDao.getRecipeByName(recipe.name).recipe.id,
-                    ingredientID = recipeDao.getIngredientByName(i.name).id,
+                    recipeName = recipeDao.getRecipeByName(recipe.name).recipe.name,
+                    ingredientName = recipeDao.getIngredientByName(i.name).name,
                 )
             }
 
             recipeDao.insertMeasures(measures)
         }
 
-        suspend fun unlockRandomIngredients() {
-            TODO()
+        suspend fun unlockRandomIngredients(): List<Ingredient> {
+            val entities = recipeDao.getFiveLockedIngredients()
+            recipeDao.unlockIngredients(entities.map { e -> e.name })
+
+            val ingredients: List<Ingredient> = entities.map { e ->
+                Ingredient(
+                    name = e.name,
+                    iconFilePath = e.iconFilePath,
+                    color = e.color,
+                    isUnlocked = e.isUnlocked
+                )
+            }
+
+            return ingredients
         }
 
-        suspend fun unlockAllIngredients() {
+        suspend fun unlockAllIngredients(): List<Ingredient> {
+            val entities =recipeDao.getAllLockedIngredients()
+            recipeDao.unlockAllIngredients()
+            return entities.map { e ->
+                Ingredient(
+                    name = e.name,
+                    isUnlocked = e.isUnlocked,
+                    color = e.color,
+                    iconFilePath = e.iconFilePath,
+                    recentlyUnlocked = true
+                )
+            }
+        }
+
+        suspend fun deleteRecipe(recipe: Recipe) {
             TODO()
         }
     }
@@ -203,10 +216,20 @@ class Repository @Inject constructor(
             userDao.updateTitle(title)
         }
 
-        suspend fun increaseLvL() {
+        suspend fun increaseLvL(): List<Ingredient> {
             userDao.increaseLvL()
+            var ret = emptyList<Ingredient>()
+            ret = if ((userDao.getUser()?.currentLvL ?: 0) < 10) {
+                RecipeFunctions().unlockRandomIngredients()
+            } else {
+                RecipeFunctions().unlockAllIngredients()
+            }
             resetXP()
             updateTargetXP()
+
+            Log.d("Database",ret.toString())
+
+            return ret
         }
 
         private suspend fun resetXP() {
@@ -225,42 +248,41 @@ class Repository @Inject constructor(
         suspend fun getArchive(): List<ArchiveEntry> {
             val entities = archiveDao.getAllArchiveEntries()
             return entities.map { e ->
-                ArchiveEntry(
-                    recipe = Recipe(
-                        name = e.recipe.name,
-                        instructions = e.recipe.instructions,
-                        thumbnail = e.recipe.thumbnail,
-                        isCustom = e.recipe.isCustom,
-                        isAlcoholic = e.recipe.isAlcoholic,
-                        keyIngredients = recipeDao.getRecipeByName(e.recipe.name).ingredients.map { i ->
-                            Ingredient(
-                                name = i.name,
-                                iconFilePath = i.iconFilePath,
-                                color = i.color,
-                                isUnlocked = i.isUnlocked,
-                            )
-                        },
-                        allIngredients = e.recipe.allIngredients.split(","),
-                        color = e.recipe.backGroundColor
-                    ),
-                    imageFilePath = e.archive.imageFilePath,
-                    date = e.archive.date
-                )
+                    ArchiveEntry(
+                        recipe = Recipe(
+                            name = e.recipeEntity.name,
+                            instructions = e.recipeEntity.instructions,
+                            thumbnail = e.recipeEntity.thumbnail,
+                            isCustom = e.recipeEntity.isCustom,
+                            isAlcoholic = e.recipeEntity.isAlcoholic,
+                            keyIngredients = recipeDao.getRecipeByName(e.recipeEntity.name).ingredients.map { i ->
+                                Ingredient(
+                                    name = i.name,
+                                    iconFilePath = i.iconFilePath,
+                                    color = i.color,
+                                    isUnlocked = i.isUnlocked,
+                                )
+                            },
+                            allIngredients = e.recipeEntity.allIngredients.split(","),
+                            color = e.recipeEntity.backGroundColor
+                        ),
+                        imageFilePath = e.archive.imageFilePath,
+                        date = e.archive.date
+                    )
             }
         }
 
-        suspend fun addArchiveEntry(archiveEntry: ArchiveEntry){
+        suspend fun addArchiveEntry(archiveEntry: ArchiveEntry) {
             val aEntity = ArchiveEntryEntity(
                 imageFilePath = archiveEntry.imageFilePath,
-                date = archiveEntry.date
+                date = archiveEntry.date,
+                recipeName = archiveEntry.recipe.name
             )
             archiveDao.insertArchiveEntry(aEntity)
+        }
 
-            val crossRef = ArchiveRecipeCrossRef(
-                recipeId = recipeDao.getRecipeByName(archiveEntry.recipe.name).recipe.id,
-                archiveId = archiveDao.getArchiveIdByDate(archiveEntry.date)
-            )
-            archiveDao.insertArchiveCrossRef(crossRef)
+        suspend fun addCustomPhoto(archiveEntry: ArchiveEntry) {
+            TODO()
         }
     }
 
@@ -288,7 +310,7 @@ class Repository @Inject constructor(
     }
 
     suspend fun loadTestRecipes() {
-        if(recipeDao.getRecipeNames().isNotEmpty())
+        if (recipeDao.getRecipeNames().isNotEmpty())
             return
 
         Log.d("Database", "Loading test recipes")
