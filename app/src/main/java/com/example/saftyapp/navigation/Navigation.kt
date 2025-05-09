@@ -27,6 +27,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.saftyapp.model.objects.Recipe
+import com.example.saftyapp.model.viewmodels.ArchiveViewModel
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.XPViewModel
@@ -50,6 +51,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     val photoViewModel: PhotoViewModel = viewModel()
     val xpViewModel: XPViewModel = hiltViewModel()
     val recipeViewModel: RecipeViewModel = hiltViewModel()
+    val archiveViewmodel: ArchiveViewModel = hiltViewModel()
 
     val selectedRecipe = recipeViewModel.selectedRecipe.collectAsState()
     val userState = xpViewModel.userState.collectAsState()
@@ -140,7 +142,8 @@ fun Navigation(modifier: Modifier = Modifier) {
                 composable(route = Screens.ArchiveScreen.route) {
                     ArchiveScreen(
                         modifier = Modifier,
-                        viewModel = photoViewModel
+                        viewModel = photoViewModel,
+                        archiveViewModel = archiveViewmodel
                     )
                 }
 
@@ -170,7 +173,10 @@ fun Navigation(modifier: Modifier = Modifier) {
                         recipe = selectedRecipe.value ?: fallbackRecipe,
                         from = from,
                         navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
-                        onFinishClicked = { gainXP(5) }
+                        onFinishClicked = {
+                            gainXP(5)
+                            //archiveViewmodel.addEntry()
+                        }
                     )
                 }
 

@@ -9,12 +9,14 @@ import androidx.compose.runtime.Composable
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.unit.dp
 import coil.compose.rememberImagePainter
+import com.example.saftyapp.model.viewmodels.ArchiveViewModel
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 
 @Composable
 fun ArchiveScreen(
     modifier: Modifier,
-    viewModel: PhotoViewModel
+    viewModel: PhotoViewModel,
+    archiveViewModel: ArchiveViewModel
 ) {
     val photos = viewModel.photoUris
 

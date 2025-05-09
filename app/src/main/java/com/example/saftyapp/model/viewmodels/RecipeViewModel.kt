@@ -118,7 +118,13 @@ class RecipeViewModel @Inject constructor(
 
     suspend fun addRecipe(recipeName: String, ingredients: List<String>, preparation: String){
         val matchingIngredients = _unlockedIngredients.value.filter { it.name in ingredients }
-        repository.RecipeFunctions().addRecipe(Recipe(recipeName, preparation, matchingIngredients, ingredients))
+        repository.RecipeFunctions().addRecipe(Recipe(
+            name = recipeName,
+            instructions = preparation,
+            keyIngredients = matchingIngredients,
+            allIngredients = ingredients,
+            isCustom = true
+        ))
         loadRecipes()
     }
 }

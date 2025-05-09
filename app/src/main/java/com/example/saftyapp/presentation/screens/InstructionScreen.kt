@@ -50,7 +50,7 @@ fun InstructionCard(
     recipe: Recipe,
     from: String?,
     navigateToCamera: () -> Unit,
-    onFinishClicked: () -> Unit
+    onFinishClicked: (Recipe) -> Unit
 ) {
     val backgroundColor = remember{ recipe.color }
     val image = remember{ recipe.thumbnail }
@@ -115,7 +115,7 @@ fun InstructionCard(
             RecipeDetails(recipe)
 
             if(from == "Safty"){
-                FinishedButton(onFinishClicked = onFinishClicked)
+                FinishedButton(onFinishClicked = { onFinishClicked(recipe) })
 
                 // TODO schönen button einfügen :D
                 Button(onClick = {
@@ -171,7 +171,7 @@ fun FinishedButton(onFinishClicked: () -> Unit) {
     var isClicked by remember { mutableStateOf(false) }
     Button(
         onClick = {
-            isClicked = false
+            isClicked = true
             onFinishClicked() },
         enabled = !isClicked,
         modifier = Modifier
