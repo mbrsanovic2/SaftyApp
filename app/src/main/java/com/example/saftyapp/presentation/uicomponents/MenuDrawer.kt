@@ -30,6 +30,7 @@ fun MenuDrawer(
     navigateToArchive: () -> Unit,
     navigateToRecipeCreator: () -> Unit,
     closeDrawer: () -> Unit,
+    advancedJuicy: Boolean = false,
     modifier: Modifier,
 ) {
     ModalDrawerSheet(
@@ -65,14 +66,14 @@ fun MenuDrawer(
             selected = currentRoute == Screens.ArchiveScreen.route,
             onClick = { navigateToArchive(); closeDrawer() },
         )
-
-        // TODO Restriction einfügen, dass man Title braucht dafür
-        SaftyDrawerItem(
-            label = "Recipe Creator",
-            icon = { Icon(Icons.Filled.Create, "Recipe Creation") },
-            selected = currentRoute == Screens.RecipeCreationScreen.route,
-            onClick = { navigateToRecipeCreator(); closeDrawer() },
-        )
+        if(advancedJuicy) {
+            SaftyDrawerItem(
+                label = "Recipe Creator",
+                icon = { Icon(Icons.Filled.Create, "Recipe Creation") },
+                selected = currentRoute == Screens.RecipeCreationScreen.route,
+                onClick = { navigateToRecipeCreator(); closeDrawer() },
+            )
+        }
     }
 }
 

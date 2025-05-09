@@ -11,6 +11,7 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
@@ -25,6 +26,7 @@ import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
+import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.XPViewModel
@@ -48,6 +50,9 @@ fun Navigation(modifier: Modifier = Modifier) {
     val photoViewModel: PhotoViewModel = viewModel()
     val xpViewModel: XPViewModel = hiltViewModel()
     val recipeViewModel: RecipeViewModel = hiltViewModel()
+
+    val selectedRecipe = recipeViewModel.selectedRecipe.collectAsState()
+    val userState = xpViewModel.userState.collectAsState()
     var tempXPBar by remember{ mutableStateOf(false) }
 
     val navBackStackEntry = navController.currentBackStackEntryAsState()
@@ -77,6 +82,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 navigateToArchive = { navController.navigate(Screens.ArchiveScreen.route) },
                 navigateToRecipeCreator = { navController.navigate(Screens.RecipeCreationScreen.route) },
                 closeDrawer = { coroutineScope.launch { drawerState.close() } },
+                advancedJuicy = userState.value.isJUICY,
                 modifier = Modifier
             )
         }
@@ -110,9 +116,9 @@ fun Navigation(modifier: Modifier = Modifier) {
                     HomeScreen(
                         recipeViewModel = recipeViewModel,
                         onNavigateToRecipeScreen = { recipe ->
+                            recipeViewModel.setSelectedRecipe(recipe)
                             navController.navigate(
                                 Screens.InstructionScreen.createRoute(
-                                    recipe,
                                     "Safty"
                                 )
                             )
@@ -125,7 +131,8 @@ fun Navigation(modifier: Modifier = Modifier) {
                     RecipeScreen(
                         recipeViewModel = recipeViewModel,
                         onNavigateToRecipeScreen = { recipe ->
-                            navController.navigate(Screens.InstructionScreen.createRoute(recipe))
+                            recipeViewModel.setSelectedRecipe(recipe)
+                            navController.navigate(Screens.InstructionScreen.createRoute())
                         })
                 }
 
@@ -141,9 +148,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                 composable(
                     route = Screens.InstructionScreen.route,
                     arguments = listOf(
-                        navArgument("recipeId") {
-                            type = NavType.StringType
-                        },
                         navArgument("from") {
                             type = NavType.StringType
                             nullable = true
@@ -151,11 +155,19 @@ fun Navigation(modifier: Modifier = Modifier) {
                         }
                     )
                 ) { backStackEntry ->
-                    val recipeId = backStackEntry.arguments?.getString("recipeId") ?: "No Recipe"
                     val from = backStackEntry.arguments?.getString("from")
+                    val fallbackRecipe =  Recipe(
+                        name = "NONE",
+                        instructions = "This Recipe does not actually exist :(",
+                        isCustom = false,
+                        isAlcoholic = false,
+                        keyIngredients = emptyList(),
+                        allIngredients = emptyList(),
+                        color = null
+                    )
 
                     InstructionCard(
-                        recipeName = recipeId,
+                        recipe = selectedRecipe.value ?: fallbackRecipe,
                         from = from,
                         navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
                         onFinishClicked = { gainXP(5) }
@@ -175,8 +187,15 @@ fun Navigation(modifier: Modifier = Modifier) {
 
                 // Recipe Creation Screen
                 composable(route = Screens.RecipeCreationScreen.route) {
-                    RecipeForm { _, _, _ ->
-                        print("Rezept wurde theoretisch erstellt")
+                    RecipeForm { recipeName, ingredients, preparation ->
+                        coroutineScope.launch {
+                            recipeViewModel.addRecipe(
+                                recipeName = recipeName,
+                                ingredients = ingredients,
+                                preparation = preparation
+                            )
+                            print("Rezept wurde wirklich erstellt")
+                        }
                         navController.navigate(Screens.HomeScreen.route)
                     }
                 }

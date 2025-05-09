@@ -7,12 +7,12 @@ sealed class Screens(val route: String) {
 
     object ArchiveScreen : Screens(route = "archive_screen")
 
-    object InstructionScreen : Screens(route = "instruction_screen/{recipeId}?from={from}") {
-        fun createRoute(recipeId: String, from: String? = null): String {
+    object InstructionScreen : Screens(route = "instruction_screen?from={from}") {
+        fun createRoute(from: String? = null): String {
             return if (from.isNullOrBlank()) {
-                "instruction_screen/$recipeId"
+                "instruction_screen"
             } else {
-                "instruction_screen/$recipeId?from=$from"
+                "instruction_screen?from=$from"
             }
         }
     }

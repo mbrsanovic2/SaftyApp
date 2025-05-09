@@ -49,7 +49,7 @@ class SaftyViewModel @Inject constructor(
     val saftyGone = _saftyGone.asStateFlow()
 
     fun addIngredient(ingredient: Ingredient): Boolean {
-        if (_saftyGone.value) return false
+        if (_saftyGone.value || saftyNoMoreIdeas) return false
 
         when {
             // Case 1: First Ingredient or Ingredient recommended
@@ -223,7 +223,7 @@ class SaftyViewModel @Inject constructor(
 
         val message = recommendedIngredient?.let {
             "$randomComment$recommendationComment${it.name} next"
-        } ?: "$randomComment. No more ideas for now ;)"
+        } ?: "The drink is finished, let's mix it! ;)"
 
         if(!saftyNoMoreIdeas) {
             saftySpeaketh(message)

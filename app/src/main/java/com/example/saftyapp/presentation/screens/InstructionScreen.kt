@@ -6,6 +6,7 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -34,9 +35,11 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.example.saftyapp.R
 import com.example.saftyapp.model.Deprecated_Recipe
 import com.example.saftyapp.model.getTestRecipes
+import com.example.saftyapp.model.objects.Recipe
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
@@ -44,23 +47,13 @@ import com.google.accompanist.permissions.rememberPermissionState
 @OptIn(ExperimentalPermissionsApi::class)
 @Composable
 fun InstructionCard(
-    recipeName: String,
+    recipe: Recipe,
     from: String?,
     navigateToCamera: () -> Unit,
     onFinishClicked: () -> Unit
 ) {
-    val exampleDeprecatedRecipe: Deprecated_Recipe
-    val exampleColor: Color
-    val image: Int
-    if(recipeName == "Apple Berry Smoothie"){
-        exampleDeprecatedRecipe = getTestRecipes()[0]
-        exampleColor = Color(228, 220, 233, 100)
-        image = R.drawable.smoothie_example_image
-    }else{
-        exampleDeprecatedRecipe = getTestRecipes()[2]
-        exampleColor = MaterialTheme.colorScheme.surface
-        image = R.drawable.example_drink_2
-    }
+    val backgroundColor = remember{ recipe.color }
+    val image = remember{ recipe.thumbnail }
 
     // Launch camera upon permission granted
     val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
@@ -79,7 +72,7 @@ fun InstructionCard(
             .padding(16.dp),
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(
-            containerColor = exampleColor
+            containerColor = backgroundColor ?: MaterialTheme.colorScheme.surface
         )
     ) {
         Column(
@@ -90,7 +83,7 @@ fun InstructionCard(
         ) {
 
             Text(
-                text = exampleDeprecatedRecipe.name,
+                text = recipe.name,
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 textAlign = TextAlign.Center
@@ -98,18 +91,28 @@ fun InstructionCard(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            Image(
-                painter = painterResource(id = image),
-                contentDescription = "Example Image",
-                contentScale = ContentScale.Crop,
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .clip(RoundedCornerShape(12.dp))
-            )
+            if (image != null) {
+                AsyncImage(
+                    model = image,
+                    contentDescription = recipe.name,
+                    contentScale = ContentScale.Fit,
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            } else {
+                Image(
+                    painterResource(R.drawable.saftyapp_logo2_free),
+                    contentDescription = "Default Recipe Image",
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .clip(RoundedCornerShape(12.dp))
+                )
+            }
 
             Spacer(modifier = Modifier.height(24.dp))
 
-            RecipeDetails(exampleDeprecatedRecipe)
+            RecipeDetails(recipe)
 
             if(from == "Safty"){
                 FinishedButton(onFinishClicked = onFinishClicked)
@@ -131,7 +134,7 @@ fun InstructionCard(
 }
 
 @Composable
-fun RecipeDetails(deprecatedRecipe: Deprecated_Recipe) {
+fun RecipeDetails(recipe: Recipe) {
     Column(modifier = Modifier.fillMaxWidth()) {
         Text(
             text = "Ingredients",
@@ -139,10 +142,9 @@ fun RecipeDetails(deprecatedRecipe: Deprecated_Recipe) {
             modifier = Modifier.padding(bottom = 4.dp)
         )
 
-        deprecatedRecipe.ingredients.forEachIndexed { index, ingredient ->
-            val measure = deprecatedRecipe.measures.getOrNull(index) ?: ""
+        recipe.allIngredients.forEach { ingredient ->
             Text(
-                text = "• $ingredient: $measure",
+                text = "• $ingredient",
                 style = MaterialTheme.typography.bodyMedium,
                 modifier = Modifier.padding(start = 8.dp, bottom = 2.dp)
             )
@@ -157,7 +159,7 @@ fun RecipeDetails(deprecatedRecipe: Deprecated_Recipe) {
         )
         
         Text(
-            text = deprecatedRecipe.instructions,
+            text = recipe.instructions,
             style = MaterialTheme.typography.bodyMedium,
             modifier = Modifier.padding(start = 8.dp)
         )
@@ -169,7 +171,7 @@ fun FinishedButton(onFinishClicked: () -> Unit) {
     var isClicked by remember { mutableStateOf(false) }
     Button(
         onClick = {
-            isClicked = true
+            isClicked = false
             onFinishClicked() },
         enabled = !isClicked,
         modifier = Modifier

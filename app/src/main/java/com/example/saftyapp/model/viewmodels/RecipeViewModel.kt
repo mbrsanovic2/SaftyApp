@@ -31,8 +31,12 @@ class RecipeViewModel @Inject constructor(
     // Filtering in RecipeScreen
     private val _queryText = MutableStateFlow("")
     val queryText = _queryText.asStateFlow()
+
     private val _filteredRecipes = MutableStateFlow<List<Recipe>>(emptyList())
     val filteredRecipes = _filteredRecipes.asStateFlow()
+
+    private val _selectedRecipe = MutableStateFlow<Recipe?>(null)
+    val selectedRecipe = _selectedRecipe.asStateFlow()
 
     init {
         viewModelScope.launch {
@@ -81,6 +85,11 @@ class RecipeViewModel @Inject constructor(
         _selectedIngredients.clear()
     }
 
+    fun setSelectedRecipe(recipeName: String) {
+        val recipe = _filteredRecipes.value.find { it.name == recipeName }
+        _selectedRecipe.value = recipe
+    }
+
     fun clearFilter() {
         deselectAllIngredients()
         updateFilteredRecipes()
@@ -105,5 +114,11 @@ class RecipeViewModel @Inject constructor(
     fun updateQuery(newQuery: String) {
         _queryText.value = newQuery
         updateFilteredRecipes()
+    }
+
+    suspend fun addRecipe(recipeName: String, ingredients: List<String>, preparation: String){
+        val matchingIngredients = _unlockedIngredients.value.filter { it.name in ingredients }
+        repository.RecipeFunctions().addRecipe(Recipe(recipeName, preparation, matchingIngredients, ingredients))
+        loadRecipes()
     }
 }
