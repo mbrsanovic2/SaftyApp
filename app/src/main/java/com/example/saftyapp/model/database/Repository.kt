@@ -66,7 +66,7 @@ class Repository @Inject constructor(
         }
 
         suspend fun getIngredientRecommendations(ingredients: List<Ingredient>): List<Ingredient> {
-            Log.d("Database","------Starting Recommendation------")
+            Log.d("Database", "------Starting Ingredient Recommendation------")
             val input = ingredients.map { x ->
                 x.name
             }
@@ -93,12 +93,44 @@ class Repository @Inject constructor(
                     recentlyUnlocked = false,
                 )
             } - ingredients.toSet()
-            Log.d("Database", "Final\n" + retIng.map { i -> i.name })
+            Log.d("Database", "Final\n" + retIng.map { i -> i.name } + "\n")
             return retIng
         }
 
         suspend fun getRecipeRecommendations(ingredients: List<Ingredient>): List<Recipe> {
-            TODO()
+            Log.d("Database", "------Starting Recipe Recommendation------")
+            val input = ingredients.map { x ->
+                x.name
+            }
+            val recipes = recipeDao.getRecipesByIngredients(input)
+            Log.d("Database", "Before filter " + recipes.map { r -> r.recipe.name }.toString())
+
+            val ingFilter = recipes.filter { r ->
+                r.ingredients.map { i ->
+                    i.name
+                }.containsAll(input)
+            }
+            Log.d("Database", "After filter " + ingFilter.toString() + "\n")
+
+            return ingFilter.map { r ->
+                Recipe(
+                    name = r.recipe.name,
+                    thumbnail = r.recipe.thumbnail,
+                    isCustom = r.recipe.isCustom,
+                    isAlcoholic = r.recipe.isAlcoholic,
+                    color = r.recipe.backGroundColor,
+                    instructions = r.recipe.instructions,
+                    allIngredients = r.recipe.allIngredients.split(","),
+                    keyIngredients = r.ingredients.map { i ->
+                        Ingredient(
+                            name = i.name,
+                            color = i.color,
+                            isUnlocked = i.isUnlocked,
+                            iconFilePath = i.iconFilePath
+                        )
+                    }
+                )
+            }
         }
 
         suspend fun getIngredient(name: String): Ingredient {
