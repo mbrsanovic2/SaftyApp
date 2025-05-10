@@ -49,7 +49,7 @@ fun RecipeScreen(
     recipeViewModel: RecipeViewModel = hiltViewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
-    val ingredients by recipeViewModel.unlockedIngredients.collectAsState()
+    val ingredients by recipeViewModel.allIngredients.collectAsState()
     val selectedIngredients = recipeViewModel.selectedIngredients
     val queryText by recipeViewModel.queryText.collectAsState()
     val filteredRecipes by recipeViewModel.filteredRecipes.collectAsState()

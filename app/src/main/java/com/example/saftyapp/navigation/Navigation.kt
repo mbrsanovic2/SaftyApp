@@ -142,7 +142,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                 composable(route = Screens.ArchiveScreen.route) {
                     ArchiveScreen(
                         modifier = Modifier,
-                        viewModel = photoViewModel,
+                        photoViewModel = photoViewModel,
                         archiveViewModel = archiveViewmodel
                     )
                 }

@@ -2,6 +2,7 @@ package com.example.saftyapp.presentation.screens
 
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
+import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
@@ -28,7 +29,10 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
+import androidx.compose.ui.draw.drawBehind
+import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
@@ -129,11 +133,12 @@ fun HomeScreen(
                 Text("Mix it!")
             }
 
-            Spacer(modifier = Modifier.height(24.dp))
+            Spacer(modifier = Modifier.height(16.dp))
 
             Row(
                 modifier = Modifier.fillMaxWidth(),
-                horizontalArrangement = Arrangement.SpaceBetween
+                horizontalArrangement = Arrangement.SpaceBetween,
+                verticalAlignment = Alignment.CenterVertically
             ) {
                 Text("Ingredients", style = MaterialTheme.typography.titleMedium)
 
@@ -152,7 +157,7 @@ fun HomeScreen(
                 }
             }
 
-            Spacer(modifier = Modifier.height(12.dp))
+            Spacer(modifier = Modifier.height(8.dp))
 
             Box(
                 modifier = Modifier
@@ -178,7 +183,8 @@ fun HomeScreen(
 
                         IngredientItem(
                             ingredient = ingredient,
-                            isSelected = isSelected
+                            isSelected = isSelected,
+                            recentlyUnlocked = ingredient.recentlyUnlocked
                         ) {
                             if (isSelected) {
                                 saftyViewModel.removeIngredient(ingredient)
@@ -190,51 +196,83 @@ fun HomeScreen(
                     }
                 }
             }
-            Spacer(modifier = Modifier.height(8.dp))
         }
     }
 }
-
 
 @Composable
 private fun IngredientItem(
     ingredient: Ingredient,
     isSelected: Boolean,
+    recentlyUnlocked: Boolean,
     onClick: () -> Unit
 ) {
-    Row(
-        verticalAlignment = Alignment.CenterVertically,
+    val backgroundColor = if (isSelected) {
+        MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
+    } else {
+        Color.Transparent
+    }
+
+    val borderColor = if (recentlyUnlocked) {
+        Color(0xFFFFD633)
+    } else {
+        Color.Transparent
+    }
+
+    Box(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(top = 10.dp, bottom = 10.dp)
-            .clip(RoundedCornerShape(8.dp))
-            .background(
-                if (isSelected) {
-                    MaterialTheme.colorScheme.primary.copy(alpha = 0.1f)
-                } else {
-                    Color.Transparent
-                }
-            )
+            .padding(vertical = 5.dp)
+            .background(backgroundColor)
     ) {
-        if (ingredient.iconFilePath != null) {
-            AsyncImage(
-                model = ingredient.iconFilePath,
-                contentDescription = null,
-                modifier = Modifier.size(28.dp)
-            )
-        } else {
-            Image(
-                painter = painterResource(R.drawable.ingredient_default),
-                contentDescription = "Default Ingredient Icon",
-                modifier = Modifier.size(28.dp)
-            )
-        }
+        Box(
+            modifier = Modifier
+                .background(Color.Transparent)
+                .drawBehind {
+                    drawRoundRect(
+                        color = borderColor,
+                        cornerRadius = CornerRadius(8.dp.toPx()),
+                        style = Stroke(width = 2.dp.toPx())
+                    )
+                }
+                .padding(vertical = 4.dp)
+                .padding(start = 2.dp, end = 8.dp)
+        ) {
+            Row(verticalAlignment = Alignment.CenterVertically) {
+                if (ingredient.iconFilePath != null) {
+                    AsyncImage(
+                        model = ingredient.iconFilePath,
+                        contentDescription = null,
+                        modifier = Modifier.size(28.dp)
+                    )
+                } else {
+                    Image(
+                        painter = painterResource(R.drawable.ingredient_default),
+                        contentDescription = "Default Ingredient Icon",
+                        modifier = Modifier.size(28.dp)
+                    )
+                }
 
-        Text(
-            text = ingredient.name,
-            style = MaterialTheme.typography.bodyMedium,
-            modifier = Modifier.padding(start = 12.dp)
-        )
+                Text(
+                    text = ingredient.name,
+                    style = MaterialTheme.typography.bodyMedium,
+                    modifier = Modifier.padding(start = 12.dp)
+                )
+            }
+
+            if (recentlyUnlocked) {
+                Text(
+                    text = "New!",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.labelSmall,
+                    modifier = Modifier
+                        .align(Alignment.TopEnd)
+                        .offset(x = 25.dp, y = (-10).dp)
+                        .background(Color(0xFFFFD633), shape = RoundedCornerShape(4.dp))
+                        .padding(horizontal = 4.dp)
+                )
+            }
+        }
     }
 }

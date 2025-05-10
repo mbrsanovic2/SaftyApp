@@ -15,10 +15,10 @@ import com.example.saftyapp.model.viewmodels.PhotoViewModel
 @Composable
 fun ArchiveScreen(
     modifier: Modifier,
-    viewModel: PhotoViewModel,
+    photoViewModel: PhotoViewModel,
     archiveViewModel: ArchiveViewModel
 ) {
-    val photos = viewModel.photoUris
+    val photos = photoViewModel.photoUris
 
     Column(
         modifier = modifier.fillMaxSize(),

@@ -1,6 +1,7 @@
 package com.example.saftyapp.model.viewmodels
 
 import androidx.compose.runtime.mutableStateListOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.example.saftyapp.model.objects.Ingredient
@@ -23,6 +24,8 @@ class RecipeViewModel @Inject constructor(
     // Ingredients from database
     private val _unlockedIngredients = MutableStateFlow<List<Ingredient>>(emptyList())
     val unlockedIngredients = _unlockedIngredients.asStateFlow()
+    private val _allIngredients = MutableStateFlow<List<Ingredient>>(emptyList())
+    val allIngredients = _allIngredients.asStateFlow()
 
     // Selected ingredients in HomeScreen or RecipeScreen
     private val _selectedIngredients = mutableStateListOf<Ingredient>()
@@ -51,14 +54,14 @@ class RecipeViewModel @Inject constructor(
     }
 
     private suspend fun loadIngredients() {
-        val allIngredients: List<Ingredient> = repository.RecipeFunctions().getAllIngredients()
-        _unlockedIngredients.value = allIngredients.filter { it.isUnlocked }
-        // TODO - vorerst simuliertes Laden
+        _allIngredients.value = repository.RecipeFunctions().getAllIngredients()
+        _unlockedIngredients.value = allIngredients.value.filter { it.isUnlocked }
+        // TODO - vorerst simuliertes Laden -> für visual cue testing gut ;)
 //        val dbIngredients = listOf(
-//            Ingredient("Strawberry", "https://www.thecocktaildb.com/images/ingredients/strawberries-small.png", Color.Red, true),
-//            Ingredient("Apple", "https://www.thecocktaildb.com/images/ingredients/apple-small.png", Color.Red, true),
-//            Ingredient("Pineapple", "https://www.thecocktaildb.com/images/ingredients/pineapple-small.png", Color.Yellow, true),
-//            Ingredient("Water", "https://www.thecocktaildb.com/images/ingredients/water-small.png", Color.Transparent, true),
+//            Ingredient("Strawberry", "https://www.thecocktaildb.com/images/ingredients/strawberries-small.png", Color.Red, true, true),
+//            Ingredient("Apple", "https://www.thecocktaildb.com/images/ingredients/apple-small.png", Color.Red, true, false),
+//            Ingredient("Pineapple", "https://www.thecocktaildb.com/images/ingredients/pineapple-small.png", Color.Yellow, true, true),
+//            Ingredient("Water", "https://www.thecocktaildb.com/images/ingredients/water-small.png", Color.Transparent, true, true),
 //            Ingredient("Kiwi", "https://www.thecocktaildb.com/images/ingredients/kiwi-small.png", Color.Green, true),
 //            Ingredient("Papaya", "https://www.thecocktaildb.com/images/ingredients/papaya-small.png", Color.Yellow, true),
 //            Ingredient("Berries", "https://www.thecocktaildb.com/images/ingredients/berries-small.png", Color.Red, true),
@@ -68,7 +71,7 @@ class RecipeViewModel @Inject constructor(
 //            Ingredient("Ham", null, Color.Gray, true),
 //            Ingredient("Orange", "https://www.thecocktaildb.com/images/ingredients/orange-small.png", Color.Yellow, false)
 //        )
-//        _ingredients.value = dbIngredients
+//        _unlockedIngredients.value = dbIngredients
     }
 
     fun selectIngredient(ingredient: Ingredient) {

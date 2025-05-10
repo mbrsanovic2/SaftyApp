@@ -27,7 +27,7 @@ class IngredientData {
             IngredientEntity(
                 name = "Coffee",
                 iconFilePath = "https://www.thecocktaildb.com/images/ingredients/coffee-small.png",
-                color = Color(0x4d280000),
+                color = Color(0xFF261A0D),
                 isUnlocked = true
             ),
             IngredientEntity(
