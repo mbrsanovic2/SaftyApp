@@ -2,11 +2,11 @@ package com.example.saftyapp.model.database
 
 import android.util.Log
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
+import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.objects.ArchiveEntry
 import com.example.saftyapp.model.objects.Ingredient
 import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.objects.UserData
-import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.database.entities.RecipeIngredientCrossRef
 import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.UserEntity
@@ -66,11 +66,22 @@ class Repository @Inject constructor(
         }
 
         suspend fun getIngredientRecommendations(ingredients: List<Ingredient>): List<Ingredient> {
+            Log.d("Database","------Starting Recommendation------")
             val input = ingredients.map { x ->
                 x.name
             }
             val recipes = recipeDao.getRecipesByIngredients(input)
-            val filtered =recipeDao.getUnlockedRecipes(recipes)
+            Log.d("Database", "Before filter " + recipes.map { r -> r.recipe.name }.toString())
+
+            val ingFilter = recipes.filter { r ->
+                r.ingredients.map { i ->
+                    i.name
+                }.containsAll(input)
+            }.map { tmp -> tmp.recipe.name }
+            Log.d("Database", "After filter " + ingFilter.toString())
+
+            val filtered = recipeDao.getUnlockedRecipes(ingFilter)
+            Log.d("Database", "After Unlocks " + filtered.toString())
 
             //Get all ingredients used by recipes and remove input ingredients
             val retIng = recipeDao.getIngredientsByRecipe(filtered).map { e ->
@@ -81,8 +92,8 @@ class Repository @Inject constructor(
                     color = e.color,
                     recentlyUnlocked = false,
                 )
-            }- ingredients.toSet()
-
+            } - ingredients.toSet()
+            Log.d("Database", "Final\n" + retIng.map { i -> i.name })
             return retIng
         }
 
@@ -99,28 +110,6 @@ class Repository @Inject constructor(
                 isUnlocked = entity.isUnlocked,
             )
             return ingredient
-        }
-
-        // Instruction Screen
-        suspend fun getRecipeByName(name: String): Recipe {
-            val entity = recipeDao.getRecipeByName(name)
-            return Recipe(
-                name = entity.recipe.name,
-                instructions = entity.recipe.instructions,
-                isCustom = entity.recipe.isCustom,
-                isAlcoholic = entity.recipe.isAlcoholic,
-                thumbnail = entity.recipe.thumbnail,
-                keyIngredients = entity.ingredients.map { i ->
-                    Ingredient(
-                        name = i.name,
-                        iconFilePath = i.iconFilePath,
-                        color = i.color,
-                        isUnlocked = i.isUnlocked,
-                    )
-                },
-                color = entity.recipe.backGroundColor,
-                allIngredients = entity.recipe.allIngredients.split(","),
-            )
         }
 
         suspend fun addRecipe(recipe: Recipe) {
@@ -144,7 +133,7 @@ class Repository @Inject constructor(
                 )
             }
 
-            recipeDao.insertMeasures(measures)
+            recipeDao.insertRecipeCrossIngredients(measures)
         }
 
         suspend fun unlockRandomIngredients(): List<Ingredient> {
@@ -164,7 +153,7 @@ class Repository @Inject constructor(
         }
 
         suspend fun unlockAllIngredients(): List<Ingredient> {
-            val entities =recipeDao.getAllLockedIngredients()
+            val entities = recipeDao.getAllLockedIngredients()
             recipeDao.unlockAllIngredients()
             return entities.map { e ->
                 Ingredient(
@@ -179,6 +168,10 @@ class Repository @Inject constructor(
 
         suspend fun deleteRecipe(recipe: Recipe) {
             TODO()
+        }
+
+        suspend fun finishRecipe(recipe: String) {
+            recipeDao.scoreRecipe(recipe)
         }
     }
 
@@ -218,16 +211,15 @@ class Repository @Inject constructor(
 
         suspend fun increaseLvL(): List<Ingredient> {
             userDao.increaseLvL()
-            var ret = emptyList<Ingredient>()
-            ret = if ((userDao.getUser()?.currentLvL ?: 0) < 10) {
+            val ret = if (userDao.getUser()?.hasTitle == false) {
                 RecipeFunctions().unlockRandomIngredients()
             } else {
-                RecipeFunctions().unlockAllIngredients()
+                emptyList()
             }
             resetXP()
             updateTargetXP()
 
-            Log.d("Database",ret.toString())
+            Log.i("Database", "Unlocked Ingredients:\n" + ret.map { x -> x.name }.toString())
 
             return ret
         }
@@ -248,27 +240,27 @@ class Repository @Inject constructor(
         suspend fun getArchive(): List<ArchiveEntry> {
             val entities = archiveDao.getAllArchiveEntries()
             return entities.map { e ->
-                    ArchiveEntry(
-                        recipe = Recipe(
-                            name = e.recipeEntity.name,
-                            instructions = e.recipeEntity.instructions,
-                            thumbnail = e.recipeEntity.thumbnail,
-                            isCustom = e.recipeEntity.isCustom,
-                            isAlcoholic = e.recipeEntity.isAlcoholic,
-                            keyIngredients = recipeDao.getRecipeByName(e.recipeEntity.name).ingredients.map { i ->
-                                Ingredient(
-                                    name = i.name,
-                                    iconFilePath = i.iconFilePath,
-                                    color = i.color,
-                                    isUnlocked = i.isUnlocked,
-                                )
-                            },
-                            allIngredients = e.recipeEntity.allIngredients.split(","),
-                            color = e.recipeEntity.backGroundColor
-                        ),
-                        imageFilePath = e.archive.imageFilePath,
-                        date = e.archive.date
-                    )
+                ArchiveEntry(
+                    recipe = Recipe(
+                        name = e.recipeEntity.name,
+                        instructions = e.recipeEntity.instructions,
+                        thumbnail = e.recipeEntity.thumbnail,
+                        isCustom = e.recipeEntity.isCustom,
+                        isAlcoholic = e.recipeEntity.isAlcoholic,
+                        keyIngredients = recipeDao.getRecipeByName(e.recipeEntity.name).ingredients.map { i ->
+                            Ingredient(
+                                name = i.name,
+                                iconFilePath = i.iconFilePath,
+                                color = i.color,
+                                isUnlocked = i.isUnlocked,
+                            )
+                        },
+                        allIngredients = e.recipeEntity.allIngredients.split(","),
+                        color = e.recipeEntity.backGroundColor
+                    ),
+                    imageFilePath = e.archive.imageFilePath,
+                    date = e.archive.date
+                )
             }
         }
 
@@ -281,14 +273,14 @@ class Repository @Inject constructor(
             archiveDao.insertArchiveEntry(aEntity)
         }
 
-        suspend fun addCustomPhoto(archiveEntry: ArchiveEntry) {
+        suspend fun addCustomPhoto(filePath: String, recipe: String) {
             TODO()
         }
     }
 
 
     suspend fun loadDefaultData() {
-        Log.d("Database", "Loading default data")
+        Log.i("Database", "Loading default data")
         //Create default User
         if (userDao.getUser() == null) {
             userDao.insertUser(
@@ -313,7 +305,7 @@ class Repository @Inject constructor(
         if (recipeDao.getRecipeNames().isNotEmpty())
             return
 
-        Log.d("Database", "Loading test recipes")
+        Log.i("Database", "Loading test recipes")
         val recipes = RecipeData.recipes
         for (x in recipes) {
             RecipeFunctions().addRecipe(x)
