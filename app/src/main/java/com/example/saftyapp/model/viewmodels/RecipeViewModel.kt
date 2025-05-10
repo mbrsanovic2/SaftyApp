@@ -49,12 +49,18 @@ class RecipeViewModel @Inject constructor(
     }
 
     private suspend fun loadRecipes() {
-        _recipes.value = repository.RecipeFunctions().getAllRecipes()
+        _recipes.value = repository.RecipeFunctions()
+            .getAllRecipes()
+            .sortedBy { it.name.lowercase() }
+
         updateFilteredRecipes()
     }
 
     private suspend fun loadIngredients() {
-        _allIngredients.value = repository.RecipeFunctions().getAllIngredients()
+        _allIngredients.value = repository.RecipeFunctions()
+            .getAllIngredients()
+            .sortedBy { it.name.lowercase() }
+
         _unlockedIngredients.value = allIngredients.value.filter { it.isUnlocked }
         // TODO - vorerst simuliertes Laden -> für visual cue testing gut ;)
 //        val dbIngredients = listOf(

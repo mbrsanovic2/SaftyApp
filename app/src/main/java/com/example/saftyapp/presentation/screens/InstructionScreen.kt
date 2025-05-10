@@ -117,7 +117,6 @@ fun InstructionCard(
             if(from == "Safty"){
                 FinishedButton(onFinishClicked = { onFinishClicked(recipe) })
 
-                // TODO schönen button einfügen :D
                 Button(onClick = {
                     if (cameraPermissionState.status is PermissionStatus.Granted) {
                         navigateToCamera()

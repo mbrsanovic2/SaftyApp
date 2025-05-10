@@ -5,6 +5,7 @@ import androidx.compose.animation.core.FastOutSlowInEasing
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
+import androidx.compose.foundation.isSystemInDarkTheme
 import androidx.compose.foundation.layout.*
 import androidx.compose.runtime.*
 import androidx.compose.ui.Alignment
@@ -15,10 +16,18 @@ import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.delay
 import com.example.saftyapp.R
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.foundation.isSystemInDarkTheme
 
 @Composable
 fun SplashScreen(onFinish: () -> Unit) {
     val scale = remember { Animatable(1f) }
+
+    val isDark = isSystemInDarkTheme()
+    val backgroundColor = if (isDark) {
+        Color(0xFF3E2522)
+    } else {
+        Color(0xFFFDF3E9)
+    }
 
     LaunchedEffect(Unit) {
         scale.animateTo(
@@ -38,7 +47,7 @@ fun SplashScreen(onFinish: () -> Unit) {
     Box(
         modifier = Modifier
             .fillMaxSize()
-            .background(Color(0xFFFDF3E9)),
+            .background(backgroundColor),
         contentAlignment = Alignment.Center
     ) {
         Image(

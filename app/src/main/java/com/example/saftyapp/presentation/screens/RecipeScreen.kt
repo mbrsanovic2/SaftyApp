@@ -42,6 +42,7 @@ import com.example.saftyapp.R
 import com.example.saftyapp.model.objects.Ingredient
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
+import androidx.compose.foundation.isSystemInDarkTheme
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -147,16 +148,12 @@ fun RecipeScreen(
                         } else {
                             recipeViewModel.selectIngredient(ingredient)
                         }
-//                            Log.i(
-//                                "Ingredients",
-//                                "Selected ingredients: ${selectedIngredients.joinToString { it.name }}"
-//                            )
                     }
                 }
             }
         }
 
-        Spacer(modifier = Modifier.height(16.dp))
+        Spacer(modifier = Modifier.height(10.dp))
 
         if (filteredRecipes.isEmpty()) {
             Box(
@@ -204,6 +201,8 @@ fun RecipeCard(
     image: String?,
     onClick: () -> Unit
 ) {
+    val isDark = isSystemInDarkTheme()
+
     ElevatedCard(
         colors = CardDefaults.cardColors(
             containerColor = MaterialTheme.colorScheme.background,
@@ -211,7 +210,14 @@ fun RecipeCard(
         shape = RoundedCornerShape(3.dp),
         modifier = Modifier
             .size(width = 240.dp, height = 160.dp)
-            .clickable { onClick() },
+            .clickable { onClick() }
+            .then(
+                if (isDark) Modifier.border(
+                    width = 1.dp,
+                    color = Color.White.copy(alpha = 0.1f),
+                    shape = RoundedCornerShape(3.dp)
+                ) else Modifier
+            ),
         elevation = CardDefaults.cardElevation(
             defaultElevation = 6.dp
         )

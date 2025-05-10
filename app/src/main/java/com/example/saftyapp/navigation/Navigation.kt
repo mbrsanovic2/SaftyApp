@@ -141,9 +141,12 @@ fun Navigation(modifier: Modifier = Modifier) {
                 // ArchiveScreen
                 composable(route = Screens.ArchiveScreen.route) {
                     ArchiveScreen(
-                        modifier = Modifier,
                         photoViewModel = photoViewModel,
-                        archiveViewModel = archiveViewmodel
+                        archiveViewModel = archiveViewmodel,
+                        onNavigateToRecipeScreen = { recipe ->
+                            recipeViewModel.setSelectedRecipe(recipe)
+                            navController.navigate(Screens.InstructionScreen.createRoute())
+                        }
                     )
                 }
 
