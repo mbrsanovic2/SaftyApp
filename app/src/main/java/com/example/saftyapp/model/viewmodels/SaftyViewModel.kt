@@ -84,9 +84,9 @@ class SaftyViewModel @Inject constructor(
     }
 
     fun removeIngredient(ingredient: Ingredient) {
-        mixCount--
         saftyNoMoreIdeas = false
-        if(mixCount == 0){
+        mixCount--
+        if(mixCount == 0 || _addedIngredients.isEmpty()){
             clearAllIngredients()
         }else {
             _addedIngredients.remove(ingredient)

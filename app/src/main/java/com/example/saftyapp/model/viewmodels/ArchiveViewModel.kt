@@ -11,6 +11,10 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.asStateFlow
 import kotlinx.coroutines.launch
+import java.time.LocalDate
+import java.time.ZonedDateTime
+import java.time.format.DateTimeFormatter
+import java.util.Date
 import javax.inject.Inject
 
 @HiltViewModel
@@ -31,9 +35,11 @@ class ArchiveViewModel @Inject constructor(
         _archiveEntries.value = repository.ArchiveFunctions().getArchive()
     }
 
-    // Warte auf ArchiveEntryAnpassung
-    suspend fun addEntry(recipeName: String, ingredients: List<String>, preparation: String){
-        TODO()
-        loadEntries()
+     fun addEntry(recipe: Recipe){
+        viewModelScope.launch {
+            val date = Date()
+            repository.ArchiveFunctions().addArchiveEntry(ArchiveEntry(recipe, null, date))
+            loadEntries()
+        }
     }
 }

@@ -8,7 +8,6 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
@@ -23,12 +22,17 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.window.Dialog
 import androidx.lifecycle.viewmodel.compose.viewModel
+import com.example.saftyapp.model.LevelUpData
 
 import com.example.saftyapp.model.viewmodels.XPViewModel
 import kotlinx.coroutines.delay
 
 @Composable
-fun BottomBarXP(modifier: Modifier = Modifier, viewModel: XPViewModel = viewModel()) {
+fun BottomBarXP(
+    modifier: Modifier = Modifier,
+    viewModel: XPViewModel = viewModel(),
+    onLevelUp: (LevelUpData) -> Unit
+) {
     val userState by viewModel.userState.collectAsState()
     val hasTitle: Boolean = userState.isJUICY
     var showJuicyDialog by remember { mutableStateOf(false) }
@@ -47,8 +51,8 @@ fun BottomBarXP(modifier: Modifier = Modifier, viewModel: XPViewModel = viewMode
         }
     }
     LaunchedEffect(Unit) {
-        viewModel.juicyUnlocked.collect {
-            showJuicyDialog = true
+        viewModel.levelUp.collect { levelUpData ->
+            onLevelUp(levelUpData)
         }
     }
     AdvancedJuicyMessage(

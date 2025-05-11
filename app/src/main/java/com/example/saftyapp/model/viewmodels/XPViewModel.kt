@@ -2,8 +2,10 @@ package com.example.saftyapp.model.viewmodels
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import com.example.saftyapp.model.LevelUpData
 import com.example.saftyapp.model.objects.UserData
 import com.example.saftyapp.model.database.Repository
+import com.example.saftyapp.model.objects.Ingredient
 import dagger.hilt.android.lifecycle.HiltViewModel
 import javax.inject.Inject
 import kotlinx.coroutines.flow.MutableSharedFlow
@@ -31,8 +33,8 @@ class XPViewModel @Inject constructor(
     private val _displayedLevel = MutableStateFlow(-1)
     val displayedLevel: StateFlow<Int> = _displayedLevel
 
-    private val _juicyUnlocked = MutableSharedFlow<Unit>(replay = 0)
-    val juicyUnlocked: SharedFlow<Unit> = _juicyUnlocked
+    private val _onLevelUp = MutableSharedFlow<LevelUpData>(replay = 0)
+    val levelUp: SharedFlow<LevelUpData> = _onLevelUp
 
     init {
         viewModelScope.launch {
@@ -61,14 +63,18 @@ class XPViewModel @Inject constructor(
         val currentJuicy = (current.level) >= 5
 
         if (newXP >= targetXP) {
+            var juicyWasUnlocked = false
+            var unlockedIngredients: List<Ingredient>
             newXP -= targetXP
 
-            repository.UserFunctions().increaseLvL()
+            unlockedIngredients = repository.UserFunctions().increaseLvL()
             repository.UserFunctions().increaseXP(newXP)
             if(!currentJuicy && (current.level + 1) >= 5){
+                juicyWasUnlocked = true
                 repository.UserFunctions().setTitle(true)
-                emitJuicyUnlocked()
+                unlockedIngredients = repository.RecipeFunctions().unlockAllIngredients()
             }
+            emitLevelUp(juicyWasUnlocked, unlockedIngredients)
         } else {
             repository.UserFunctions().increaseXP(amount)
         }
@@ -95,9 +101,9 @@ class XPViewModel @Inject constructor(
         }
     }
 
-    fun emitJuicyUnlocked() {
+    private fun emitLevelUp(juicyUnlocked: Boolean, unlockedIngredients: List<Ingredient>) {
         viewModelScope.launch {
-            _juicyUnlocked.emit(Unit)
+            _onLevelUp.emit(LevelUpData(juicyUnlocked, unlockedIngredients))
         }
     }
 }

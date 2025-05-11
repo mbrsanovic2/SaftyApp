@@ -125,6 +125,13 @@ class RecipeViewModel @Inject constructor(
         updateFilteredRecipes()
     }
 
+    fun updateRecentlyUnlocked(unlockedIngredients: List<Ingredient>) {
+        val currentList = _unlockedIngredients.value
+        val updatedUnlocked = unlockedIngredients.map { it.copy(recentlyUnlocked = true) }
+        val updatedList = currentList + updatedUnlocked
+        _unlockedIngredients.value = updatedList
+    }
+
     suspend fun addRecipe(recipeName: String, ingredients: List<String>, preparation: String){
         val matchingIngredients = _unlockedIngredients.value.filter { it.name in ingredients }
         repository.RecipeFunctions().addRecipe(Recipe(

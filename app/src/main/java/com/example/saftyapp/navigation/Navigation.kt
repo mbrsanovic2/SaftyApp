@@ -39,6 +39,7 @@ import com.example.saftyapp.presentation.uicomponents.MenuDrawer
 import com.example.saftyapp.presentation.screens.RecipeScreen
 import com.example.saftyapp.presentation.screens.InstructionCard
 import com.example.saftyapp.presentation.screens.RecipeForm
+import com.example.saftyapp.presentation.uicomponents.AdvancedJuicyMessage
 import com.example.saftyapp.presentation.uicomponents.TopBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
@@ -58,6 +59,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     var tempXPBar by remember{ mutableStateOf(false) }
 
     val navBackStackEntry = navController.currentBackStackEntryAsState()
+    var showJuicyDialog by remember { mutableStateOf(false) }
     val currentRoute = navBackStackEntry.value?.destination?.route ?: Screens.HomeScreen.route
 
     val hideBottomBar = when (currentRoute) {
@@ -73,6 +75,12 @@ fun Navigation(modifier: Modifier = Modifier) {
             tempXPBar = false
         }
     }
+
+    // Message when becoming advanced Juicy Maker
+    AdvancedJuicyMessage(
+        showJuicyDialog,
+        "Congrats you are now an advanced Juicy Maker, you have unlocked all ingredients and are now able to create your own recipes"
+    ) { showJuicyDialog = false }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -104,7 +112,13 @@ fun Navigation(modifier: Modifier = Modifier) {
                     enter = fadeIn() + slideInVertically(initialOffsetY = { it }),
                     exit = fadeOut() + slideOutVertically(targetOffsetY = { it })
                 ) {
-                    BottomBarXP(viewModel = xpViewModel)
+                    BottomBarXP(
+                        viewModel = xpViewModel,
+                        onLevelUp = { levelUpData ->
+                            showJuicyDialog = levelUpData.unlockedJuicy
+                            recipeViewModel.updateRecentlyUnlocked(levelUpData.unlockedIngredients)
+                        }
+                    )
                 }
             }
         ) { innerPadding ->
@@ -176,9 +190,9 @@ fun Navigation(modifier: Modifier = Modifier) {
                         recipe = selectedRecipe.value ?: fallbackRecipe,
                         from = from,
                         navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
-                        onFinishClicked = {
+                        onFinishClicked = { recipe ->
                             gainXP(5)
-                            //archiveViewmodel.addEntry()
+                            archiveViewmodel.addEntry(recipe)
                         }
                     )
                 }
