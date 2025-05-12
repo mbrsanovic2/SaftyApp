@@ -129,7 +129,7 @@ class RecipeViewModel @Inject constructor(
         val currentList = _unlockedIngredients.value
         val updatedUnlocked = unlockedIngredients.map { it.copy(recentlyUnlocked = true) }
         val updatedList = currentList + updatedUnlocked
-        _unlockedIngredients.value = updatedList
+        _unlockedIngredients.value = updatedList.sortedBy { it.name.lowercase() }
     }
 
     suspend fun addRecipe(recipeName: String, ingredients: List<String>, preparation: String){
