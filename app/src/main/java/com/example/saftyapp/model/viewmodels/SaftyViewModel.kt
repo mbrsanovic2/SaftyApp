@@ -7,6 +7,7 @@ import androidx.lifecycle.viewModelScope
 import com.example.saftyapp.model.objects.Ingredient
 import com.example.saftyapp.model.SaftyExpression
 import com.example.saftyapp.model.database.Repository
+import com.example.saftyapp.model.objects.Recipe
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -98,8 +99,11 @@ class SaftyViewModel @Inject constructor(
         }
     }
 
-    fun drinkFinished() {
+    suspend fun drinkFinished(): List<String> {
         _fillTarget.value = maxFill
+        val recipes = repository.RecipeFunctions().getRecipeRecommendations(addedIngredients)
+        val recipeNames: List<String> = recipes.map { it.name }
+        return recipeNames
     }
 
     fun cancelDrinkFinished() {

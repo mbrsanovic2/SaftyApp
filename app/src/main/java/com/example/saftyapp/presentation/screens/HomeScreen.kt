@@ -40,6 +40,7 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.saftyapp.R
 import com.example.saftyapp.model.objects.Ingredient
+import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.SaftyViewModel
 import com.example.saftyapp.presentation.safty.RecipeSuggestionDialog
@@ -69,13 +70,14 @@ fun HomeScreen(
 
     val fillAmount = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
+    var recommendedDrinks = remember { mutableStateOf(emptyList<String>()) }
     LaunchedEffect(fillTarget.value) {
         fillAmount.animateTo(fillTarget.value, tween(600))
     }
 
     RecipeSuggestionDialog(
         showDialog = showDialog,
-        recipes = listOf("Apple Berry Smoothie", "Iced Coffee"),
+        recipes = recommendedDrinks.value,
         onSelect = { selectedItem ->
             onNavigateToRecipeScreen(selectedItem)
             showDialog = false
@@ -123,7 +125,7 @@ fun HomeScreen(
                 onClick = {
                     if (selectedIngredients.isNotEmpty()) {
                         coroutineScope.launch {
-                            saftyViewModel.drinkFinished()
+                            recommendedDrinks.value = saftyViewModel.drinkFinished()
                             delay(500L)
                             showDialog = true
                         }
