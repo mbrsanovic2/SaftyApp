@@ -9,7 +9,7 @@ class IngredientData {
             IngredientEntity(
                 name = "Apple",
                 iconFilePath = "https://www.thecocktaildb.com/images/ingredients/apple-small.png",
-                color = Color(0xFFB30000),
+                color = Color(0x80EC9F00),
                 isUnlocked = true
             ),
             IngredientEntity(
@@ -97,6 +97,19 @@ class IngredientData {
                 isUnlocked = true
             ),
 
+            IngredientEntity(
+                name = "Banana",
+                iconFilePath = "https://www.thecocktaildb.com/images/ingredients/banana-small.png",
+                color = Color(0xFFECE297),
+                isUnlocked = true
+            ),
+            IngredientEntity(
+                name = "Milk",
+                color = Color.White,
+                iconFilePath = "https://www.thecocktaildb.com/images/ingredients/milk-small.png",
+                isUnlocked = true
+            ),
+
 
             // Ingredient not unlocked from beginning -> level up needed
             IngredientEntity(name = "Amaretto", color = Color(1), isUnlocked = false),
@@ -138,7 +151,6 @@ class IngredientData {
             IngredientEntity(name = "Lime juice", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Lemon", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Lemonade", color = Color(1), isUnlocked = false),
-            IngredientEntity(name = "Milk", color = Color.White, isUnlocked = false),
             IngredientEntity(name = "Ouzo", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Peach nectar", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Red wine", color = Color(1), isUnlocked = false),

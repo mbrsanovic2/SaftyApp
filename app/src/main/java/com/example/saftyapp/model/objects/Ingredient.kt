@@ -5,7 +5,7 @@ import androidx.compose.ui.graphics.Color
 data class Ingredient(
     val name: String,
     val iconFilePath: String? = null,
-    val color: Color,
-    val isUnlocked: Boolean,
+    val color: Color = Color.Transparent,
+    val isUnlocked: Boolean = false,
     val recentlyUnlocked: Boolean = false
 )
