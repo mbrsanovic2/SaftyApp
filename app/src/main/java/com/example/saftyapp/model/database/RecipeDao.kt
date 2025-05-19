@@ -73,6 +73,9 @@ interface RecipeDao {
 
     @Query("UPDATE recipes SET hasBeenScored = 1 WHERE :recipe")
     suspend fun scoreRecipe(recipe: String)
+
+    @Query("UPDATE recipes SET hasPhotoScore = 1 WHERE :recipe")
+    suspend fun scorePhoto(recipe: String)
 }
 
 @Dao
@@ -112,4 +115,10 @@ interface ArchiveDao {
 
     @Query("SELECT id FROM archiveEntry WHERE date = :date")
     suspend fun getArchiveIdByDate(date: Date): Int
+
+    @Query("UPDATE archiveEntry SET imageFilePath = :filePath WHERE recipeName = :recipe")
+    suspend fun setImage(filePath: String, recipe: String)
+
+    @Query("SELECT 1 FROM archiveEntry WHERE recipeName = :recipeName")
+    suspend fun lookupRecipe(recipeName: String): Boolean
 }

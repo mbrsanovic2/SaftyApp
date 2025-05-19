@@ -10,5 +10,7 @@ data class Recipe(
     val thumbnail: String? = null,
     val isCustom: Boolean = false,
     val isAlcoholic: Boolean = false,
-    val color: Color? = null
+    val color: Color? = null,
+    val hasBeenScored: Boolean = false,
+    val hasBeenPhotoScored: Boolean = false
 )

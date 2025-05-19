@@ -2,7 +2,6 @@ package com.example.saftyapp.model.database
 
 import android.util.Log
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
-import com.example.saftyapp.model.database.entities.IngredientEntity
 import com.example.saftyapp.model.objects.ArchiveEntry
 import com.example.saftyapp.model.objects.Ingredient
 import com.example.saftyapp.model.objects.Recipe
@@ -58,7 +57,9 @@ class Repository @Inject constructor(
                         )
                     },
                     allIngredients = e.recipe.allIngredients.split(","),
-                    color = e.recipe.backGroundColor
+                    color = e.recipe.backGroundColor,
+                    hasBeenPhotoScored = e.recipe.hasPhotoScore,
+                    hasBeenScored = e.recipe.hasBeenScored
                 )
             }
 
@@ -126,9 +127,11 @@ class Repository @Inject constructor(
                             name = i.name,
                             color = i.color,
                             isUnlocked = i.isUnlocked,
-                            iconFilePath = i.iconFilePath
+                            iconFilePath = i.iconFilePath,
                         )
-                    }
+                    },
+                    hasBeenScored = r.recipe.hasBeenScored,
+                    hasBeenPhotoScored = r.recipe.hasPhotoScore
                 )
             }
         }
@@ -198,12 +201,12 @@ class Repository @Inject constructor(
             }
         }
 
-        suspend fun deleteRecipe(recipe: Recipe) {
-            TODO()
-        }
-
         suspend fun finishRecipe(recipe: String) {
             recipeDao.scoreRecipe(recipe)
+        }
+
+        suspend fun photoScoreRecipe(recipe: String) {
+            recipeDao.scorePhoto(recipe)
         }
     }
 
@@ -288,7 +291,9 @@ class Repository @Inject constructor(
                             )
                         },
                         allIngredients = e.recipeEntity.allIngredients.split(","),
-                        color = e.recipeEntity.backGroundColor
+                        color = e.recipeEntity.backGroundColor,
+                        hasBeenScored = e.recipeEntity.hasBeenScored,
+                        hasBeenPhotoScored = e.recipeEntity.hasPhotoScore
                     ),
                     imageFilePath = e.archive.imageFilePath,
                     date = e.archive.date
@@ -297,16 +302,21 @@ class Repository @Inject constructor(
         }
 
         suspend fun addArchiveEntry(archiveEntry: ArchiveEntry) {
-            val aEntity = ArchiveEntryEntity(
-                imageFilePath = archiveEntry.imageFilePath,
-                date = archiveEntry.date,
-                recipeName = archiveEntry.recipe.name
-            )
-            archiveDao.insertArchiveEntry(aEntity)
+            if(!archiveDao.lookupRecipe(archiveEntry.recipe.name)){
+                val aEntity = ArchiveEntryEntity(
+                    imageFilePath = archiveEntry.imageFilePath,
+                    date = archiveEntry.date,
+                    recipeName = archiveEntry.recipe.name
+                )
+
+                recipeDao.scoreRecipe(archiveEntry.recipe.name)
+                archiveDao.insertArchiveEntry(aEntity)
+            }
         }
 
-        suspend fun addCustomPhoto(filePath: String, recipe: String) {
-            TODO()
+        suspend fun addCustomPhoto(filePath: String, recipeName: String) {
+            archiveDao.setImage(filePath, recipeName)
+            recipeDao.scorePhoto(recipeName)
         }
     }
 
