@@ -25,8 +25,6 @@ class PhotoViewModel @Inject constructor(
     var capturedPhotoUri by mutableStateOf<Uri?>(null)
         private set
 
-//    private var confirmedPhotoUri by mutableStateOf<Uri?>(null)
-
     fun setCapturedPhoto(uri: Uri) {
         capturedPhotoUri = uri
     }
@@ -45,8 +43,7 @@ class PhotoViewModel @Inject constructor(
         val path =
             capturedPhotoUri?.path ?: throw IllegalStateException("confirmedPhotoUri is null")
 
-        Log.d("PhotoViewModel", "Saving photo with path: $path and recipe: $recipeName")
-
+        repository.RecipeFunctions().photoScoreRecipe(recipeName)
         repository.ArchiveFunctions().addCustomPhoto(path, recipeName)
         capturedPhotoUri = null
     }
@@ -92,8 +89,6 @@ class PhotoViewModel @Inject constructor(
                     if (drinkDetected) {
                         Toast.makeText(context, "Drink detected! +10 XP 🎉", Toast.LENGTH_SHORT)
                             .show()
-                        // TODO
-//                        savePhotoInDB()
                     } else {
                         Toast.makeText(
                             context,
