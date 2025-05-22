@@ -6,7 +6,6 @@ import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
-import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.rememberScrollState
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.verticalScroll
@@ -28,7 +27,6 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
-import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
@@ -37,34 +35,22 @@ import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import coil.compose.AsyncImage
 import com.example.saftyapp.R
-import com.example.saftyapp.model.Deprecated_Recipe
-import com.example.saftyapp.model.getTestRecipes
 import com.example.saftyapp.model.objects.Recipe
 import com.google.accompanist.permissions.ExperimentalPermissionsApi
 import com.google.accompanist.permissions.PermissionStatus
 import com.google.accompanist.permissions.rememberPermissionState
 
-@OptIn(ExperimentalPermissionsApi::class)
 @Composable
-fun InstructionCard(
+fun InstructionScreen(
     recipe: Recipe,
     from: String?,
+    alreadyScored: Boolean,
     navigateToCamera: () -> Unit,
     onFinishClicked: (Recipe) -> Unit
 ) {
     val backgroundColor = remember{ recipe.color }
     val image = remember{ recipe.thumbnail }
-
-    // Launch camera upon permission granted
-    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
-    var requestedPermission by remember { mutableStateOf(false) }
-    
-    LaunchedEffect(cameraPermissionState.status, requestedPermission) {
-        if (requestedPermission && cameraPermissionState.status is PermissionStatus.Granted) {
-            navigateToCamera()
-            requestedPermission = false // Reset Flag
-        }
-    }
+    var isClicked by remember { mutableStateOf(false) }
 
     Card(
         modifier = Modifier
@@ -115,20 +101,44 @@ fun InstructionCard(
             RecipeDetails(recipe)
 
             if(from == "Safty"){
-                FinishedButton(onFinishClicked = { onFinishClicked(recipe) })
+                FinishedButton(alreadyScored, onFinishClicked = { isClicked = true; onFinishClicked(recipe) })
+                PhotoButton(isClicked || alreadyScored){
+                    navigateToCamera()
+                }
+            }
 
-                Button(onClick = {
-                    if (cameraPermissionState.status is PermissionStatus.Granted) {
-                        navigateToCamera()
-                    } else {
-                        requestedPermission = true
-                        cameraPermissionState.launchPermissionRequest()
-                    }
-                }) {
-                    Text("Take Photo")
+            if(from == "Archive"){
+                PhotoButton(true){
+                    navigateToCamera()
                 }
             }
         }
+    }
+}
+
+@OptIn(ExperimentalPermissionsApi::class)
+@Composable
+fun PhotoButton(enabled: Boolean, navigateToCamera: () -> Unit){
+    // Launch camera upon permission granted
+    val cameraPermissionState = rememberPermissionState(android.Manifest.permission.CAMERA)
+    var requestedPermission by remember { mutableStateOf(false) }
+
+    LaunchedEffect(cameraPermissionState.status, requestedPermission) {
+        if (requestedPermission && cameraPermissionState.status is PermissionStatus.Granted) {
+            navigateToCamera()
+            requestedPermission = false // Reset Flag
+        }
+    }
+
+    Button(enabled = enabled, onClick = {
+        if (cameraPermissionState.status is PermissionStatus.Granted) {
+            navigateToCamera()
+        } else {
+            requestedPermission = true
+            cameraPermissionState.launchPermissionRequest()
+        }
+    }) {
+        Text("Take Photo")
     }
 }
 
@@ -166,7 +176,7 @@ fun RecipeDetails(recipe: Recipe) {
 }
 
 @Composable
-fun FinishedButton(onFinishClicked: () -> Unit) {
+fun FinishedButton(alreadyScored: Boolean, onFinishClicked: () -> Unit) {
     var isClicked by remember { mutableStateOf(false) }
     Button(
         onClick = {
@@ -179,7 +189,7 @@ fun FinishedButton(onFinishClicked: () -> Unit) {
         shape = RoundedCornerShape(12.dp),
         elevation = ButtonDefaults.elevatedButtonElevation()
     ) {
-        if(!isClicked) {
+        if(!isClicked && !alreadyScored) {
             Icon(
                 imageVector = Icons.Default.Check,
                 contentDescription = "Finish",

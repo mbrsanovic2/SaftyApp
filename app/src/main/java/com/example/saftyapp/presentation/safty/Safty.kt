@@ -1,5 +1,7 @@
 package com.example.saftyapp.presentation.safty
 
+import androidx.compose.animation.core.Animatable
+import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.layout.Box
@@ -31,6 +33,7 @@ import androidx.compose.ui.graphics.drawscope.clipRect
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.unit.IntOffset
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.compose.ui.window.Dialog
@@ -47,12 +50,30 @@ fun Safty(
     currentText: String = "",
     saftyGone: Boolean = false,
 ) {
+    val offsetX = remember { Animatable(0f) }
+
+    LaunchedEffect(saftyGone) {
+        if (saftyGone) {
+            offsetX.animateTo(
+                targetValue = 1000f,
+                animationSpec = tween(durationMillis = 1000)
+            )
+        } else {
+            offsetX.snapTo(0f)
+        }
+    }
+
     Box(
         modifier = modifier
     ) {
-        if(!saftyGone) {
-            SaftyImage(expression, modifier.padding(top = 52.dp), fillAmount, fillColor)
-        }
+        SaftyImage(
+            expression = expression,
+            modifier = modifier
+                .padding(top = 52.dp)
+                .offset { IntOffset(offsetX.value.toInt(), 0) },
+            fillAmount = fillAmount,
+            fillColor = fillColor
+        )
 
         if (currentText.isNotEmpty()) {
             SpeechBubble(
@@ -63,13 +84,14 @@ fun Safty(
         }
     }
 }
+
 @Composable
 fun SaftyImage(
     expression: SaftyExpression,
     modifier: Modifier = Modifier,
     fillAmount: Float = 0f,
     fillColor: Color,
-){
+) {
     SaftyPart(
         image = R.drawable.safty_default,
         contentDescription = "Safty",
@@ -123,7 +145,7 @@ fun RecipeSuggestionDialog(
     onSelect: (String) -> Unit,
     onDismiss: () -> Unit
 ) {
-    if(showDialog) {
+    if (showDialog) {
         Dialog(onDismissRequest = onDismiss) {
             Surface(
                 shape = RoundedCornerShape(16.dp),

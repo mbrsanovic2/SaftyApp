@@ -125,6 +125,13 @@ class RecipeViewModel @Inject constructor(
         updateFilteredRecipes()
     }
 
+    fun scoreRecipe(recipeName: String) {
+        viewModelScope.launch {
+            repository.RecipeFunctions().finishRecipe(recipeName)
+            loadRecipes()
+        }
+    }
+
     fun updateRecentlyUnlocked(unlockedIngredients: List<Ingredient>) {
         val currentList = _unlockedIngredients.value
         val updatedUnlocked = unlockedIngredients.map { it.copy(recentlyUnlocked = true) }

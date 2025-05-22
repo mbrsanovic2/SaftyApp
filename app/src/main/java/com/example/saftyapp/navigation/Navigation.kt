@@ -37,7 +37,7 @@ import com.example.saftyapp.presentation.uicomponents.BottomBarXP
 import com.example.saftyapp.presentation.screens.HomeScreen
 import com.example.saftyapp.presentation.uicomponents.MenuDrawer
 import com.example.saftyapp.presentation.screens.RecipeScreen
-import com.example.saftyapp.presentation.screens.InstructionCard
+import com.example.saftyapp.presentation.screens.InstructionScreen
 import com.example.saftyapp.presentation.screens.RecipeForm
 import com.example.saftyapp.presentation.uicomponents.AdvancedJuicyMessage
 import com.example.saftyapp.presentation.uicomponents.TopBar
@@ -159,7 +159,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                         archiveViewModel = archiveViewmodel,
                         onNavigateToRecipeScreen = { recipe ->
                             recipeViewModel.setSelectedRecipe(recipe)
-                            navController.navigate(Screens.InstructionScreen.createRoute())
+                            navController.navigate(Screens.InstructionScreen.createRoute("Archive"))
                         }
                     )
                 }
@@ -185,13 +185,16 @@ fun Navigation(modifier: Modifier = Modifier) {
                         allIngredients = emptyList(),
                         color = null
                     )
+                    val alreadyScored = selectedRecipe.value?.hasBeenScored
 
-                    InstructionCard(
+                    InstructionScreen(
                         recipe = selectedRecipe.value ?: fallbackRecipe,
                         from = from,
                         navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
+                        alreadyScored = alreadyScored ?: false,
                         onFinishClicked = { recipe ->
                             gainXP(5)
+                            recipeViewModel.scoreRecipe(recipe.name)
                             archiveViewmodel.addEntry(recipe)
                         }
                     )
