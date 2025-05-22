@@ -71,10 +71,10 @@ interface RecipeDao {
     @Query("UPDATE ingredients SET isUnlocked = 1")
     suspend fun unlockAllIngredients()
 
-    @Query("UPDATE recipes SET hasBeenScored = 1 WHERE :recipe")
+    @Query("UPDATE recipes SET hasBeenScored = 1 WHERE name = :recipe")
     suspend fun scoreRecipe(recipe: String)
 
-    @Query("UPDATE recipes SET hasPhotoScore = 1 WHERE :recipe")
+    @Query("UPDATE recipes SET hasPhotoScore = 1 WHERE name = :recipe")
     suspend fun scorePhoto(recipe: String)
 }
 

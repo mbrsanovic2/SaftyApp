@@ -1,6 +1,9 @@
 package com.example.saftyapp.model.database
 
 import android.util.Log
+import com.example.saftyapp.model.api.APIInterface
+import com.example.saftyapp.model.api.CocktailDB
+import com.example.saftyapp.model.api.DrinkDetails
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
 import com.example.saftyapp.model.objects.ArchiveEntry
 import com.example.saftyapp.model.objects.Ingredient
@@ -11,6 +14,7 @@ import com.example.saftyapp.model.database.entities.RecipeEntity
 import com.example.saftyapp.model.database.entities.UserEntity
 import com.example.saftyapp.model.database.staticdata.IngredientData
 import com.example.saftyapp.model.database.staticdata.RecipeData
+import kotlinx.coroutines.delay
 import javax.inject.Inject
 import javax.inject.Singleton
 
@@ -49,12 +53,7 @@ class Repository @Inject constructor(
                     isCustom = e.recipe.isCustom,
                     isAlcoholic = e.recipe.isAlcoholic,
                     keyIngredients = e.ingredients.map { i ->
-                        Ingredient(
-                            name = i.name,
-                            iconFilePath = i.iconFilePath,
-                            color = i.color,
-                            isUnlocked = i.isUnlocked,
-                        )
+                        Ingredient(name = i.name)
                     },
                     allIngredients = e.recipe.allIngredients.split(","),
                     color = e.recipe.backGroundColor,
@@ -67,22 +66,18 @@ class Repository @Inject constructor(
         }
 
         suspend fun getIngredientRecommendations(ingredients: List<Ingredient>): List<Ingredient> {
-            Log.d("Database", "------Starting Ingredient Recommendation------")
             val input = ingredients.map { x ->
                 x.name
             }
             val recipes = recipeDao.getRecipesByIngredients(input)
-            Log.d("Database", "Before filter " + recipes.map { r -> r.recipe.name }.toString())
 
             val ingFilter = recipes.filter { r ->
                 r.ingredients.map { i ->
                     i.name
                 }.containsAll(input)
             }.map { tmp -> tmp.recipe.name }
-            Log.d("Database", "After filter " + ingFilter.toString())
 
             val filtered = recipeDao.getUnlockedRecipes(ingFilter)
-            Log.d("Database", "After Unlocks " + filtered.toString())
 
             //Get all ingredients used by recipes and remove input ingredients
             val retIng = recipeDao.getIngredientsByRecipe(filtered).map { e ->
@@ -94,45 +89,23 @@ class Repository @Inject constructor(
                     recentlyUnlocked = false,
                 )
             } - ingredients.toSet()
-            Log.d("Database", "Final\n" + retIng.map { i -> i.name } + "\n")
             return retIng
         }
 
         suspend fun getRecipeRecommendations(ingredients: List<Ingredient>): List<Recipe> {
-            Log.d("Database", "------Starting Recipe Recommendation------")
             val input = ingredients.map { x ->
                 x.name
             }
             val recipes = recipeDao.getRecipesByIngredients(input)
-            Log.d("Database", "Before filter " + recipes.map { r -> r.recipe.name }.toString())
 
             val ingFilter = recipes.filter { r ->
                 r.ingredients.map { i ->
                     i.name
                 }.containsAll(input)
             }
-            Log.d("Database", "After filter " + ingFilter.toString() + "\n")
 
             return ingFilter.map { r ->
-                Recipe(
-                    name = r.recipe.name,
-                    thumbnail = r.recipe.thumbnail,
-                    isCustom = r.recipe.isCustom,
-                    isAlcoholic = r.recipe.isAlcoholic,
-                    color = r.recipe.backGroundColor,
-                    instructions = r.recipe.instructions,
-                    allIngredients = r.recipe.allIngredients.split(","),
-                    keyIngredients = r.ingredients.map { i ->
-                        Ingredient(
-                            name = i.name,
-                            color = i.color,
-                            isUnlocked = i.isUnlocked,
-                            iconFilePath = i.iconFilePath,
-                        )
-                    },
-                    hasBeenScored = r.recipe.hasBeenScored,
-                    hasBeenPhotoScored = r.recipe.hasPhotoScore
-                )
+                Recipe(name = r.recipe.name)
             }
         }
 
@@ -148,7 +121,6 @@ class Repository @Inject constructor(
         }
 
         suspend fun addRecipe(recipe: Recipe) {
-            Log.d("Database", "Adding Recipe: " + recipe.name)
             recipeDao.insertRecipe(
                 RecipeEntity(
                     name = recipe.name,
@@ -161,14 +133,14 @@ class Repository @Inject constructor(
                 )
             )
 
-            val measures = recipe.keyIngredients.map { i ->
+            val crossRefs = recipe.keyIngredients.map { i ->
                 RecipeIngredientCrossRef(
                     recipeName = recipeDao.getRecipeByName(recipe.name).recipe.name,
                     ingredientName = recipeDao.getIngredientByName(i.name).name,
                 )
             }
 
-            recipeDao.insertRecipeCrossIngredients(measures)
+            recipeDao.insertRecipeCrossIngredients(crossRefs)
         }
 
         suspend fun unlockRandomIngredients(): List<Ingredient> {
@@ -180,7 +152,8 @@ class Repository @Inject constructor(
                     name = e.name,
                     iconFilePath = e.iconFilePath,
                     color = e.color,
-                    isUnlocked = e.isUnlocked
+                    isUnlocked = true,
+                    recentlyUnlocked = true
                 )
             }
 
@@ -193,7 +166,7 @@ class Repository @Inject constructor(
             return entities.map { e ->
                 Ingredient(
                     name = e.name,
-                    isUnlocked = e.isUnlocked,
+                    isUnlocked = true,
                     color = e.color,
                     iconFilePath = e.iconFilePath,
                     recentlyUnlocked = true
@@ -254,8 +227,6 @@ class Repository @Inject constructor(
             resetXP()
             updateTargetXP()
 
-            Log.i("Database", "Unlocked Ingredients:\n" + ret.map { x -> x.name }.toString())
-
             return ret
         }
 
@@ -278,22 +249,7 @@ class Repository @Inject constructor(
                 ArchiveEntry(
                     recipe = Recipe(
                         name = e.recipeEntity.name,
-                        instructions = e.recipeEntity.instructions,
                         thumbnail = e.recipeEntity.thumbnail,
-                        isCustom = e.recipeEntity.isCustom,
-                        isAlcoholic = e.recipeEntity.isAlcoholic,
-                        keyIngredients = recipeDao.getRecipeByName(e.recipeEntity.name).ingredients.map { i ->
-                            Ingredient(
-                                name = i.name,
-                                iconFilePath = i.iconFilePath,
-                                color = i.color,
-                                isUnlocked = i.isUnlocked,
-                            )
-                        },
-                        allIngredients = e.recipeEntity.allIngredients.split(","),
-                        color = e.recipeEntity.backGroundColor,
-                        hasBeenScored = e.recipeEntity.hasBeenScored,
-                        hasBeenPhotoScored = e.recipeEntity.hasPhotoScore
                     ),
                     imageFilePath = e.archive.imageFilePath,
                     date = e.archive.date
@@ -302,7 +258,7 @@ class Repository @Inject constructor(
         }
 
         suspend fun addArchiveEntry(archiveEntry: ArchiveEntry) {
-            if(!archiveDao.lookupRecipe(archiveEntry.recipe.name)){
+            if (!archiveDao.lookupRecipe(archiveEntry.recipe.name)) {
                 val aEntity = ArchiveEntryEntity(
                     imageFilePath = archiveEntry.imageFilePath,
                     date = archiveEntry.date,
@@ -322,7 +278,6 @@ class Repository @Inject constructor(
 
 
     suspend fun loadDefaultData() {
-        Log.i("Database", "Loading default data")
         //Create default User
         if (userDao.getUser() == null) {
             userDao.insertUser(
@@ -352,5 +307,114 @@ class Repository @Inject constructor(
         for (x in recipes) {
             RecipeFunctions().addRecipe(x)
         }
+    }
+
+    suspend fun getAPIData(): List<Recipe> {
+        val api = CocktailDB.getInstance().create(APIInterface::class.java)
+        val ingredientNames = RecipeFunctions().getAllIngredients().map { x -> x.name }
+        val response = mutableSetOf<String>()
+
+        //Get ids from API by ingredient
+        for (ingredient in ingredientNames) {
+            var tries = 10
+
+            //Try getting data, max 5 times
+            while (true) {
+                val tmp = api.getDrinksByIngredient(ingredient)
+                if (tmp.code() == 429) {
+                    delay(2000)
+                    tries--
+                } else if (tries <= 0) {
+                    Log.i("API", "Couldn't get: " + ingredient)
+                    break
+                } else {
+                    tmp.body()!!.drinks.forEach { drink ->
+                        response.add(drink.idDrink)
+                    }
+                    break
+                }
+            }
+        }
+
+        val allDrinks = mutableListOf<Recipe>()
+        for (drinkID in response) {
+            var tries = 10
+            while (true) {
+                val tmp = api.getDrinkDetails(drinkID.toInt())
+                if (tmp.code() == 429) {
+                    delay(2000)
+                    tries--
+                } else if (tries <= 0) {
+                    Log.i("API", "Couldn't get: " + drinkID)
+                    break
+                } else {
+                    allDrinks.add(convertAPItoRecipe(tmp.body()!!.drinks[0]))
+                    break
+                }
+            }
+        }
+        return allDrinks
+    }
+
+    private suspend fun convertAPItoRecipe(drink: DrinkDetails): Recipe {
+        return Recipe(
+            name = drink.strDrink,
+            isCustom = false,
+            instructions = drink.strInstructions,
+            thumbnail = drink.strDrinkThumb,
+            hasBeenScored = false,
+            hasBeenPhotoScored = false,
+            keyIngredients = getKeyIngredientsFromDrink(drink),
+            allIngredients = getAllIngredientsFromDrink(drink),
+            isAlcoholic = drink.strAlcoholic == "Alcoholic",
+            color = null
+        )
+    }
+
+    private fun getAllIngredientsFromDrink(drink: DrinkDetails): List<String> {
+        val result = listOf(
+            drink.strIngredient1 + ": " + drink.strMeasure1,
+            drink.strIngredient2 + ": " + drink.strMeasure2,
+            drink.strIngredient3 + ": " + drink.strMeasure3,
+            drink.strIngredient4 + ": " + drink.strMeasure4,
+            drink.strIngredient5 + ": " + drink.strMeasure5,
+            drink.strIngredient6 + ": " + drink.strMeasure6,
+            drink.strIngredient7 + ": " + drink.strMeasure7,
+            drink.strIngredient8 + ": " + drink.strMeasure8,
+            drink.strIngredient9 + ": " + drink.strMeasure9,
+            drink.strIngredient10 + ": " + drink.strMeasure10,
+            drink.strIngredient11 + ": " + drink.strMeasure11,
+            drink.strIngredient12 + ": " + drink.strMeasure12,
+            drink.strIngredient13 + ": " + drink.strMeasure13,
+            drink.strIngredient14 + ": " + drink.strMeasure14,
+            drink.strIngredient15 + ": " + drink.strMeasure15,
+        )
+        return result
+    }
+
+    private suspend fun getKeyIngredientsFromDrink(drink: DrinkDetails): List<Ingredient> {
+        val knownIngredients = RecipeFunctions().getAllIngredients().map { x -> x.name }
+        val toTest = listOf(
+            drink.strIngredient1,
+            drink.strIngredient2,
+            drink.strIngredient3,
+            drink.strIngredient4,
+            drink.strIngredient5,
+            drink.strIngredient6,
+            drink.strIngredient7,
+            drink.strIngredient8,
+            drink.strIngredient9,
+            drink.strIngredient10,
+            drink.strIngredient11,
+            drink.strIngredient12,
+            drink.strIngredient13,
+            drink.strIngredient14,
+            drink.strIngredient15
+        )
+        val result = toTest.filter { x -> knownIngredients.contains(x) }.map { x ->
+            RecipeFunctions().getIngredient(x!!)
+        }
+
+        return result
     }
 }

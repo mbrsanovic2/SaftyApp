@@ -114,7 +114,6 @@ class IngredientData {
             // Ingredient not unlocked from beginning -> level up needed
             IngredientEntity(name = "Amaretto", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Apple juice", color = Color(1), isUnlocked = false),
-            IngredientEntity(name = "Baileys", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Bourbon", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Brandy", color = Color(1), isUnlocked = false),
             IngredientEntity(name = "Champagne", color = Color(1), isUnlocked = false),
@@ -167,7 +166,6 @@ class IngredientData {
 
 
             // Ingredients to be excluded
-            //IngredientEntity(name = "Worcestershire sauce", color = Color.Black, isUnlocked = false),
             //IngredientEntity(name = "7-Up", color = Color(1), isUnlocked = true),
             //IngredientEntity(name = "Absolut Citron", color = Color(1), isUnlocked = true),
             //IngredientEntity(name = "Ale", color = Color(1), isUnlocked = true),

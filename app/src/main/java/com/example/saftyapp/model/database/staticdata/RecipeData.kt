@@ -138,7 +138,6 @@ class RecipeData {
                     Ingredient(name = "Vodka"),
                     Ingredient(name = "Tomato juice"),
                     Ingredient(name = "Lemon juice"),
-                    Ingredient(name = "Worcestershire sauce"),
                     Ingredient(name = "Tabasco sauce"),
                     Ingredient(name = "Lime")
                 ),
