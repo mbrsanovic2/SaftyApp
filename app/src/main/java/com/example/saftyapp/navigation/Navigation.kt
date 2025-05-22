@@ -155,7 +155,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                 // ArchiveScreen
                 composable(route = Screens.ArchiveScreen.route) {
                     ArchiveScreen(
-                        photoViewModel = photoViewModel,
                         archiveViewModel = archiveViewmodel,
                         onNavigateToRecipeScreen = { recipe ->
                             recipeViewModel.setSelectedRecipe(recipe)
@@ -172,6 +171,10 @@ fun Navigation(modifier: Modifier = Modifier) {
                             type = NavType.StringType
                             nullable = true
                             defaultValue = null
+                        },
+                        navArgument("recipeName") {
+                            type = NavType.StringType
+                            nullable = true
                         }
                     )
                 ) { backStackEntry ->
@@ -190,7 +193,10 @@ fun Navigation(modifier: Modifier = Modifier) {
                     InstructionScreen(
                         recipe = selectedRecipe.value ?: fallbackRecipe,
                         from = from,
-                        navigateToCamera = { navController.navigate(Screens.CameraScreen.route) },
+                        navigateToCamera = {
+                            val recipeName = (selectedRecipe.value ?: fallbackRecipe).name
+                            navController.navigate(Screens.CameraScreen.createRoute(recipeName))
+                        },
                         alreadyScored = alreadyScored ?: false,
                         onFinishClicked = { recipe ->
                             gainXP(5)
@@ -201,13 +207,30 @@ fun Navigation(modifier: Modifier = Modifier) {
                 }
 
                 // Camera Screen
-                composable(route = Screens.CameraScreen.route) {
+                composable(
+                    route = Screens.CameraScreen.route,
+                    arguments = listOf(
+                        navArgument("recipeName") {
+                            type = NavType.StringType
+                            nullable = true
+                        }
+                    )
+                ) { backStackEntry ->
+                    val recipeNameFromNav = backStackEntry.arguments?.getString("recipeName") ?: ""
+
                     CameraScreen(
                         viewModel = photoViewModel,
+                        recipeName = recipeNameFromNav,
                         onPhotoTaken = {
-                            navController.navigate(Screens.ArchiveScreen.route)
+                            navController.navigate(Screens.InstructionScreen.createRoute())
                         },
-                        onDrinkDetected = { gainXP(10) }
+                        onDrinkDetected = { recipeName ->
+                            gainXP(10)
+                            coroutineScope.launch {
+                                photoViewModel.savePhotoInDB(recipeName)
+                                archiveViewmodel.loadEntries()
+                            }
+                        }
                     )
                 }
 
@@ -220,7 +243,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                                 ingredients = ingredients,
                                 preparation = preparation
                             )
-                            print("Rezept wurde wirklich erstellt")
+                            //print("Rezept wurde wirklich erstellt")
                         }
                         navController.navigate(Screens.HomeScreen.route)
                     }

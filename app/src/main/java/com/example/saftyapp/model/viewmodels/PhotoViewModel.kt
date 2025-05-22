@@ -3,26 +3,29 @@ package com.example.saftyapp.model.viewmodels
 import android.content.Context
 import android.net.Uri
 import android.util.Log
+import android.widget.Toast
 import androidx.compose.runtime.getValue
-import androidx.compose.runtime.mutableStateListOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import com.example.saftyapp.model.database.Repository
 import com.google.mlkit.vision.common.InputImage
 import com.google.mlkit.vision.label.ImageLabeling
 import com.google.mlkit.vision.label.defaults.ImageLabelerOptions
+import dagger.hilt.android.lifecycle.HiltViewModel
+import kotlinx.coroutines.launch
 import java.io.File
+import javax.inject.Inject
 
-class PhotoViewModel : ViewModel() {
-    private val _photoUris = mutableStateListOf<Uri>()
-    val photoUris: List<Uri> get() = _photoUris
-
+@HiltViewModel
+class PhotoViewModel @Inject constructor(
+    private val repository: Repository
+) : ViewModel() {
     var capturedPhotoUri by mutableStateOf<Uri?>(null)
         private set
 
-    fun addPhotoUri(uri: Uri) {
-        _photoUris.add(uri)
-    }
+//    private var confirmedPhotoUri by mutableStateOf<Uri?>(null)
 
     fun setCapturedPhoto(uri: Uri) {
         capturedPhotoUri = uri
@@ -38,8 +41,13 @@ class PhotoViewModel : ViewModel() {
         capturedPhotoUri = null
     }
 
-    fun confirmCapturedPhoto() {
-        capturedPhotoUri?.let { addPhotoUri(it) }
+    suspend fun savePhotoInDB(recipeName: String) {
+        val path =
+            capturedPhotoUri?.path ?: throw IllegalStateException("confirmedPhotoUri is null")
+
+        Log.d("PhotoViewModel", "Saving photo with path: $path and recipe: $recipeName")
+
+        repository.ArchiveFunctions().addCustomPhoto(path, recipeName)
         capturedPhotoUri = null
     }
 
@@ -51,12 +59,29 @@ class PhotoViewModel : ViewModel() {
             labeler.process(image)
                 .addOnSuccessListener { labels ->
                     // Show all identified labels
-                    labels.forEach { label ->
-                        Log.d("MLKit", "Label: ${label.text}, Confidence: ${label.confidence}")
-                    }
+//                    labels.forEach { label ->
+//                        Log.d("MLKit", "Label: ${label.text}, Confidence: ${label.confidence}")
+//                    }
 
                     // Labels to consider as drink
-                    val drinkLabels = listOf("drink", "beverage", "glass", "bottle", "cocktail", "wine", "beer", "cup", "mug", "champagne", "juice", "coffee", "tea", "liquor", "martini", "alcohol")
+                    val drinkLabels = listOf(
+                        "drink",
+                        "beverage",
+                        "glass",
+                        "bottle",
+                        "cocktail",
+                        "wine",
+                        "beer",
+                        "cup",
+                        "mug",
+                        "champagne",
+                        "juice",
+                        "coffee",
+                        "tea",
+                        "liquor",
+                        "martini",
+                        "alcohol"
+                    )
 
                     val drinkDetected = labels.any { label ->
                         drinkLabels.any { keyword ->
@@ -65,7 +90,17 @@ class PhotoViewModel : ViewModel() {
                     }
 
                     if (drinkDetected) {
-                        // TODO XP erhöhen und in DB speichern, check ob schon mal extra XP geholt für dieses recipe
+                        Toast.makeText(context, "Drink detected! +10 XP 🎉", Toast.LENGTH_SHORT)
+                            .show()
+                        // TODO
+//                        savePhotoInDB()
+                    } else {
+                        Toast.makeText(
+                            context,
+                            "No drink detected. Take another photo for extra XP.",
+                            Toast.LENGTH_SHORT
+                        ).show()
+                        discardCapturedPhoto()
                     }
 
                     onResult(drinkDetected)

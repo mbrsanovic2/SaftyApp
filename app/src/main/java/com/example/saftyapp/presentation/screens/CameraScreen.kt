@@ -3,7 +3,6 @@ package com.example.saftyapp.presentation.screens
 import android.content.Context
 import android.net.Uri
 import android.util.Log
-import android.widget.Toast
 import androidx.camera.core.CameraSelector
 import androidx.camera.core.ImageCapture
 import androidx.camera.core.ImageCaptureException
@@ -34,14 +33,15 @@ import java.io.File
 @Composable
 fun CameraScreen(
     viewModel: PhotoViewModel,
+    recipeName: String,
     onPhotoTaken: () -> Unit,
-    onDrinkDetected: () -> Unit
+    onDrinkDetected: (recipeName: String) -> Unit
 ) {
     val context = LocalContext.current
     val lifecycleOwner = LocalLifecycleOwner.current
     val outputDirectory = remember { getOutputDirectory(context) }
     val imageCapture = remember { ImageCapture.Builder().build() }
-    var capturedPhotoUri = viewModel.capturedPhotoUri
+    val capturedPhotoUri = viewModel.capturedPhotoUri
 
     if (capturedPhotoUri == null) {
         // Camera view
@@ -106,18 +106,9 @@ fun CameraScreen(
                     // Analyze Picture if drink is visible
                     viewModel.analyzeCapturedPhoto(context) { drinkDetected ->
                         if (drinkDetected) {
-                            Toast.makeText(context, "Drink detected! +10 XP 🎉", Toast.LENGTH_SHORT)
-                                .show()
-                            onDrinkDetected()
-                        } else {
-                            Toast.makeText(
-                                context,
-                                "No drink detected. Take another photo for extra XP.",
-                                Toast.LENGTH_SHORT
-                            ).show()
+                            onDrinkDetected(recipeName)
                         }
-                        // Keep photo and go back to instruction screen
-                        viewModel.confirmCapturedPhoto()
+                        // Go to instruction screen of this recipe
                         onPhotoTaken()
                     }
                 }) {

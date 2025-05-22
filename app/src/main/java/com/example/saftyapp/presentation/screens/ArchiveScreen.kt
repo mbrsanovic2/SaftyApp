@@ -2,10 +2,7 @@ package com.example.saftyapp.presentation.screens
 
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.LazyColumn
-import androidx.compose.foundation.lazy.grid.GridCells
-import androidx.compose.foundation.lazy.grid.LazyVerticalGrid
-import androidx.compose.foundation.lazy.grid.items
-import androidx.compose.foundation.lazy.items
+import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
@@ -16,40 +13,23 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.hilt.navigation.compose.hiltViewModel
-import com.example.saftyapp.model.getTestArchive
 import com.example.saftyapp.model.viewmodels.ArchiveViewModel
-import com.example.saftyapp.model.viewmodels.PhotoViewModel
+import java.io.File
 import java.text.SimpleDateFormat
 import java.util.Locale
 
 @Composable
 fun ArchiveScreen(
-    photoViewModel: PhotoViewModel,
     archiveViewModel: ArchiveViewModel = hiltViewModel(),
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
-    val photos = photoViewModel.photoUris
     val archiveEntries by archiveViewModel.archiveEntries.collectAsState()
-//    val archiveEntries = getTestArchive()
     val grouped = archiveEntries
         .sortedByDescending { it.date }
         .groupBy { entry ->
             val formatter = SimpleDateFormat("MMMM yyyy", Locale.getDefault())
             formatter.format(entry.date)
         }
-
-//        LazyColumn {
-//            items(photos) { uri ->
-//                Image(
-//                    painter = rememberImagePainter(uri),
-//                    contentDescription = null,
-//                    modifier = Modifier
-//                        .fillMaxWidth()
-//                        .padding(8.dp)
-//                        .height(200.dp)
-//                )
-//            }
-//        }
 
     LazyColumn(
         modifier = Modifier
@@ -93,7 +73,7 @@ fun ArchiveScreen(
                         horizontalArrangement = Arrangement.spacedBy(10.dp),
                         modifier = Modifier
                             .fillMaxWidth()
-                            .heightIn(min = 0.dp, max = 1000.dp), // Damit Grid nicht "unendlich" wächst
+                            .heightIn(min = 0.dp, max = 1000.dp),
                         contentPadding = PaddingValues(
                             start = 2.dp,
                             end = 2.dp,
@@ -102,9 +82,15 @@ fun ArchiveScreen(
                         )
                     ) {
                         items(recipesInMonth) { archiveEntry ->
+                            val shownImage = if (archiveEntry.imageFilePath?.let { File(it).exists() } == true) {
+                                archiveEntry.imageFilePath
+                            } else {
+                                archiveEntry.recipe.thumbnail
+                            }
+
                             RecipeCard(
                                 name = archiveEntry.recipe.name,
-                                image = archiveEntry.recipe.thumbnail,
+                                image = shownImage,
                                 onClick = {
                                     onNavigateToRecipeScreen(archiveEntry.recipe.name)
                                 }

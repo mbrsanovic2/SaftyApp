@@ -31,7 +31,7 @@ class ArchiveViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadEntries() {
+    suspend fun loadEntries() {
         _archiveEntries.value = repository.ArchiveFunctions().getArchive()
     }
 
