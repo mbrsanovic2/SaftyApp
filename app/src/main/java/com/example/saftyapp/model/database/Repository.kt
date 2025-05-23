@@ -372,23 +372,48 @@ class Repository @Inject constructor(
     }
 
     private fun getAllIngredientsFromDrink(drink: DrinkDetails): List<String> {
-        val result = listOf(
-            drink.strIngredient1 + ": " + drink.strMeasure1,
-            drink.strIngredient2 + ": " + drink.strMeasure2,
-            drink.strIngredient3 + ": " + drink.strMeasure3,
-            drink.strIngredient4 + ": " + drink.strMeasure4,
-            drink.strIngredient5 + ": " + drink.strMeasure5,
-            drink.strIngredient6 + ": " + drink.strMeasure6,
-            drink.strIngredient7 + ": " + drink.strMeasure7,
-            drink.strIngredient8 + ": " + drink.strMeasure8,
-            drink.strIngredient9 + ": " + drink.strMeasure9,
-            drink.strIngredient10 + ": " + drink.strMeasure10,
-            drink.strIngredient11 + ": " + drink.strMeasure11,
-            drink.strIngredient12 + ": " + drink.strMeasure12,
-            drink.strIngredient13 + ": " + drink.strMeasure13,
-            drink.strIngredient14 + ": " + drink.strMeasure14,
-            drink.strIngredient15 + ": " + drink.strMeasure15,
+        val ingredients = listOfNotNull(
+            drink.strIngredient1,
+            drink.strIngredient2,
+            drink.strIngredient3,
+            drink.strIngredient4,
+            drink.strIngredient5,
+            drink.strIngredient6,
+            drink.strIngredient7,
+            drink.strIngredient8,
+            drink.strIngredient9,
+            drink.strIngredient10,
+            drink.strIngredient11,
+            drink.strIngredient12,
+            drink.strIngredient13,
+            drink.strIngredient14,
+            drink.strIngredient15
         )
+        val measures = listOf(
+            drink.strMeasure1,
+            drink.strMeasure2,
+            drink.strMeasure3,
+            drink.strMeasure4,
+            drink.strMeasure5,
+            drink.strMeasure6,
+            drink.strMeasure7,
+            drink.strMeasure8,
+            drink.strMeasure9,
+            drink.strMeasure10,
+            drink.strMeasure11,
+            drink.strMeasure12,
+            drink.strMeasure13,
+            drink.strMeasure14,
+            drink.strMeasure15
+        )
+        val result = mutableListOf<String>()
+        for (i in 0..<ingredients.count()) {
+            if (measures[i]!=null) {
+                result.add(ingredients[i] + ": " + measures[i])
+            }else{
+                result.add((ingredients[i]))
+            }
+        }
         return result
     }
 
