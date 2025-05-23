@@ -182,11 +182,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                     val fallbackRecipe =  Recipe(
                         name = "NONE",
                         instructions = "This Recipe does not actually exist :(",
-                        isCustom = false,
-                        isAlcoholic = false,
-                        keyIngredients = emptyList(),
-                        allIngredients = emptyList(),
-                        color = null
                     )
                     val alreadyScored = selectedRecipe.value?.hasBeenScored
 
@@ -200,8 +195,10 @@ fun Navigation(modifier: Modifier = Modifier) {
                         alreadyScored = alreadyScored ?: false,
                         onFinishClicked = { recipe ->
                             gainXP(5)
-                            recipeViewModel.scoreRecipe(recipe.name)
-                            archiveViewmodel.addEntry(recipe)
+                            coroutineScope.launch {
+                                recipeViewModel.scoreRecipe(recipe.name)
+                                archiveViewmodel.addEntry(recipe)
+                            }
                         }
                     )
                 }

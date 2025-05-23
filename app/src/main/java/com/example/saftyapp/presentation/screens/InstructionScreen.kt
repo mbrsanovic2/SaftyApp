@@ -182,7 +182,7 @@ fun FinishedButton(alreadyScored: Boolean, onFinishClicked: () -> Unit) {
         onClick = {
             isClicked = true
             onFinishClicked() },
-        enabled = !isClicked,
+        enabled = !isClicked && !alreadyScored ,
         modifier = Modifier
             .padding(16.dp)
             .fillMaxWidth(),

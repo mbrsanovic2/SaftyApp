@@ -35,11 +35,9 @@ class ArchiveViewModel @Inject constructor(
         _archiveEntries.value = repository.ArchiveFunctions().getArchive()
     }
 
-     fun addEntry(recipe: Recipe){
-        viewModelScope.launch {
-            val date = Date()
-            repository.ArchiveFunctions().addArchiveEntry(ArchiveEntry(recipe, null, date))
-            loadEntries()
-        }
+     suspend fun addEntry(recipe: Recipe){
+         val date = Date()
+         repository.ArchiveFunctions().addArchiveEntry(ArchiveEntry(recipe, null, date))
+         loadEntries()
     }
 }

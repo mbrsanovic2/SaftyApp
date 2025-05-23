@@ -16,7 +16,7 @@ import javax.inject.Inject
 @HiltViewModel
 class RecipeViewModel @Inject constructor(
     private val repository: Repository
-): ViewModel()  {
+) : ViewModel() {
     // Recipes from database
     private val _recipes = MutableStateFlow<List<Recipe>>(emptyList())
     val recipes = _recipes.asStateFlow()
@@ -111,9 +111,10 @@ class RecipeViewModel @Inject constructor(
 
         val filtered = currentRecipes.filter { recipe ->
             val matchesQuery = recipe.name.contains(query, ignoreCase = true)
-            val matchesIngredients = _selectedIngredients.isEmpty() || _selectedIngredients.all { selected ->
-                recipe.keyIngredients.any { it.name.equals(selected.name, ignoreCase = true) }
-            }
+            val matchesIngredients =
+                _selectedIngredients.isEmpty() || _selectedIngredients.all { selected ->
+                    recipe.keyIngredients.any { it.name.equals(selected.name, ignoreCase = true) }
+                }
             matchesQuery && matchesIngredients
         }
 
@@ -125,11 +126,9 @@ class RecipeViewModel @Inject constructor(
         updateFilteredRecipes()
     }
 
-    fun scoreRecipe(recipeName: String) {
-        viewModelScope.launch {
-            repository.RecipeFunctions().finishRecipe(recipeName)
-            loadRecipes()
-        }
+    suspend fun scoreRecipe(recipeName: String) {
+        repository.RecipeFunctions().finishRecipe(recipeName)
+        loadRecipes()
     }
 
     fun updateRecentlyUnlocked(unlockedIngredients: List<Ingredient>) {
@@ -139,15 +138,17 @@ class RecipeViewModel @Inject constructor(
         _unlockedIngredients.value = updatedList.sortedBy { it.name.lowercase() }
     }
 
-    suspend fun addRecipe(recipeName: String, ingredients: List<String>, preparation: String){
+    suspend fun addRecipe(recipeName: String, ingredients: List<String>, preparation: String) {
         val matchingIngredients = _unlockedIngredients.value.filter { it.name in ingredients }
-        repository.RecipeFunctions().addRecipe(Recipe(
-            name = recipeName,
-            instructions = preparation,
-            keyIngredients = matchingIngredients,
-            allIngredients = ingredients,
-            isCustom = true
-        ))
+        repository.RecipeFunctions().addRecipe(
+            Recipe(
+                name = recipeName,
+                instructions = preparation,
+                keyIngredients = matchingIngredients,
+                allIngredients = ingredients,
+                isCustom = true
+            )
+        )
         loadRecipes()
     }
 }
