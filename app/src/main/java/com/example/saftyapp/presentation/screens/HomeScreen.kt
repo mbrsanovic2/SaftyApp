@@ -1,12 +1,18 @@
 package com.example.saftyapp.presentation.screens
 
+import android.content.ClipData
+import android.content.ClipDescription
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.draganddrop.dragAndDropSource
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
+import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
 import androidx.compose.foundation.shape.RoundedCornerShape
@@ -28,6 +34,8 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropTransferData
+import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
@@ -50,6 +58,7 @@ import com.example.saftyapp.ui.theme.SaftyAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     saftyViewModel: SaftyViewModel = hiltViewModel(),
@@ -116,6 +125,19 @@ fun HomeScreen(
                     currentText = currentWords,
                     saftyGone = saftyGone
                 )
+                { name ->
+                    val ingredient = ingredients.find { it.name == name }
+                    if (ingredient != null) {
+                        val isSelected = ingredient in selectedIngredients
+                        if (isSelected) {
+                            saftyViewModel.removeIngredient(ingredient)
+                            saftyViewModel.saftySpeaketh("")
+                        } else {
+                            saftyViewModel.addIngredient(ingredient)
+                        }
+                    }
+                }
+
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -202,6 +224,7 @@ fun HomeScreen(
     }
 }
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 private fun IngredientItem(
     ingredient: Ingredient,
@@ -246,7 +269,22 @@ private fun IngredientItem(
                     AsyncImage(
                         model = ingredient.iconFilePath,
                         contentDescription = null,
-                        modifier = Modifier.size(28.dp)
+                        modifier = Modifier
+                            .size(28.dp)
+                            .dragAndDropSource {
+                                detectTapGestures(
+                                    onLongPress = {
+                                        startTransfer(
+                                            DragAndDropTransferData(
+                                                ClipData.newPlainText(
+                                                    "ingredient name",
+                                                    ingredient.name
+                                                )
+                                            )
+                                        )
+                                    }
+                                )
+                            }
                     )
                 } else {
                     Image(

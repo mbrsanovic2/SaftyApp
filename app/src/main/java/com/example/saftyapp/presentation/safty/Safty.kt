@@ -1,9 +1,12 @@
 package com.example.saftyapp.presentation.safty
 
+import android.content.ClipDescription
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.BorderStroke
+import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
+import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Spacer
@@ -24,6 +27,10 @@ import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.remember
 import androidx.compose.runtime.setValue
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.draganddrop.DragAndDropEvent
+import androidx.compose.ui.draganddrop.DragAndDropTarget
+import androidx.compose.ui.draganddrop.mimeTypes
+import androidx.compose.ui.draganddrop.toAndroidDragEvent
 import androidx.compose.ui.draw.alpha
 import androidx.compose.ui.draw.drawWithContent
 import androidx.compose.ui.graphics.BlendMode
@@ -41,6 +48,7 @@ import com.example.saftyapp.R
 import com.example.saftyapp.model.SaftyExpression
 import kotlinx.coroutines.delay
 
+@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun Safty(
     expression: SaftyExpression,
@@ -49,8 +57,43 @@ fun Safty(
     fillColor: Color = Color.Transparent,
     currentText: String = "",
     saftyGone: Boolean = false,
+    onIngredientDropped: ((String) -> Unit)
 ) {
     val offsetX = remember { Animatable(0f) }
+
+    val dndTarget = remember {
+        object : DragAndDropTarget {
+            override fun onDrop(event: DragAndDropEvent): Boolean {
+                val draggedData = event.toAndroidDragEvent().clipData?.getItemAt(0)?.text
+                val ingredientName = draggedData.toString()
+                onIngredientDropped(ingredientName)
+                // TODO schlürp
+                return true
+            }
+
+            override fun onEntered(event: DragAndDropEvent) {
+                super.onEntered(event)
+                // TODO offener Mund
+            }
+
+            override fun onExited(event: DragAndDropEvent) {
+                super.onEntered(event)
+                // TODO vorherige expression
+            }
+
+            override fun onEnded(event: DragAndDropEvent) {
+                // successful dropped - brauchen wir nicht extra, weil schon mit lambda gehandelt - oder?
+            }
+        }
+    }
+
+    val fullModifier =
+        modifier.dragAndDropTarget(
+            shouldStartDragAndDrop = {
+                it.mimeTypes().contains(ClipDescription.MIMETYPE_TEXT_PLAIN)
+            },
+            target = dndTarget
+        )
 
     LaunchedEffect(saftyGone) {
         if (saftyGone) {
@@ -64,7 +107,7 @@ fun Safty(
     }
 
     Box(
-        modifier = modifier
+        modifier = fullModifier
     ) {
         SaftyImage(
             expression = expression,
