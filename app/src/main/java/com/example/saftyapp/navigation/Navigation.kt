@@ -219,7 +219,7 @@ fun Navigation(modifier: Modifier = Modifier) {
                         viewModel = photoViewModel,
                         recipeName = recipeNameFromNav,
                         onPhotoTaken = {
-                            navController.navigate(Screens.InstructionScreen.createRoute())
+                            navController.navigate(Screens.InstructionScreen.createRoute("Archive"))
                         },
                         onDrinkDetected = { recipeName ->
                             gainXP(10)

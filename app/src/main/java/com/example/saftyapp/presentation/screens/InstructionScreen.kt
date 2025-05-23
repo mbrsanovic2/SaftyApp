@@ -101,13 +101,13 @@ fun InstructionScreen(
             RecipeDetails(recipe)
 
             if(from == "Safty"){
-                FinishedButton(alreadyScored, onFinishClicked = { isClicked = true; onFinishClicked(recipe) })
-                PhotoButton(isClicked || alreadyScored){
+                FinishedButton(recipe.hasBeenScored, onFinishClicked = { isClicked = true; onFinishClicked(recipe) })
+                PhotoButton((isClicked || recipe.hasBeenScored) && !recipe.hasBeenPhotoScored){
                     navigateToCamera()
                 }
             }
 
-            if(from == "Archive"){
+            if(from == "Archive" && !recipe.hasBeenPhotoScored){
                 PhotoButton(true){
                     navigateToCamera()
                 }
