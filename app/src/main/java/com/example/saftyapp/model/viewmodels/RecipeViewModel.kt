@@ -95,7 +95,7 @@ class RecipeViewModel @Inject constructor(
     }
 
     fun setSelectedRecipe(recipeName: String) {
-        val recipe = _filteredRecipes.value.find { it.name == recipeName }
+        val recipe = _recipes.value.find { it.name == recipeName }
         _selectedRecipe.value = recipe
     }
 
@@ -128,6 +128,11 @@ class RecipeViewModel @Inject constructor(
 
     suspend fun scoreRecipe(recipeName: String) {
         repository.RecipeFunctions().finishRecipe(recipeName)
+        loadRecipes()
+    }
+
+    suspend fun photoScoreRecipe(recipeName: String) {
+        repository.RecipeFunctions().photoScoreRecipe(recipeName)
         loadRecipes()
     }
 

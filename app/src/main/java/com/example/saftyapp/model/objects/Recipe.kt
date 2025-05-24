@@ -4,7 +4,7 @@ import androidx.compose.ui.graphics.Color
 
 data class Recipe(
     val name: String,
-    val instructions: String="",
+    val instructions: String = "",
     val keyIngredients: List<Ingredient> = emptyList(),
     val allIngredients: List<String> = emptyList(),
     val thumbnail: String? = null,

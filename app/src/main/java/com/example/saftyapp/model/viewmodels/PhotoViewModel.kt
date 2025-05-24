@@ -43,7 +43,6 @@ class PhotoViewModel @Inject constructor(
         val path =
             capturedPhotoUri?.path ?: throw IllegalStateException("confirmedPhotoUri is null")
 
-        repository.RecipeFunctions().photoScoreRecipe(recipeName)
         repository.ArchiveFunctions().addCustomPhoto(path, recipeName)
         capturedPhotoUri = null
     }
@@ -77,7 +76,8 @@ class PhotoViewModel @Inject constructor(
                         "tea",
                         "liquor",
                         "martini",
-                        "alcohol"
+                        "alcohol",
+                        "Tableware"
                     )
 
                     val drinkDetected = labels.any { label ->

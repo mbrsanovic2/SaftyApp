@@ -1,5 +1,6 @@
 package com.example.saftyapp.navigation
 
+import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -27,6 +28,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.navArgument
 import com.example.saftyapp.model.objects.Recipe
+import com.example.saftyapp.model.resolveImageModel
 import com.example.saftyapp.model.viewmodels.ArchiveViewModel
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
@@ -43,6 +45,7 @@ import com.example.saftyapp.presentation.uicomponents.AdvancedJuicyMessage
 import com.example.saftyapp.presentation.uicomponents.TopBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import java.io.File
 
 @Composable
 fun Navigation(modifier: Modifier = Modifier) {
@@ -183,16 +186,25 @@ fun Navigation(modifier: Modifier = Modifier) {
                         name = "NONE",
                         instructions = "This Recipe does not actually exist :(",
                     )
-                    val alreadyScored = selectedRecipe.value?.hasBeenScored
+
+                    val shownRecipe = selectedRecipe.value ?: fallbackRecipe
+                    var image = shownRecipe.thumbnail
+                    println("ShownRecipe " + shownRecipe.hasBeenPhotoScored)
+                    if(shownRecipe.hasBeenPhotoScored && from == "Archive"){
+                        val archiveEntry = archiveViewmodel.getArchiveEntryByRecipe(shownRecipe)
+                        image = archiveEntry?.imageFilePath
+                    }
+
+                    val imageModel = resolveImageModel(image)
 
                     InstructionScreen(
                         recipe = selectedRecipe.value ?: fallbackRecipe,
                         from = from,
+                        imageModel = imageModel,
                         navigateToCamera = {
                             val recipeName = (selectedRecipe.value ?: fallbackRecipe).name
                             navController.navigate(Screens.CameraScreen.createRoute(recipeName))
                         },
-                        alreadyScored = alreadyScored ?: false,
                         onFinishClicked = { recipe ->
                             gainXP(5)
                             coroutineScope.launch {
@@ -225,7 +237,10 @@ fun Navigation(modifier: Modifier = Modifier) {
                             gainXP(10)
                             coroutineScope.launch {
                                 photoViewModel.savePhotoInDB(recipeName)
+                                recipeViewModel.photoScoreRecipe(recipeName)
                                 archiveViewmodel.loadEntries()
+                                recipeViewModel.setSelectedRecipe(recipeName)
+                                navController.navigate(Screens.InstructionScreen.createRoute("Archive"))
                             }
                         }
                     )
@@ -240,7 +255,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                                 ingredients = ingredients,
                                 preparation = preparation
                             )
-                            //print("Rezept wurde wirklich erstellt")
                         }
                         navController.navigate(Screens.HomeScreen.route)
                     }

@@ -44,12 +44,11 @@ import com.google.accompanist.permissions.rememberPermissionState
 fun InstructionScreen(
     recipe: Recipe,
     from: String?,
-    alreadyScored: Boolean,
+    imageModel: Any?,
     navigateToCamera: () -> Unit,
     onFinishClicked: (Recipe) -> Unit
 ) {
     val backgroundColor = remember{ recipe.color }
-    val image = remember{ recipe.thumbnail }
     var isClicked by remember { mutableStateOf(false) }
 
     Card(
@@ -77,9 +76,9 @@ fun InstructionScreen(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            if (image != null) {
+            if (imageModel != null) {
                 AsyncImage(
-                    model = image,
+                    model = imageModel,
                     contentDescription = recipe.name,
                     contentScale = ContentScale.Fit,
                     modifier = Modifier

@@ -31,6 +31,10 @@ class ArchiveViewModel @Inject constructor(
         }
     }
 
+    fun getArchiveEntryByRecipe(recipe: Recipe): ArchiveEntry? {
+        return _archiveEntries.value.find { it.recipe.name == recipe.name }
+    }
+
     suspend fun loadEntries() {
         _archiveEntries.value = repository.ArchiveFunctions().getArchive()
     }

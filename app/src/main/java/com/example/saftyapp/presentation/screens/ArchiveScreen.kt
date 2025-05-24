@@ -20,7 +20,7 @@ import java.util.Locale
 
 @Composable
 fun ArchiveScreen(
-    archiveViewModel: ArchiveViewModel = hiltViewModel(),
+    archiveViewModel: ArchiveViewModel,
     onNavigateToRecipeScreen: (String) -> Unit
 ) {
     val archiveEntries by archiveViewModel.archiveEntries.collectAsState()
