@@ -60,6 +60,7 @@ fun Safty(
     onIngredientDropped: ((String) -> Unit)
 ) {
     val offsetX = remember { Animatable(0f) }
+    val mouthOpen = remember { mutableStateOf( false ) }
 
     val dndTarget = remember {
         object : DragAndDropTarget {
@@ -67,22 +68,20 @@ fun Safty(
                 val draggedData = event.toAndroidDragEvent().clipData?.getItemAt(0)?.text
                 val ingredientName = draggedData.toString()
                 onIngredientDropped(ingredientName)
-                // TODO schlürp
+
+                // TODO SCHLUERP
+                mouthOpen.value = false
                 return true
             }
 
             override fun onEntered(event: DragAndDropEvent) {
                 super.onEntered(event)
-                // TODO offener Mund
+                mouthOpen.value = true
             }
 
             override fun onExited(event: DragAndDropEvent) {
                 super.onEntered(event)
-                // TODO vorherige expression
-            }
-
-            override fun onEnded(event: DragAndDropEvent) {
-                // successful dropped - brauchen wir nicht extra, weil schon mit lambda gehandelt - oder?
+                mouthOpen.value = false
             }
         }
     }
@@ -110,7 +109,7 @@ fun Safty(
         modifier = fullModifier
     ) {
         SaftyImage(
-            expression = expression,
+            expression = if (!mouthOpen.value) expression else SaftyExpression.Eat,
             modifier = modifier
                 .padding(top = 52.dp)
                 .offset { IntOffset(offsetX.value.toInt(), 0) },

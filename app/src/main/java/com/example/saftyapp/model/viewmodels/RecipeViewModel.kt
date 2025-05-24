@@ -143,7 +143,7 @@ class RecipeViewModel @Inject constructor(
         _unlockedIngredients.value = updatedList.sortedBy { it.name.lowercase() }
     }
 
-    suspend fun addRecipe(recipeName: String, ingredients: List<String>, preparation: String) {
+    suspend fun addRecipe(recipeName: String, ingredients: List<String>, preparation: String, color: Color) {
         val matchingIngredients = _unlockedIngredients.value.filter { it.name in ingredients }
         repository.RecipeFunctions().addRecipe(
             Recipe(
@@ -151,6 +151,7 @@ class RecipeViewModel @Inject constructor(
                 instructions = preparation,
                 keyIngredients = matchingIngredients,
                 allIngredients = ingredients,
+                color = color,
                 isCustom = true
             )
         )

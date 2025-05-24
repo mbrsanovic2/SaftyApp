@@ -43,7 +43,7 @@ import com.github.skydoves.colorpicker.compose.rememberColorPickerController
 
 @Composable
 fun RecipeForm(
-    onSaveRecipe: (String, List<String>, String) -> Unit
+    onSaveRecipe: (String, List<String>, String, Color) -> Unit
 ) {
     val primaryColor = colorScheme.surface
     var recipeName by remember { mutableStateOf("") }
@@ -169,7 +169,8 @@ fun RecipeForm(
                         onSaveRecipe(
                             recipeName,
                             ingredients.filter { it.isNotBlank() },
-                            preparation
+                            preparation,
+                            containerColor
                         )
                     } else {
                         showError = true

@@ -189,7 +189,6 @@ fun Navigation(modifier: Modifier = Modifier) {
 
                     val shownRecipe = selectedRecipe.value ?: fallbackRecipe
                     var image = shownRecipe.thumbnail
-                    println("ShownRecipe " + shownRecipe.hasBeenPhotoScored)
                     if(shownRecipe.hasBeenPhotoScored && from == "Archive"){
                         val archiveEntry = archiveViewmodel.getArchiveEntryByRecipe(shownRecipe)
                         image = archiveEntry?.imageFilePath
@@ -248,12 +247,13 @@ fun Navigation(modifier: Modifier = Modifier) {
 
                 // Recipe Creation Screen
                 composable(route = Screens.RecipeCreationScreen.route) {
-                    RecipeForm { recipeName, ingredients, preparation ->
+                    RecipeForm { recipeName, ingredients, preparation, color ->
                         coroutineScope.launch {
                             recipeViewModel.addRecipe(
                                 recipeName = recipeName,
                                 ingredients = ingredients,
-                                preparation = preparation
+                                preparation = preparation,
+                                color = color
                             )
                         }
                         navController.navigate(Screens.HomeScreen.route)
