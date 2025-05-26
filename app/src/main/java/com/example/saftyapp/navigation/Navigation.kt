@@ -40,6 +40,7 @@ import com.example.saftyapp.presentation.screens.HomeScreen
 import com.example.saftyapp.presentation.uicomponents.MenuDrawer
 import com.example.saftyapp.presentation.screens.RecipeScreen
 import com.example.saftyapp.presentation.screens.InstructionScreen
+import com.example.saftyapp.presentation.screens.LoadingScreen
 import com.example.saftyapp.presentation.screens.RecipeForm
 import com.example.saftyapp.presentation.uicomponents.AdvancedJuicyMessage
 import com.example.saftyapp.presentation.uicomponents.TopBar
@@ -96,7 +97,8 @@ fun Navigation(modifier: Modifier = Modifier) {
                 navigateToRecipeCreator = { navController.navigate(Screens.RecipeCreationScreen.route) },
                 closeDrawer = { coroutineScope.launch { drawerState.close() } },
                 advancedJuicy = userState.value.isJUICY,
-                modifier = Modifier
+                modifier = Modifier,
+                navigateToLoad = { navController.navigate(Screens.LoadingScreen.route)}
             )
         }
     ) {
@@ -258,6 +260,10 @@ fun Navigation(modifier: Modifier = Modifier) {
                         }
                         navController.navigate(Screens.HomeScreen.route)
                     }
+                }
+
+                composable(route=Screens.LoadingScreen.route) {
+                    LoadingScreen(nav = navController)
                 }
             }
         }

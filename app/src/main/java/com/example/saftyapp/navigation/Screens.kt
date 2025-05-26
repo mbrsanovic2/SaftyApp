@@ -24,4 +24,6 @@ sealed class Screens(val route: String) {
     }
 
     object RecipeCreationScreen : Screens(route = "creation_screen")
+
+    object LoadingScreen : Screens(route = "loading_screen")
 }

@@ -1,29 +1,66 @@
 package com.example.saftyapp.model.viewmodels
 
 import android.util.Log
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.navigation.NavController
+import androidx.navigation.compose.rememberNavController
+import com.example.saftyapp.model.api.APIInterface
+import com.example.saftyapp.model.api.CocktailDB
+import com.example.saftyapp.model.api.Drink
+import com.example.saftyapp.model.api.DrinkDetails
+import com.example.saftyapp.model.api.GetDrinksResponse
 import com.example.saftyapp.model.database.Repository
+import com.example.saftyapp.model.objects.Ingredient
+import com.example.saftyapp.model.objects.Recipe
+import com.example.saftyapp.navigation.Screens
+import com.google.gson.Gson
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import okhttp3.internal.wait
 import javax.inject.Inject
 
 @HiltViewModel
 class MainViewModel @Inject constructor(
     private val repository: Repository
 ) : ViewModel() {
+    var maxLoadProgress = MutableStateFlow(0)
+    var currentLoadProgress = MutableStateFlow(0)
+
     fun initializeApp() {
         viewModelScope.launch {
             // Erfuelle deine Traeume herr Konzetti
             repository.loadDefaultData()
-            repository.loadTestRecipes()
+            //repository.loadTestRecipes()
         }
     }
 
-    fun test(){
+    fun test() {
         viewModelScope.launch {
 
         }
+    }
+
+    fun loadFromApi(navController: NavController) {
+        viewModelScope.launch {
+            val recipesIds = repository.getAPIRecipeIds()
+            setMaxLoad(recipesIds.size)
+            val recipes = repository.getAPIRecipes(
+                recipesIds,
+                increaseFunction = { currentLoadProgress.value++ })
+            recipes.forEach { rec ->
+                repository.RecipeFunctions().addRecipe(rec)
+            }
+            navController.navigate(Screens.HomeScreen.route)
+        }
+    }
+
+    fun setMaxLoad(value: Int) {
+        maxLoadProgress.value = value
     }
 }

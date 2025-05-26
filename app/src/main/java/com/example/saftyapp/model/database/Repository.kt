@@ -309,10 +309,57 @@ class Repository @Inject constructor(
         }
     }
 
-    suspend fun getAPIData(): List<Recipe> {
+//    suspend fun getAPIData(): List<Recipe> {
+//        val api = CocktailDB.getInstance().create(APIInterface::class.java)
+//        val ingredientNames = RecipeFunctions().getAllIngredients().map { x -> x.name }
+//        val response = mutableSetOf<String>()
+//
+//        //Get ids from API by ingredient
+//        for (ingredient in ingredientNames) {
+//            var tries = 10
+//
+//            //Try getting data, max 5 times
+//            while (true) {
+//                val tmp = api.getDrinksByIngredient(ingredient)
+//                if (tmp.code() == 429) {
+//                    delay(2000)
+//                    tries--
+//                } else if (tries <= 0) {
+//                    Log.i("API", "Couldn't get: " + ingredient)
+//                    break
+//                } else {
+//                    tmp.body()!!.drinks.forEach { drink ->
+//                        response.add(drink.idDrink)
+//                    }
+//                    break
+//                }
+//            }
+//        }
+//
+//        val allDrinks = mutableListOf<Recipe>()
+//        for (drinkID in response) {
+//            var tries = 10
+//            while (true) {
+//                val tmp = api.getDrinkDetails(drinkID.toInt())
+//                if (tmp.code() == 429) {
+//                    delay(2000)
+//                    tries--
+//                } else if (tries <= 0) {
+//                    Log.i("API", "Couldn't get: " + drinkID)
+//                    break
+//                } else {
+//                    allDrinks.add(convertAPItoRecipe(tmp.body()!!.drinks[0]))
+//                    break
+//                }
+//            }
+//        }
+//        return allDrinks
+//    }
+
+    suspend fun getAPIRecipeIds():List<Int>{
         val api = CocktailDB.getInstance().create(APIInterface::class.java)
         val ingredientNames = RecipeFunctions().getAllIngredients().map { x -> x.name }
-        val response = mutableSetOf<String>()
+        val response = mutableSetOf<Int>()
 
         //Get ids from API by ingredient
         for (ingredient in ingredientNames) {
@@ -329,18 +376,23 @@ class Repository @Inject constructor(
                     break
                 } else {
                     tmp.body()!!.drinks.forEach { drink ->
-                        response.add(drink.idDrink)
+                        response.add(drink.idDrink.toInt())
                     }
                     break
                 }
             }
         }
 
+        return response.toList()
+    }
+
+    suspend fun getAPIRecipes(ids:List<Int>,increaseFunction:()->Unit):List<Recipe>{
         val allDrinks = mutableListOf<Recipe>()
-        for (drinkID in response) {
+        val api = CocktailDB.getInstance().create(APIInterface::class.java)
+        for (drinkID in ids) {
             var tries = 10
             while (true) {
-                val tmp = api.getDrinkDetails(drinkID.toInt())
+                val tmp = api.getDrinkDetails(drinkID)
                 if (tmp.code() == 429) {
                     delay(2000)
                     tries--
@@ -349,6 +401,7 @@ class Repository @Inject constructor(
                     break
                 } else {
                     allDrinks.add(convertAPItoRecipe(tmp.body()!!.drinks[0]))
+                    increaseFunction()
                     break
                 }
             }
