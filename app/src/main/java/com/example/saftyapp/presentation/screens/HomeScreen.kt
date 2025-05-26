@@ -1,17 +1,14 @@
 package com.example.saftyapp.presentation.screens
 
 import android.content.ClipData
-import android.content.ClipDescription
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
-import androidx.compose.foundation.BorderStroke
 import androidx.compose.foundation.ExperimentalFoundationApi
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
 import androidx.compose.foundation.draganddrop.dragAndDropSource
-import androidx.compose.foundation.draganddrop.dragAndDropTarget
 import androidx.compose.foundation.gestures.detectTapGestures
 import androidx.compose.foundation.layout.*
 import androidx.compose.foundation.lazy.grid.*
@@ -19,7 +16,6 @@ import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material3.Button
-import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
@@ -35,30 +31,26 @@ import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draganddrop.DragAndDropTransferData
-import androidx.compose.ui.draganddrop.mimeTypes
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
 import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
+import androidx.compose.ui.unit.sp
 import androidx.hilt.navigation.compose.hiltViewModel
 import coil.compose.AsyncImage
 import com.example.saftyapp.R
 import com.example.saftyapp.model.objects.Ingredient
-import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.SaftyViewModel
 import com.example.saftyapp.presentation.safty.RecipeSuggestionDialog
 import com.example.saftyapp.presentation.safty.Safty
 import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
-import com.example.saftyapp.ui.theme.SaftyAppTheme
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
 
-@OptIn(ExperimentalFoundationApi::class)
 @Composable
 fun HomeScreen(
     saftyViewModel: SaftyViewModel = hiltViewModel(),
@@ -248,7 +240,7 @@ private fun IngredientItem(
         modifier = Modifier
             .fillMaxWidth()
             .clickable { onClick() }
-            .padding(vertical = 5.dp)
+            .padding(vertical = 6.dp)
             .background(backgroundColor)
     ) {
         Box(
@@ -265,33 +257,44 @@ private fun IngredientItem(
                 .padding(start = 2.dp, end = 8.dp)
         ) {
             Row(verticalAlignment = Alignment.CenterVertically) {
-                if (ingredient.iconFilePath != null) {
-                    AsyncImage(
-                        model = ingredient.iconFilePath,
-                        contentDescription = null,
-                        modifier = Modifier
-                            .size(28.dp)
-                            .dragAndDropSource {
-                                detectTapGestures(
-                                    onLongPress = {
-                                        startTransfer(
-                                            DragAndDropTransferData(
-                                                ClipData.newPlainText(
-                                                    "ingredient name",
-                                                    ingredient.name
+                Box(modifier = Modifier.size(28.dp)) {
+                    if (ingredient.iconFilePath != null) {
+                        AsyncImage(
+                            model = ingredient.iconFilePath,
+                            contentDescription = null,
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    } else {
+                        Image(
+                            painter = painterResource(R.drawable.ingredient_default),
+                            contentDescription = "Default Ingredient Icon",
+                            modifier = Modifier.fillMaxSize()
+                        )
+                    }
+
+                    // Overlay for Drag & Drop
+                    Box(modifier = Modifier.matchParentSize()) {
+                        AsyncImage(
+                            model = ingredient.iconFilePath,
+                            contentDescription = null,
+                            modifier = Modifier
+                                .fillMaxSize()
+                                .dragAndDropSource {
+                                    detectTapGestures(
+                                        onLongPress = {
+                                            startTransfer(
+                                                DragAndDropTransferData(
+                                                    ClipData.newPlainText(
+                                                        "ingredient name",
+                                                        ingredient.name
+                                                    )
                                                 )
                                             )
-                                        )
-                                    }
-                                )
-                            }
-                    )
-                } else {
-                    Image(
-                        painter = painterResource(R.drawable.ingredient_default),
-                        contentDescription = "Default Ingredient Icon",
-                        modifier = Modifier.size(28.dp)
-                    )
+                                        }
+                                    )
+                                }
+                        )
+                    }
                 }
 
                 Text(
@@ -306,9 +309,10 @@ private fun IngredientItem(
                     text = "New!",
                     color = Color.Red,
                     style = MaterialTheme.typography.labelSmall,
+                    fontSize = 9.sp,
                     modifier = Modifier
                         .align(Alignment.TopEnd)
-                        .offset(x = 25.dp, y = (-10).dp)
+                        .offset(x = 18.dp, y = (-13).dp)
                         .background(Color(0xFFFFD633), shape = RoundedCornerShape(4.dp))
                         .padding(horizontal = 4.dp)
                 )
