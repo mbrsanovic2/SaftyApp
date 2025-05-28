@@ -340,9 +340,8 @@ fun SoundEventHandler(context: Context, event: String) {
         mediaPlayer.value?.release() // Release previous player
 
         val soundResId = when (event) {
-            //"nyeeh" -> R.raw.nyeeh
-            //"wrrrm" -> R.raw.wrrrm
-            "test" -> R.drawable.fill
+            //"crunch" -> R.raw.nyeeh
+            "wrrrm" -> R.raw.billy
             else -> null
         }
 
