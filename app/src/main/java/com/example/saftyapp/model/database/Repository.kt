@@ -1,6 +1,7 @@
 package com.example.saftyapp.model.database
 
 import android.util.Log
+import androidx.compose.ui.graphics.Color
 import com.example.saftyapp.model.api.APIInterface
 import com.example.saftyapp.model.api.CocktailDB
 import com.example.saftyapp.model.api.DrinkDetails
@@ -11,6 +12,7 @@ import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.objects.UserData
 import com.example.saftyapp.model.database.entities.RecipeIngredientCrossRef
 import com.example.saftyapp.model.database.entities.RecipeEntity
+import com.example.saftyapp.model.database.entities.RecipeWithIngredientsEntity
 import com.example.saftyapp.model.database.entities.UserEntity
 import com.example.saftyapp.model.database.staticdata.IngredientData
 import com.example.saftyapp.model.database.staticdata.RecipeData
@@ -93,20 +95,28 @@ class Repository @Inject constructor(
         }
 
         suspend fun getRecipeRecommendations(ingredients: List<Ingredient>): List<Recipe> {
+            if (ingredients.isEmpty())
+                return emptyList()
             val input = ingredients.map { x ->
                 x.name
             }
             val recipes = recipeDao.getRecipesByIngredients(input)
 
-            val ingFilter = recipes.filter { r ->
+            val ingFilter = mutableListOf<RecipeWithIngredientsEntity>()
+            recipes.filter { r ->
                 r.ingredients.map { i ->
                     i.name
                 }.containsAll(input)
-            }
+            }.forEach { recipe -> ingFilter.add(recipe) }
+
+//            //TODO rerun function with less ingredients if under 3 recipes
+//            if (ingFilter.count() < 3) {
+//                val newIngredients = ingredients.shuffled().take(ingredients.size - 1)
+//            }
 
             return ingFilter.map { r ->
                 Recipe(name = r.recipe.name)
-            }
+            }.shuffled().take(3)
         }
 
         suspend fun getIngredient(name: String): Ingredient {
@@ -182,8 +192,8 @@ class Repository @Inject constructor(
             recipeDao.scorePhoto(recipe)
         }
 
-        suspend fun getState():Boolean{
-            return recipeDao.getState()>0
+        suspend fun getState(): Boolean {
+            return recipeDao.getState() > 0
         }
     }
 
@@ -313,7 +323,7 @@ class Repository @Inject constructor(
         }
     }
 
-    suspend fun getAPIRecipeIds():List<Int>{
+    suspend fun getAPIRecipeIds(): List<Int> {
         val api = CocktailDB.getInstance().create(APIInterface::class.java)
         val ingredientNames = RecipeFunctions().getAllIngredients().map { x -> x.name }
         val response = mutableSetOf<Int>()
@@ -343,7 +353,7 @@ class Repository @Inject constructor(
         return response.toList()
     }
 
-    suspend fun getAPIRecipes(ids:List<Int>,increaseFunction:()->Unit):List<Recipe>{
+    suspend fun getAPIRecipes(ids: List<Int>, increaseFunction: () -> Unit): List<Recipe> {
         val allDrinks = mutableListOf<Recipe>()
         val api = CocktailDB.getInstance().create(APIInterface::class.java)
         for (drinkID in ids) {
@@ -418,9 +428,9 @@ class Repository @Inject constructor(
         )
         val result = mutableListOf<String>()
         for (i in 0..<ingredients.count()) {
-            if (measures[i]!=null) {
+            if (measures[i] != null) {
                 result.add(ingredients[i] + ": " + measures[i])
-            }else{
+            } else {
                 result.add((ingredients[i]))
             }
         }
