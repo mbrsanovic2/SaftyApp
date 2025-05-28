@@ -1,7 +1,5 @@
 package com.example.saftyapp.navigation
 
-import android.net.Uri
-import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -31,7 +29,6 @@ import androidx.navigation.navArgument
 import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.resolveImageModel
 import com.example.saftyapp.model.viewmodels.ArchiveViewModel
-import com.example.saftyapp.model.viewmodels.MainViewModel
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.XPViewModel
@@ -48,7 +45,6 @@ import com.example.saftyapp.presentation.uicomponents.AdvancedJuicyMessage
 import com.example.saftyapp.presentation.uicomponents.TopBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
-import java.io.File
 
 @Composable
 fun Navigation(modifier: Modifier = Modifier) {
@@ -73,6 +69,11 @@ fun Navigation(modifier: Modifier = Modifier) {
         else -> true
     }
 
+    val showMenu = when (currentRoute) {
+        Screens.LoadingScreen.route -> false
+        else -> true
+    }
+
     val gainXP: (Int) -> Unit = { amount ->
         coroutineScope.launch {
             tempXPBar = true
@@ -90,6 +91,7 @@ fun Navigation(modifier: Modifier = Modifier) {
 
     ModalNavigationDrawer(
         drawerState = drawerState,
+        gesturesEnabled = showMenu,
         drawerContent = {
             MenuDrawer(
                 currentRoute = currentRoute,
@@ -105,11 +107,10 @@ fun Navigation(modifier: Modifier = Modifier) {
     ) {
         Scaffold(
             topBar = {
-                TopBar(
-                    onMenuClick = {
-                        coroutineScope.launch { drawerState.open() }
-                    }
-                )
+                TopBar(showMenu)
+                {
+                    coroutineScope.launch { drawerState.open() }
+                }
             },
             bottomBar = {
                 // Bar now slides when XP Gain :)
