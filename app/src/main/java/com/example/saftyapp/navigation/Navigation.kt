@@ -265,7 +265,12 @@ fun Navigation(modifier: Modifier = Modifier) {
                 }
 
                 composable(route = Screens.LoadingScreen.route) {
-                    LoadingScreen(onLoad = { navController.navigate(Screens.HomeScreen.route) })
+                    LoadingScreen(onLoad = {
+                        coroutineScope.launch {
+                            recipeViewModel.loadRecipes()
+                            navController.navigate(Screens.HomeScreen.route)
+                        }
+                    })
                 }
             }
         }

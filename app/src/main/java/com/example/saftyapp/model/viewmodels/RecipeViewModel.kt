@@ -48,7 +48,7 @@ class RecipeViewModel @Inject constructor(
         }
     }
 
-    private suspend fun loadRecipes() {
+    suspend fun loadRecipes() {
         _recipes.value = repository.RecipeFunctions()
             .getAllRecipes()
             .sortedBy { it.name.lowercase() }

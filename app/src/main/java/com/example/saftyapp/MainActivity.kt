@@ -14,6 +14,7 @@ import com.example.saftyapp.model.viewmodels.MainViewModel
 import com.example.saftyapp.navigation.Navigation
 import com.example.saftyapp.ui.theme.SaftyAppTheme
 import dagger.hilt.android.AndroidEntryPoint
+import kotlinx.coroutines.runBlocking
 
 @AndroidEntryPoint
 class MainActivity : ComponentActivity() {
@@ -21,7 +22,9 @@ class MainActivity : ComponentActivity() {
 
     override fun onCreate(savedInstanceState: Bundle?) {
         super.onCreate(savedInstanceState)
-        viewModel.initializeApp()
+        runBlocking {
+            viewModel.initializeApp()
+        }
 
         enableEdgeToEdge()
         setContent {

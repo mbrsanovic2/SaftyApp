@@ -96,27 +96,36 @@ class Repository @Inject constructor(
 
         suspend fun getRecipeRecommendations(ingredients: List<Ingredient>): List<Recipe> {
             if (ingredients.isEmpty())
-                return emptyList()
+                return getAllRecipes()
             val input = ingredients.map { x ->
                 x.name
             }
             val recipes = recipeDao.getRecipesByIngredients(input)
 
-            val ingFilter = mutableListOf<RecipeWithIngredientsEntity>()
+            val filteredRecipes = mutableListOf<RecipeWithIngredientsEntity>()
             recipes.filter { r ->
                 r.ingredients.map { i ->
                     i.name
                 }.containsAll(input)
-            }.forEach { recipe -> ingFilter.add(recipe) }
+            }.forEach { recipe -> filteredRecipes.add(recipe) }
 
-//            //TODO rerun function with less ingredients if under 3 recipes
-//            if (ingFilter.count() < 3) {
-//                val newIngredients = ingredients.shuffled().take(ingredients.size - 1)
-//            }
+            var newRecipes: List<Recipe>
+            val returnList =
+                filteredRecipes.map { r -> Recipe(name = r.recipe.name) }
+                    .shuffled()
+                    .take(3)
+                    .toMutableSet()
 
-            return ingFilter.map { r ->
-                Recipe(name = r.recipe.name)
-            }.shuffled().take(3)
+            while (returnList.count() < 3) {
+                val newIngredients = ingredients.shuffled().take(ingredients.size - 1)
+                newRecipes = getRecipeRecommendations(newIngredients).shuffled()
+                for (x in 0..3 - returnList.count()) {
+                    returnList.add(newRecipes[x])
+                }
+
+            }
+
+            return returnList.toList().take(3)
         }
 
         suspend fun getIngredient(name: String): Ingredient {

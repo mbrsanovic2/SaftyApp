@@ -37,11 +37,8 @@ class MainViewModel @Inject constructor(
     var currentLoadProgress = MutableStateFlow(0)
     private val databaseState = MutableStateFlow(true)
 
-    fun initializeApp() {
-        viewModelScope.launch {
-            // Erfuelle deine Traeume herr Konzetti
+    suspend fun initializeApp() {
             repository.loadDefaultData()
-        }
     }
 
     suspend fun loadFromApi(onFinish: () -> Unit) {
@@ -51,6 +48,9 @@ class MainViewModel @Inject constructor(
         if (!databaseState.value) {
             val recipesIds = repository.getAPIRecipeIds()
             setMaxLoad(recipesIds.size)
+
+            //TODO Remove Recipes already in Database -> in Repository
+            //TODO Save Recipe immediately upon getting them
             val recipes = repository.getAPIRecipes(
                 recipesIds,
                 increaseFunction = { currentLoadProgress.value++ })
