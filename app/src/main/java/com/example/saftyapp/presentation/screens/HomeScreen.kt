@@ -1,6 +1,8 @@
 package com.example.saftyapp.presentation.screens
 
 import android.content.ClipData
+import android.content.Context
+import android.media.MediaPlayer
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.tween
 import androidx.compose.foundation.ExperimentalFoundationApi
@@ -36,6 +38,7 @@ import androidx.compose.ui.draw.drawBehind
 import androidx.compose.ui.geometry.CornerRadius
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.graphics.drawscope.Stroke
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -72,6 +75,10 @@ fun HomeScreen(
     val fillAmount = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
     var recommendedDrinks = remember { mutableStateOf(emptyList<String>()) }
+    val eventState = remember { mutableStateOf("") }
+
+    SoundEventHandler(LocalContext.current, eventState.value)
+
     LaunchedEffect(fillTarget.value) {
         fillAmount.animateTo(fillTarget.value, tween(600))
     }
@@ -140,6 +147,7 @@ fun HomeScreen(
                     if (selectedIngredients.isNotEmpty()) {
                         coroutineScope.launch {
                             recommendedDrinks.value = saftyViewModel.drinkFinished()
+                            eventState.value = "wrrrm"
                             delay(500L)
                             showDialog = true
                         }
@@ -206,7 +214,10 @@ fun HomeScreen(
                                 saftyViewModel.removeIngredient(ingredient)
                                 saftyViewModel.saftySpeaketh("")
                             } else {
-                                saftyViewModel.addIngredient(ingredient)
+                                val wasAccepted = saftyViewModel.addIngredient(ingredient)
+                                if(!wasAccepted){
+                                    eventState.value = "nyeeh"
+                                }
                             }
                         }
                     }
@@ -316,6 +327,32 @@ private fun IngredientItem(
                         .background(Color(0xFFFFD633), shape = RoundedCornerShape(4.dp))
                         .padding(horizontal = 4.dp)
                 )
+            }
+        }
+    }
+}
+
+@Composable
+fun SoundEventHandler(context: Context, event: String) {
+    val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
+
+    LaunchedEffect(event) {
+        mediaPlayer.value?.release() // Release previous player
+
+        val soundResId = when (event) {
+            //"nyeeh" -> R.raw.nyeeh
+            //"wrrrm" -> R.raw.wrrrm
+            "test" -> R.drawable.fill
+            else -> null
+        }
+
+        soundResId?.let {
+            mediaPlayer.value = MediaPlayer.create(context, it).apply {
+                setOnCompletionListener {
+                    release()
+                    mediaPlayer.value = null
+                }
+                start()
             }
         }
     }
