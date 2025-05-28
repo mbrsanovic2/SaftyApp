@@ -1,6 +1,7 @@
 package com.example.saftyapp.navigation
 
 import android.net.Uri
+import android.util.Log
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.animation.fadeIn
 import androidx.compose.animation.fadeOut
@@ -30,6 +31,7 @@ import androidx.navigation.navArgument
 import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.resolveImageModel
 import com.example.saftyapp.model.viewmodels.ArchiveViewModel
+import com.example.saftyapp.model.viewmodels.MainViewModel
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.XPViewModel
@@ -60,7 +62,7 @@ fun Navigation(modifier: Modifier = Modifier) {
 
     val selectedRecipe = recipeViewModel.selectedRecipe.collectAsState()
     val userState = xpViewModel.userState.collectAsState()
-    var tempXPBar by remember{ mutableStateOf(false) }
+    var tempXPBar by remember { mutableStateOf(false) }
 
     val navBackStackEntry = navController.currentBackStackEntryAsState()
     var showJuicyDialog by remember { mutableStateOf(false) }
@@ -98,7 +100,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                 closeDrawer = { coroutineScope.launch { drawerState.close() } },
                 advancedJuicy = userState.value.isJUICY,
                 modifier = Modifier,
-                navigateToLoad = { navController.navigate(Screens.LoadingScreen.route)}
             )
         }
     ) {
@@ -129,7 +130,7 @@ fun Navigation(modifier: Modifier = Modifier) {
         ) { innerPadding ->
             NavHost(
                 navController = navController,
-                startDestination = Screens.HomeScreen.route,
+                startDestination = Screens.LoadingScreen.route,
                 modifier = Modifier.padding(innerPadding)
             ) {
                 // HomeScreen
@@ -184,14 +185,14 @@ fun Navigation(modifier: Modifier = Modifier) {
                     )
                 ) { backStackEntry ->
                     val from = backStackEntry.arguments?.getString("from")
-                    val fallbackRecipe =  Recipe(
+                    val fallbackRecipe = Recipe(
                         name = "NONE",
                         instructions = "This Recipe does not actually exist :(",
                     )
 
                     val shownRecipe = selectedRecipe.value ?: fallbackRecipe
                     var image = shownRecipe.thumbnail
-                    if(shownRecipe.hasBeenPhotoScored && from == "Archive"){
+                    if (shownRecipe.hasBeenPhotoScored && from == "Archive") {
                         val archiveEntry = archiveViewmodel.getArchiveEntryByRecipe(shownRecipe)
                         image = archiveEntry?.imageFilePath
                     }
@@ -262,8 +263,8 @@ fun Navigation(modifier: Modifier = Modifier) {
                     }
                 }
 
-                composable(route=Screens.LoadingScreen.route) {
-                    LoadingScreen(nav = navController)
+                composable(route = Screens.LoadingScreen.route) {
+                    LoadingScreen(onLoad = { navController.navigate(Screens.HomeScreen.route) })
                 }
             }
         }

@@ -1,5 +1,6 @@
 package com.example.saftyapp.presentation.screens
 
+import android.util.Log
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.Row
@@ -11,6 +12,7 @@ import androidx.compose.material3.LinearProgressIndicator
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -20,12 +22,19 @@ import androidx.hilt.navigation.compose.hiltViewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.saftyapp.model.viewmodels.MainViewModel
+import kotlinx.coroutines.delay
+import kotlinx.coroutines.runBlocking
+import okhttp3.internal.wait
 
 @Composable
 fun LoadingScreen(
     viewmodel: MainViewModel = hiltViewModel(),
-    nav: NavController
+    onLoad: () -> Unit
 ) {
+    LaunchedEffect(Unit) {
+        viewmodel.loadFromApi(onLoad)
+    }
+
     Row(
         modifier = Modifier.fillMaxSize()
     ) {
@@ -46,11 +55,6 @@ fun LoadingScreen(
 
             Text("Loaded " + currentLoad.value.toString() + " of " + maxLoad.value)
             Spacer(modifier = Modifier.height(32.dp))
-
-            Button(
-                onClick = { viewmodel.loadFromApi(navController = nav) }) {
-                Text("Load Recipes into Database")
-            }
         }
     }
 }

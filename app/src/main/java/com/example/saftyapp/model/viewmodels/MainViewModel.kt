@@ -1,11 +1,14 @@
 package com.example.saftyapp.model.viewmodels
 
 import android.util.Log
+import android.util.MutableBoolean
+import androidx.compose.runtime.MutableState
 import androidx.compose.runtime.mutableIntStateOf
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.ui.graphics.Color
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavController
 import androidx.navigation.compose.rememberNavController
 import com.example.saftyapp.model.api.APIInterface
@@ -22,6 +25,7 @@ import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 import okhttp3.internal.wait
 import javax.inject.Inject
 
@@ -31,23 +35,20 @@ class MainViewModel @Inject constructor(
 ) : ViewModel() {
     var maxLoadProgress = MutableStateFlow(0)
     var currentLoadProgress = MutableStateFlow(0)
+    private val databaseState = MutableStateFlow(true)
 
     fun initializeApp() {
         viewModelScope.launch {
             // Erfuelle deine Traeume herr Konzetti
             repository.loadDefaultData()
-            //repository.loadTestRecipes()
         }
     }
 
-    fun test() {
-        viewModelScope.launch {
-
+    suspend fun loadFromApi(onFinish: () -> Unit) {
+        runBlocking {
+            databaseState.value = repository.RecipeFunctions().getState()
         }
-    }
-
-    fun loadFromApi(navController: NavController) {
-        viewModelScope.launch {
+        if (!databaseState.value) {
             val recipesIds = repository.getAPIRecipeIds()
             setMaxLoad(recipesIds.size)
             val recipes = repository.getAPIRecipes(
@@ -56,11 +57,11 @@ class MainViewModel @Inject constructor(
             recipes.forEach { rec ->
                 repository.RecipeFunctions().addRecipe(rec)
             }
-            navController.navigate(Screens.HomeScreen.route)
         }
+        onFinish()
     }
 
-    fun setMaxLoad(value: Int) {
+    private fun setMaxLoad(value: Int) {
         maxLoadProgress.value = value
     }
 }

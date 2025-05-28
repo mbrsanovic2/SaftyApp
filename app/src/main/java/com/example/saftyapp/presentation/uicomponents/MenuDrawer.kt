@@ -28,7 +28,6 @@ fun MenuDrawer(
     navigateToHome: () -> Unit,
     navigateToRecipes: () -> Unit,
     navigateToArchive: () -> Unit,
-    navigateToLoad: () -> Unit,
     navigateToRecipeCreator: () -> Unit,
     closeDrawer: () -> Unit,
     advancedJuicy: Boolean = false,
@@ -52,19 +51,6 @@ fun MenuDrawer(
             },
             selected = currentRoute == Screens.HomeScreen.route,
             onClick = { navigateToHome(); closeDrawer() },
-        )
-
-        SaftyDrawerItem(
-            label = "API Loading",
-            icon = {
-                Image(
-                    painter = painterResource(R.drawable.safty_icon),
-                    contentDescription = "Safty's Home",
-                    modifier = Modifier.size(30.dp)
-                )
-            },
-            selected = currentRoute == Screens.LoadingScreen.route,
-            onClick = { navigateToLoad(); closeDrawer() },
         )
 
         SaftyDrawerItem(

@@ -76,6 +76,9 @@ interface RecipeDao {
 
     @Query("UPDATE recipes SET hasPhotoScore = 1 WHERE name = :recipe")
     suspend fun scorePhoto(recipe: String)
+
+    @Query("SELECT COUNT(*) FROM recipes")
+    suspend fun getState():Int
 }
 
 @Dao
