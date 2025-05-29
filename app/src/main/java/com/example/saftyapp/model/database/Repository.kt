@@ -4,7 +4,9 @@ import android.util.Log
 import androidx.compose.ui.graphics.Color
 import com.example.saftyapp.model.api.APIInterface
 import com.example.saftyapp.model.api.CocktailDB
+import com.example.saftyapp.model.api.Drink
 import com.example.saftyapp.model.api.DrinkDetails
+import com.example.saftyapp.model.api.GetDrinksResponse
 import com.example.saftyapp.model.database.entities.ArchiveEntryEntity
 import com.example.saftyapp.model.objects.ArchiveEntry
 import com.example.saftyapp.model.objects.Ingredient
@@ -332,10 +334,10 @@ class Repository @Inject constructor(
         }
     }
 
-    suspend fun getAPIRecipeIds(): List<Int> {
+    suspend fun getAPIRecipeIds(): List<Drink> {
         val api = CocktailDB.getInstance().create(APIInterface::class.java)
         val ingredientNames = RecipeFunctions().getAllIngredients().map { x -> x.name }
-        val response = mutableSetOf<Int>()
+        val response = mutableSetOf<Drink>()
 
         //Get ids from API by ingredient
         for (ingredient in ingredientNames) {
@@ -352,7 +354,7 @@ class Repository @Inject constructor(
                     break
                 } else {
                     tmp.body()!!.drinks.forEach { drink ->
-                        response.add(drink.idDrink.toInt())
+                        response.add(drink)
                     }
                     break
                 }
@@ -362,13 +364,12 @@ class Repository @Inject constructor(
         return response.toList()
     }
 
-    suspend fun getAPIRecipes(ids: List<Int>, increaseFunction: () -> Unit): List<Recipe> {
-        val allDrinks = mutableListOf<Recipe>()
+    suspend fun getAPIRecipes(ids: List<Drink>, increaseFunction: () -> Unit){
         val api = CocktailDB.getInstance().create(APIInterface::class.java)
         for (drinkID in ids) {
             var tries = 10
             while (true) {
-                val tmp = api.getDrinkDetails(drinkID)
+                val tmp = api.getDrinkDetails(drinkID.idDrink.toInt())
                 if (tmp.code() == 429) {
                     delay(2000)
                     tries--
@@ -376,13 +377,13 @@ class Repository @Inject constructor(
                     Log.i("API", "Couldn't get: " + drinkID)
                     break
                 } else {
-                    allDrinks.add(convertAPItoRecipe(tmp.body()!!.drinks[0]))
+                    //Drink gotten
+                    RecipeFunctions().addRecipe(convertAPItoRecipe(tmp.body()!!.drinks[0]))
                     increaseFunction()
                     break
                 }
             }
         }
-        return allDrinks
     }
 
     private suspend fun convertAPItoRecipe(drink: DrinkDetails): Recipe {
