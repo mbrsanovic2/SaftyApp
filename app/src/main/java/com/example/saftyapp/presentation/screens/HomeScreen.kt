@@ -23,6 +23,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.Text
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.DisposableEffect
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
@@ -75,9 +76,9 @@ fun HomeScreen(
     val fillAmount = remember { Animatable(0f) }
     val coroutineScope = rememberCoroutineScope()
     var recommendedDrinks = remember { mutableStateOf(emptyList<String>()) }
-    val eventState = remember { mutableStateOf("") }
+    val eventState = remember { mutableStateOf<String?>("") }
 
-    SoundEventHandler(LocalContext.current, eventState.value)
+    SoundEventHandler(LocalContext.current, eventState.value){ eventState.value = null}
 
     LaunchedEffect(fillTarget.value) {
         fillAmount.animateTo(fillTarget.value, tween(600))
@@ -134,6 +135,7 @@ fun HomeScreen(
                         } else {
                             saftyViewModel.addIngredient(ingredient)
                         }
+                        eventState.value = "sluurp"
                     }
                 }
 
@@ -333,14 +335,14 @@ private fun IngredientItem(
 }
 
 @Composable
-fun SoundEventHandler(context: Context, event: String) {
+fun SoundEventHandler(context: Context, event: String?, onSoundEffectPlayed: () -> Unit) {
     val mediaPlayer = remember { mutableStateOf<MediaPlayer?>(null) }
 
     LaunchedEffect(event) {
         mediaPlayer.value?.release() // Release previous player
 
         val soundResId = when (event) {
-            //"crunch" -> R.raw.nyeeh
+            "sluurp" -> R.raw.slurp
             "wrrrm" -> R.raw.billy
             else -> null
         }
@@ -350,9 +352,16 @@ fun SoundEventHandler(context: Context, event: String) {
                 setOnCompletionListener {
                     release()
                     mediaPlayer.value = null
+                    onSoundEffectPlayed()
                 }
                 start()
             }
+        }
+    }
+
+    DisposableEffect(Unit) {
+        onDispose {
+            mediaPlayer.value?.release()
         }
     }
 }

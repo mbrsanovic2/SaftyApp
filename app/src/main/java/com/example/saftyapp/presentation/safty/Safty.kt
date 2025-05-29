@@ -69,7 +69,6 @@ fun Safty(
                 val ingredientName = draggedData.toString()
                 onIngredientDropped(ingredientName)
 
-                // TODO SCHLUERP
                 mouthOpen.value = false
                 return true
             }
