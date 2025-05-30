@@ -78,7 +78,7 @@ fun HomeScreen(
     var recommendedDrinks = remember { mutableStateOf(emptyList<String>()) }
     val eventState = remember { mutableStateOf<String?>("") }
 
-    SoundEventHandler(LocalContext.current, eventState.value){ eventState.value = null}
+    SoundEventHandler(LocalContext.current, eventState.value) { eventState.value = null }
 
     LaunchedEffect(fillTarget.value) {
         fillAmount.animateTo(fillTarget.value, tween(600))
@@ -138,7 +138,6 @@ fun HomeScreen(
                         eventState.value = "sluurp"
                     }
                 }
-
             }
 
             Spacer(modifier = Modifier.height(16.dp))
@@ -217,7 +216,7 @@ fun HomeScreen(
                                 saftyViewModel.saftySpeaketh("")
                             } else {
                                 val wasAccepted = saftyViewModel.addIngredient(ingredient)
-                                if(!wasAccepted){
+                                if (!wasAccepted) {
                                     eventState.value = "nyeeh"
                                 }
                             }

@@ -107,10 +107,9 @@ fun CameraScreen(
                     viewModel.analyzeCapturedPhoto(context) { drinkDetected ->
                         if (drinkDetected) {
                             onDrinkDetected(recipeName)
-                        }else {
-                            // Go to instruction screen of this recipe
-                            onPhotoTaken()
                         }
+                        // Go to instruction screen of this recipe
+                        onPhotoTaken()
                     }
                 }) {
                     Text("Save")

@@ -16,7 +16,6 @@ import androidx.compose.ui.res.painterResource
 import kotlinx.coroutines.delay
 import com.example.saftyapp.R
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.foundation.isSystemInDarkTheme
 
 @Composable
 fun SplashScreen(onFinish: () -> Unit) {

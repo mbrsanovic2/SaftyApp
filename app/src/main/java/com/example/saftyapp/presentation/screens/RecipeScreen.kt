@@ -1,6 +1,5 @@
 package com.example.saftyapp.presentation.screens
 
-import android.net.Uri
 import androidx.compose.animation.AnimatedVisibility
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
@@ -44,7 +43,7 @@ import com.example.saftyapp.model.objects.Ingredient
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.presentation.uicomponents.drawVerticalScrollbar
 import androidx.compose.foundation.isSystemInDarkTheme
-import java.io.File
+import com.example.saftyapp.model.resolveImageModel
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -205,14 +204,7 @@ fun RecipeCard(
 ) {
     val isDark = isSystemInDarkTheme()
 
-    val imageModel = image?.let {
-        when {
-            it.startsWith("/") && File(it).exists() -> File(it) // local file path
-            it.startsWith("content://") || it.startsWith("file://") -> Uri.parse(it) // URI
-            it.startsWith("http://") || it.startsWith("https://") -> it // web URL as String
-            else -> null
-        }
-    }
+    val imageModel = resolveImageModel(image)
 
     ElevatedCard(
         colors = CardDefaults.cardColors(

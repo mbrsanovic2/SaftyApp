@@ -243,7 +243,6 @@ fun Navigation(modifier: Modifier = Modifier) {
                                 recipeViewModel.photoScoreRecipe(recipeName)
                                 archiveViewmodel.loadEntries()
                                 recipeViewModel.setSelectedRecipe(recipeName)
-                                navController.navigate(Screens.InstructionScreen.createRoute("Archive"))
                             }
                         }
                     )
