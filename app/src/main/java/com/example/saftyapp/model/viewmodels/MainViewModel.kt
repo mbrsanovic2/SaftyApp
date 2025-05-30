@@ -21,21 +21,26 @@ class MainViewModel @Inject constructor(
 
     suspend fun loadFromApi(onFinish: () -> Unit) {
         runBlocking {
-            databaseState.value = repository.RecipeFunctions().getState()
+            getDatabaseState()
         }
 
-        val apiDrinkList = repository.getAPIRecipeIds()
         val foundDrinks = repository.RecipeFunctions().getAllRecipes()
 
+        val apiDrinkList = repository.getAPIRecipeIds()
         if (apiDrinkList.size > foundDrinks.size) {
             setMaxLoad(apiDrinkList.size - foundDrinks.size)
 
             repository.getAPIRecipes(
-                apiDrinkList.filter { drink -> !foundDrinks.any { x-> x.name==drink.strDrink } },
+                apiDrinkList.filter { drink -> !foundDrinks.any { x -> x.name == drink.strDrink } },
                 increaseFunction = { currentLoadProgress.value++ }
             )
         }
         onFinish()
+    }
+
+    suspend fun getDatabaseState(): Boolean {
+        databaseState.value = repository.RecipeFunctions().getAllRecipes().size >= 550
+        return databaseState.value
     }
 
     private fun setMaxLoad(value: Int) {

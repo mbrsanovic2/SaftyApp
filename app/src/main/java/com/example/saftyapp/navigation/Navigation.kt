@@ -29,6 +29,7 @@ import androidx.navigation.navArgument
 import com.example.saftyapp.model.objects.Recipe
 import com.example.saftyapp.model.resolveImageModel
 import com.example.saftyapp.model.viewmodels.ArchiveViewModel
+import com.example.saftyapp.model.viewmodels.MainViewModel
 import com.example.saftyapp.model.viewmodels.PhotoViewModel
 import com.example.saftyapp.model.viewmodels.RecipeViewModel
 import com.example.saftyapp.model.viewmodels.XPViewModel
@@ -45,6 +46,7 @@ import com.example.saftyapp.presentation.uicomponents.AdvancedJuicyMessage
 import com.example.saftyapp.presentation.uicomponents.TopBar
 import kotlinx.coroutines.delay
 import kotlinx.coroutines.launch
+import kotlinx.coroutines.runBlocking
 
 @Composable
 fun Navigation(modifier: Modifier = Modifier) {
@@ -55,6 +57,7 @@ fun Navigation(modifier: Modifier = Modifier) {
     val xpViewModel: XPViewModel = hiltViewModel()
     val recipeViewModel: RecipeViewModel = hiltViewModel()
     val archiveViewmodel: ArchiveViewModel = hiltViewModel()
+    val mainViewModel: MainViewModel = hiltViewModel()
 
     val selectedRecipe = recipeViewModel.selectedRecipe.collectAsState()
     val userState = xpViewModel.userState.collectAsState()
@@ -129,9 +132,16 @@ fun Navigation(modifier: Modifier = Modifier) {
                 }
             }
         ) { innerPadding ->
+
+            var startScreen=Screens.LoadingScreen.route
+            runBlocking {
+                if (mainViewModel.getDatabaseState())
+                    startScreen=Screens.HomeScreen.route
+            }
+
             NavHost(
                 navController = navController,
-                startDestination = Screens.LoadingScreen.route,
+                startDestination = startScreen,
                 modifier = Modifier.padding(innerPadding)
             ) {
                 // HomeScreen
