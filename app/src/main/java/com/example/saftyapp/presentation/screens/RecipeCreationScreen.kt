@@ -123,6 +123,13 @@ fun RecipeForm(
                         .padding(vertical = 4.dp)
                 )
             }
+            if (showError && ingredients.getOrNull(0)?.isBlank() != false) {
+                Text(
+                    text = "At least 1 ingredient is required",
+                    color = Color.Red,
+                    style = MaterialTheme.typography.bodySmall
+                )
+            }
 
             TextButton(onClick = {
                 ingredients = ingredients + ""
@@ -165,7 +172,8 @@ fun RecipeForm(
 
             Button(
                 onClick = {
-                    if (recipeName.isNotBlank() && preparation.isNotBlank()) {
+                    val currentIngredients = ingredients.filter { it.isNotBlank() }
+                    if (recipeName.isNotBlank() && preparation.isNotBlank() && currentIngredients.isNotEmpty()) {
                         onSaveRecipe(
                             recipeName,
                             ingredients.filter { it.isNotBlank() },
