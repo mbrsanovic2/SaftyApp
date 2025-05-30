@@ -206,7 +206,11 @@ fun Navigation(modifier: Modifier = Modifier) {
                         imageModel = imageModel,
                         navigateToCamera = {
                             val recipeName = (selectedRecipe.value ?: fallbackRecipe).name
-                            navController.navigate(Screens.CameraScreen.createRoute(recipeName))
+                            navController.navigate(Screens.CameraScreen.createRoute(recipeName)) {
+                                popUpTo(Screens.InstructionScreen.route) {
+                                    inclusive = true
+                                }
+                            }
                         },
                         onFinishClicked = { recipe ->
                             gainXP(5)
@@ -234,7 +238,11 @@ fun Navigation(modifier: Modifier = Modifier) {
                         viewModel = photoViewModel,
                         recipeName = recipeNameFromNav,
                         onPhotoTaken = {
-                            navController.navigate(Screens.InstructionScreen.createRoute("Archive"))
+                            navController.navigate(Screens.InstructionScreen.createRoute("Archive")) {
+                                popUpTo(Screens.CameraScreen.route) {
+                                    inclusive = true
+                                }
+                            }
                         },
                         onDrinkDetected = { recipeName ->
                             gainXP(10)
@@ -267,7 +275,11 @@ fun Navigation(modifier: Modifier = Modifier) {
                     LoadingScreen(onLoad = {
                         coroutineScope.launch {
                             recipeViewModel.loadRecipes()
-                            navController.navigate(Screens.HomeScreen.route)
+                            navController.navigate(Screens.HomeScreen.route) {
+                                popUpTo(Screens.LoadingScreen.route) {
+                                    inclusive = true
+                                }
+                            }
                         }
                     })
                 }
